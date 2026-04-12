@@ -524,9 +524,10 @@ function generateContractPDF(meta) {
     const section = (title, needed=80) => {
       ensureSpace(needed);
       doc.moveDown(0.6);
-      doc.rect(L, doc.y, INNER, 18).fill('#e8ecf5');
+      const rectY = doc.y;
+      doc.rect(L, rectY, INNER, 18).fill('#e8ecf5');
       doc.fillColor(navy).fontSize(9).font(fBold)
-         .text(title.toUpperCase(), L+6, doc.y-15, { width: INNER });
+         .text(title.toUpperCase(), L+6, rectY + 4, { width: INNER });
       doc.moveDown(0.3);
     };
     const twoCol = (left, right, bold=false) => {
