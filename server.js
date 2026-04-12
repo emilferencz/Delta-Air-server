@@ -12,9 +12,34 @@ require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
 const crypto     = require('crypto');
+const https      = require('https');
+const fs         = require('fs');
+const os         = require('os');
+const path       = require('path');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+
+/* ── Font Unicode pentru diacritice românești ── */
+let FONT_REG = null, FONT_BOLD = null;
+function downloadFont(url) {
+  return new Promise((resolve) => {
+    const tmp = path.join(os.tmpdir(), path.basename(url));
+    if (fs.existsSync(tmp)) return resolve(tmp);
+    const file = fs.createWriteStream(tmp);
+    https.get(url, res => {
+      res.pipe(file);
+      file.on('finish', () => { file.close(); resolve(tmp); });
+    }).on('error', () => resolve(null));
+  });
+}
+Promise.all([
+  downloadFont('https://fonts.bunny.net/roboto/files/roboto-latin-400-normal.ttf'),
+  downloadFont('https://fonts.bunny.net/roboto/files/roboto-latin-700-normal.ttf'),
+]).then(([reg, bold]) => {
+  FONT_REG = reg; FONT_BOLD = bold;
+  console.log('✅ Fonturi PDF încărcate:', !!reg, !!bold);
+}).catch(() => console.warn('⚠️ Fonturi PDF indisponibile, se folosesc diacritice simplificate'));
 
 /* ── Stocare sesiuni rezervare în memorie (TTL 2 ore) ── */
 const sessions = new Map();
@@ -454,140 +479,265 @@ function buildInternalNotificationEmail(meta) {
 
 /* ──────────────────────────────────────────────
    generateContractPDF(meta) → Promise<Buffer>
+   Structură conform Model contract transport PF
 ────────────────────────────────────────────── */
 function generateContractPDF(meta) {
   return new Promise((resolve, reject) => {
     const {
       dirLabel='—', trLabel='—', aptLabel='—',
-      date='—', depTime='—', arrTime='—',
+      date='—', depTime='', arrTime='',
       name='—', phone='—', email='—',
       adults=1, children=0, bags=0,
       total='—', pickupLabel='', obs='',
       firma='', cui='', paxNames=[],
     } = meta;
 
-    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    // font cu suport diacritice sau fallback Helvetica
+    const fReg  = FONT_REG  || 'Helvetica';
+    const fBold = FONT_BOLD || 'Helvetica-Bold';
+
+    const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
     const chunks = [];
-    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('data', c => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
 
-    const navy = '#1a2f5e';
-    const gold = '#c9a84c';
-    const gray = '#6b7280';
-    const light = '#f4f6fb';
+    if (FONT_REG)  doc.registerFont('Reg',  FONT_REG);
+    if (FONT_BOLD) doc.registerFont('Bold', FONT_BOLD);
 
-    // ── Header ──
-    doc.rect(0, 0, doc.page.width, 100).fill(navy);
-    doc.fillColor('#ffffff').fontSize(22).font('Helvetica-Bold')
-       .text('DELTA AIR SHUTTLE', 50, 28);
-    doc.fillColor('rgba(255,255,255,0.7)').fontSize(10).font('Helvetica')
-       .text('Transfer premium Brașov – Otopeni – Băneasa', 50, 56);
-    doc.fillColor(gold).fontSize(10)
-       .text('+40 761 617 606  |  office@delta-air.ro  |  delta-air.ro', 50, 72);
+    const W = doc.page.width;
+    const L = 50, R = W - 50, INNER = R - L;
+    const navy = '#1a2f5e', gold = '#c9a84c', gray = '#555555', lgray = '#888888';
+    const today = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const nrContract = `DAS-${Date.now().toString(36).toUpperCase()}`;
+    const pasageriStr = `${adults} adult${adults>1?'i':''}${children>0?` + ${children} copil${children>1?'i':''}` : ''}`;
 
-    // ── Titlu contract ──
-    doc.moveDown(3);
-    doc.fillColor(navy).fontSize(16).font('Helvetica-Bold')
-       .text('CONTRACT DE TRANSPORT', { align: 'center' });
-    doc.fillColor(gray).fontSize(10).font('Helvetica')
-       .text(`Nr. rezervare: DAS-${Date.now().toString(36).toUpperCase()}  |  Data emiterii: ${new Date().toLocaleDateString('ro-RO')}`, { align: 'center' });
-
-    doc.moveDown(1.5);
-
-    // ── Separator ──
-    const drawLine = () => {
-      doc.moveTo(50, doc.y).lineTo(doc.page.width - 50, doc.y)
-         .strokeColor('#e2e8f0').lineWidth(1).stroke();
-      doc.moveDown(0.5);
+    /* ─── helpers ─── */
+    const line = (y, color='#cccccc', w=0.5) => {
+      doc.moveTo(L, y||doc.y).lineTo(R, y||doc.y).strokeColor(color).lineWidth(w).stroke();
     };
-
-    // ── Funcție rând tabel ──
-    const row = (label, value) => {
-      const y = doc.y;
-      doc.fillColor(gray).fontSize(9).font('Helvetica').text(label, 50, y, { width: 180 });
-      doc.fillColor(navy).fontSize(9).font('Helvetica-Bold').text(String(value), 240, y, { width: 310 });
-      doc.moveDown(0.7);
-    };
-
-    // ── Secțiune cursă ──
-    doc.fillColor(navy).fontSize(11).font('Helvetica-Bold').text('DETALII CURSĂ');
-    doc.moveDown(0.5);
-    drawLine();
-
-    row('Direcție', dirLabel);
-    row('Tip transfer', trLabel);
-    row('Aeroport', aptLabel);
-    row('Data călătoriei', date);
-    if (depTime) row('Ora plecare', depTime);
-    if (arrTime) row('Sosire estimată', arrTime);
-    if (pickupLabel) row('Punct îmbarcare', pickupLabel);
-    row('Pasageri', `${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}`);
-    if (bags > 0) row('Bagaje extra', `${bags} bagaj${bags>1?'e':''}`);
-    if (paxNames.length) {
-      paxNames.forEach((n, i) => row(`Pasager ${i+1}`, n));
-    }
-    if (obs) row('Observații', obs);
-
-    doc.moveDown(0.5);
-
-    // ── Secțiune client ──
-    doc.fillColor(navy).fontSize(11).font('Helvetica-Bold').text('DATE CLIENT');
-    doc.moveDown(0.5);
-    drawLine();
-    row('Nume', name);
-    row('Telefon', phone);
-    row('Email', email);
-    if (firma) row('Firmă / CUI', `${firma} | ${cui}`);
-
-    doc.moveDown(0.5);
-
-    // ── Total ──
-    doc.rect(50, doc.y, doc.page.width - 100, 48).fill(navy);
-    const totalY = doc.y + 8;
-    doc.fillColor('rgba(255,255,255,0.7)').fontSize(10).font('Helvetica')
-       .text('TOTAL DE ACHITAT LA ÎMBARCARE', 65, totalY);
-    doc.fillColor(gold).fontSize(22).font('Helvetica-Bold')
-       .text(`${total} LEI`, doc.page.width - 160, totalY - 4, { width: 120, align: 'right' });
-    doc.moveDown(4);
-
-    // ── Termeni ──
-    doc.fillColor(navy).fontSize(11).font('Helvetica-Bold').text('TERMENI ȘI CONDIȚII');
-    doc.moveDown(0.5);
-    drawLine();
-    const terms = [
-      '1. Pasagerul se obligă să fie prezent la punctul de îmbarcare cu minimum 5 minute înaintea orei de plecare.',
-      '2. Delta Air Shuttle nu răspunde pentru pierderile de zbor cauzate de întârzieri ale traficului rutier independente de voința transportatorului.',
-      '3. Fiecare pasager are dreptul la un bagaj de mână și un bagaj de cală inclus. Bagajele suplimentare se taxează conform tarifului afișat.',
-      '4. Plata se efectuează în numerar, direct șoferului, înainte de pornirea cursei.',
-      '5. Transportatorul își rezervă dreptul de a refuza transportul pasagerilor care se prezintă în stare de ebrietate sau care perturbă ordinea în vehicul.',
-      '6. Prin confirmarea rezervării, clientul acceptă prezentele termeni și condiții.',
-    ];
-    terms.forEach(t => {
-      doc.fillColor(gray).fontSize(8.5).font('Helvetica').text(t, 50, doc.y, { width: doc.page.width - 100, lineGap: 2 });
+    const section = (title) => {
       doc.moveDown(0.6);
+      doc.rect(L, doc.y, INNER, 18).fill('#e8ecf5');
+      doc.fillColor(navy).fontSize(9).font(fBold)
+         .text(title.toUpperCase(), L+6, doc.y-15, { width: INNER });
+      doc.moveDown(0.3);
+    };
+    const twoCol = (left, right, bold=false) => {
+      const y = doc.y;
+      doc.fillColor(lgray).fontSize(8.5).font(fReg).text(left, L, y, { width: 175, lineBreak:false });
+      doc.fillColor(bold ? navy : '#222222').fontSize(8.5).font(bold ? fBold : fReg)
+         .text(right, L+185, y, { width: INNER-185 });
+      doc.moveDown(0.55);
+      line(doc.y - 2, '#eeeeee');
+    };
+    const bullet = (txt) => {
+      const y = doc.y;
+      doc.fillColor(gold).fontSize(8).font(fBold).text('•', L, y, { width:12, lineBreak:false });
+      doc.fillColor(gray).fontSize(8).font(fReg).text(txt, L+14, y, { width: INNER-14 });
+      doc.moveDown(0.4);
+    };
+
+    /* ══════════════════════════════════════════
+       HEADER
+    ══════════════════════════════════════════ */
+    doc.rect(0, 0, W, 80).fill(navy);
+    doc.fillColor('#ffffff').fontSize(18).font(fBold).text('DELTA AIR SHUTTLE S.R.L.', L, 18);
+    doc.fillColor('rgba(255,255,255,0.6)').fontSize(8).font(fReg)
+       .text('Brasov, str. 13 Decembrie nr. 129A, bl. 7, apt. 55  |  CUI: 53035921  |  J08/2025/...',  L, 40);
+    doc.fillColor(gold).fontSize(8)
+       .text('Tel: +40 761 617 606  |  office@delta-air.ro  |  delta-air.ro', L, 54);
+
+    /* titlu */
+    doc.moveDown(2.8);
+    doc.fillColor(navy).fontSize(15).font(fBold)
+       .text('CONTRACT DE PRESTARI SERVICII', { align:'center' });
+    doc.fillColor(navy).fontSize(12).font(fBold)
+       .text('TRANSPORT RUTIER DE PERSOANE', { align:'center' });
+    doc.moveDown(0.3);
+    doc.fillColor(lgray).fontSize(8.5).font(fReg)
+       .text(`Nr. ${nrContract}   |   Data: ${today}`, { align:'center' });
+    doc.moveDown(0.8);
+    line(doc.y, navy, 1.5);
+
+    /* ══════════════════════════════════════════
+       PARTI CONTRACTANTE
+    ══════════════════════════════════════════ */
+    section('Parti contractante');
+
+    // Prestator (stânga) / Beneficiar (dreapta)
+    const colW = (INNER - 20) / 2;
+    const col2 = L + colW + 20;
+    const partiY = doc.y + 4;
+
+    doc.rect(L, partiY, colW, 72).fillAndStroke('#f0f4fb', '#d0d8ea');
+    doc.fillColor(navy).fontSize(8.5).font(fBold).text('PRESTATOR', L+8, partiY+6, { width: colW-16 });
+    doc.fillColor(gray).fontSize(7.8).font(fReg)
+       .text('DELTA AIR SHUTTLE S.R.L.\nBrasov, str. 13 Decembrie nr. 129A\nCUI: 53035921\nReprezentant: Paul Balint\nTel: +40 761 617 606', L+8, partiY+18, { width: colW-16 });
+
+    doc.rect(col2, partiY, colW, 72).fillAndStroke('#fffbeb', '#f6d860');
+    doc.fillColor(navy).fontSize(8.5).font(fBold).text('BENEFICIAR', col2+8, partiY+6, { width: colW-16 });
+    doc.fillColor(gray).fontSize(7.8).font(fReg)
+       .text(`${name}\nTel: ${phone}\nEmail: ${email}${firma ? `\nFirma: ${firma}\nCUI: ${cui}` : ''}`, col2+8, partiY+18, { width: colW-16 });
+
+    doc.y = partiY + 82;
+
+    /* ══════════════════════════════════════════
+       OBIECTUL CONTRACTULUI
+    ══════════════════════════════════════════ */
+    section('Obiectul contractului');
+    doc.fillColor(gray).fontSize(8.5).font(fReg)
+       .text('Serviciu: Transport rutier de persoane pe ruta Brasov \u2194 Aeroportul International Bucuresti', L, doc.y+2, { width: INNER });
+    doc.moveDown(0.5);
+    twoCol('Ruta / Directie', dirLabel, true);
+    twoCol('Tip transfer', trLabel, false);
+    twoCol('Aeroport', aptLabel, false);
+    twoCol('Data calatoriei', date, true);
+    if (depTime) twoCol('Ora plecare', depTime, true);
+    if (arrTime) twoCol('Sosire estimata', arrTime, false);
+    if (pickupLabel) twoCol('Punct imbarcare', pickupLabel, false);
+    twoCol('Numar pasageri', pasageriStr, false);
+    twoCol('Vehicul', 'BV 61 DAS (asigurat si inspectat tehnic)', false);
+    if (bags > 0) twoCol(`Bagaje extra (${bags})`, '20 RON / bagaj', false);
+    if (paxNames.length) paxNames.forEach((n,i) => twoCol(`Pasager ${i+1}`, n, false));
+    if (obs) twoCol('Observatii', obs, false);
+
+    /* ══════════════════════════════════════════
+       PRET SI PLATA
+    ══════════════════════════════════════════ */
+    section('Pret si plata');
+
+    // Bloc total
+    doc.rect(L, doc.y+2, INNER, 30).fill(navy);
+    const tY = doc.y + 8;
+    doc.fillColor('rgba(255,255,255,0.7)').fontSize(9).font(fReg).text('Total de achitat:', L+12, tY, {lineBreak:false});
+    doc.fillColor(gold).fontSize(14).font(fBold).text(`${total} RON`, L+120, tY-3, { width: INNER-140, align:'right' });
+    doc.y = tY + 30;
+    doc.moveDown(0.4);
+
+    doc.fillColor(gray).fontSize(8.5).font(fReg).text('Modalitate de plata:', L, doc.y, { continued:false });
+    doc.moveDown(0.2);
+    bullet('Numerar direct soferului, inainte de pornirea cursei (chitanta eliberata)');
+    bullet('Virament bancar: ING BANK  RO57 INGB 0000 9999 0870 0688  (minim 3 zile inainte)');
+    bullet('Card online — prin platforma securizata Stripe de pe delta-air.ro');
+    doc.moveDown(0.3);
+    doc.fillColor(gray).fontSize(8.5).font(fReg).text('Politica de anulare:', L, doc.y);
+    doc.moveDown(0.2);
+    bullet('Peste 7 zile inainte de plecare: rambursare 100%');
+    bullet('Intre 3-7 zile: taxa anulare 20%');
+    bullet('Sub 3 zile: taxa anulare 50%');
+    bullet('Sub 24 ore: nerambursabil (100%)');
+
+    /* ══════════════════════════════════════════
+       OBLIGATII
+    ══════════════════════════════════════════ */
+    section('Obligatii si conditii');
+
+    const oblY = doc.y + 4;
+    doc.rect(L, oblY, colW, 120).fillAndStroke('#f0f4fb', '#d0d8ea');
+    doc.fillColor(navy).fontSize(8).font(fBold).text('PRESTATOR se obliga:', L+6, oblY+6, {width:colW-12});
+    const oblPrest = [
+      'Prezenta la ora exacta stabilita (toleranta max. 15 min.)',
+      'Vehicul curat, in perfecta stare tehnica',
+      'Conducere sigura, respectare norme circulatie',
+      'Raspundere civila asigurata',
+      'Notificare beneficiar la orice intemperii',
+    ];
+    let oblPY = oblY + 20;
+    oblPrest.forEach(o => {
+      doc.fillColor(gray).fontSize(7.5).font(fReg).text(`• ${o}`, L+6, oblPY, {width:colW-12});
+      oblPY += 18;
     });
 
-    doc.moveDown(1);
+    doc.rect(col2, oblY, colW, 120).fillAndStroke('#fffbeb', '#f6d860');
+    doc.fillColor(navy).fontSize(8).font(fBold).text('BENEFICIAR se obliga:', col2+6, oblY+6, {width:colW-12});
+    const oblBenef = [
+      'Plata INAINTE de plecare',
+      'Prezenta la ora stabilita (dupa 01:15 contractul se considera anulat)',
+      'Comportament civilizat; fumatul interzis',
+      'Purtare centura obligatorie',
+      'Nu deteriora vehiculul; pagubele vor fi despagubite integral',
+    ];
+    let oblBY = oblY + 20;
+    oblBenef.forEach(o => {
+      doc.fillColor(gray).fontSize(7.5).font(fReg).text(`• ${o}`, col2+6, oblBY, {width:colW-12});
+      oblBY += 18;
+    });
+    doc.y = oblY + 128;
 
-    // ── Semnături ──
-    drawLine();
-    const sigY = doc.y + 10;
-    doc.fillColor(navy).fontSize(9).font('Helvetica-Bold')
-       .text('TRANSPORTATOR', 50, sigY)
-       .text('CLIENT', doc.page.width - 200, sigY);
-    doc.fillColor(gray).fontSize(8.5).font('Helvetica')
-       .text('Delta Air Shuttle SRL', 50, sigY + 14)
-       .text(name, doc.page.width - 200, sigY + 14);
-    doc.moveTo(50, sigY + 55).lineTo(200, sigY + 55).strokeColor(navy).lineWidth(0.5).stroke();
-    doc.moveTo(doc.page.width - 200, sigY + 55).lineTo(doc.page.width - 50, sigY + 55).stroke();
-    doc.fillColor(gray).fontSize(7.5)
-       .text('Semnătură și ștampilă', 50, sigY + 58)
-       .text('Semnătură client', doc.page.width - 200, sigY + 58);
+    /* ══════════════════════════════════════════
+       RASPUNDERI
+    ══════════════════════════════════════════ */
+    section('Raspunderi si sanctiuni');
+    const rasp = [
+      ['Intarziere prestator (>30 min)', '50 RON taxa'],
+      ['Deteriorare vehicul (beneficiar)', 'Reparatii la cheltuiala beneficiarului'],
+      ['Comportament agresiv', 'Refuz transport + 200 RON taxa'],
+      ['Forta majora (vreme, trafic)', 'Fara penalitate; continuare contract'],
+      ['Defectare vehicul (prestator)', 'Inlocuire vehicul sau rambursare 100%'],
+    ];
+    rasp.forEach(([sit, cons]) => twoCol(sit, cons, false));
 
-    // ── Footer ──
-    doc.fontSize(7.5).fillColor(gray)
-       .text('Document generat automat de sistemul de rezervări delta-air.ro', 50, doc.page.height - 40, { align: 'center', width: doc.page.width - 100 });
+    /* ══════════════════════════════════════════
+       GDPR
+    ══════════════════════════════════════════ */
+    section('Protectia datelor (RGPD)');
+    doc.fillColor(gray).fontSize(7.8).font(fReg)
+       .text('Datele personale sunt prelucrate conform RGPD (Reg. UE 2016/679) exclusiv pentru executarea prezentului contract si obligatii legale. Datele vor fi retinute minim 3 ani pentru conformitate fiscala. Beneficiarul poate exercita drepturile de acces, rectificare si stergere la: office@delta-air.ro', L, doc.y+2, { width: INNER });
+    doc.moveDown(0.6);
+
+    /* ══════════════════════════════════════════
+       CLAUZE FINALE
+    ══════════════════════════════════════════ */
+    section('Clauze finale');
+    const clauze = [
+      'Lege aplicabila: Legea romana',
+      'Solutionare litigii: Instantele din Brasov',
+      'Comunicari: Email (office@delta-air.ro | 0268 442 429) sau scrisoare recomandata',
+      'Modificari: Numai in scris cu acordul ambelor parti',
+      'Bunuri personale: Beneficiarul este responsabil; prestatorul nu raspunde pentru pierderi',
+      'Contract incheiat in 2 exemplare (prestator si beneficiar)',
+    ];
+    clauze.forEach(c => bullet(c));
+
+    /* ══════════════════════════════════════════
+       SEMNATURI
+    ══════════════════════════════════════════ */
+    doc.moveDown(0.8);
+    line(doc.y, navy, 1);
+    doc.moveDown(0.5);
+
+    const sigY = doc.y;
+    // Prestator
+    doc.fillColor(navy).fontSize(9).font(fBold).text('PRESTATOR', L, sigY);
+    doc.fillColor(gray).fontSize(8).font(fReg)
+       .text('DELTA AIR SHUTTLE S.R.L.\nReprezentant: Paul Balint', L, sigY+14, {width: colW});
+    doc.moveTo(L, sigY+62).lineTo(L+160, sigY+62).strokeColor(navy).lineWidth(0.5).stroke();
+    doc.fillColor(lgray).fontSize(7).font(fReg).text('Semnatura si stampila', L, sigY+65);
+
+    // Beneficiar
+    doc.fillColor(navy).fontSize(9).font(fBold).text('BENEFICIAR', col2, sigY);
+    doc.fillColor(gray).fontSize(8).font(fReg)
+       .text(`${name}\nData: ${today}`, col2, sigY+14, {width: colW});
+    doc.moveTo(col2, sigY+62).lineTo(col2+160, sigY+62).strokeColor(navy).lineWidth(0.5).stroke();
+    doc.fillColor(lgray).fontSize(7).font(fReg).text('Semnatura beneficiar', col2, sigY+65);
+
+    /* ══════════════════════════════════════════
+       INFORMATII CONTACT URGENTA
+    ══════════════════════════════════════════ */
+    doc.y = sigY + 85;
+    doc.rect(L, doc.y, INNER, 28).fill('#f0f4fb');
+    const ctY = doc.y + 8;
+    doc.fillColor(navy).fontSize(8).font(fBold)
+       .text('Contact urgenta Delta Air: Paul Balint  +40 761 617 606', L+8, ctY, {lineBreak:false});
+    doc.fillColor(lgray).fontSize(8).font(fReg)
+       .text(`   |   Ruta: ${dirLabel}   |   Plecare: ${depTime||date}`, {lineBreak:false});
+    doc.y = ctY + 26;
+
+    /* footer */
+    const footY = doc.page.height - 30;
+    doc.fillColor(lgray).fontSize(7).font(fReg)
+       .text(`Document generat automat · delta-air.ro · ${nrContract}`, L, footY, { align:'center', width: INNER });
 
     doc.end();
   });
