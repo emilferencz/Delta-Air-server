@@ -274,6 +274,213 @@ app.get('/api/get-session/:id', (req, res) => {
 });
 
 /* ──────────────────────────────────────────────
+   Template email plată la îmbarcare (client)
+────────────────────────────────────────────── */
+function buildCashConfirmationEmail(meta) {
+  const {
+    dirLabel='—', trLabel='—', aptLabel='—',
+    date='—', depTime='—', arrTime='—',
+    name='—', phone='—', email='—',
+    adults=1, children=0, bags=0,
+    total='—', pickupLabel, obs,
+    firma, cui, paxNames=[],
+  } = meta;
+  const isFirma = !!(firma && cui);
+  const paxList = paxNames.length ? paxNames.map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('') : '';
+
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+<title>Rezervare confirmată – Delta Air Shuttle</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
+  .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
+  .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:40px 40px 32px;text-align:center}
+  .header h1{color:#fff;font-size:1.4rem;font-weight:700;margin:0}
+  .header p{color:rgba(255,255,255,.75);font-size:.9rem;margin:8px 0 0}
+  .body{padding:36px 40px}
+  .cash-badge{display:flex;align-items:center;gap:12px;background:#fffbeb;border:1.5px solid #f6d860;border-radius:12px;padding:16px 20px;margin-bottom:28px}
+  .cash-badge .icon{font-size:1.8rem}
+  .cash-badge p{margin:0;font-size:.95rem;color:#92400e;font-weight:600}
+  .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
+  .detail-box{background:#f4f6fb;border-radius:10px;padding:20px 24px;margin-bottom:20px}
+  .detail-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem}
+  .detail-row:last-child{border-bottom:none}
+  .detail-label{color:#8892a4}
+  .detail-value{font-weight:600;color:#1a202c;text-align:right}
+  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+  .total-label{color:rgba(255,255,255,.75);font-size:.9rem}
+  .total-value{color:#e8c96a;font-size:2rem;font-weight:900}
+  .step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+  .step-num{width:28px;height:28px;background:#c9a84c;color:#0f1e3d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:2px}
+  .step-text h4{font-size:.88rem;font-weight:700;color:#1a2f5e;margin:0 0 3px}
+  .step-text p{font-size:.82rem;color:#8892a4;margin:0;line-height:1.6}
+  .footer{background:#f4f6fb;padding:24px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08)}
+  .footer p{font-size:.78rem;color:#8892a4;margin:4px 0;line-height:1.6}
+  .footer a{color:#1a2f5e;text-decoration:none;font-weight:600}
+  @media(max-width:600px){.body,.header,.footer{padding:24px 20px}.detail-row{flex-direction:column;gap:4px}.detail-value{text-align:left}}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <h1>✈ Rezervare confirmată!</h1>
+    <p>Locul tău este rezervat. Mulțumim că ai ales Delta Air Shuttle.</p>
+  </div>
+  <div class="body">
+    <div class="cash-badge">
+      <div class="icon">💵</div>
+      <p>Ai optat pentru plata în numerar la îmbarcare. Pregătește suma de <strong>${total} lei</strong> pentru șofer.</p>
+    </div>
+    <div class="section-title">Detalii cursă</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${date}</span></div>
+      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
+      <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
+      ${pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}}</span></div>
+      ${bags>0?`<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags} bagaj${bags>1?'e':''}</span></div>`:''}
+      ${paxList}
+      ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
+    </div>
+    <div class="section-title">Date de contact</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
+      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value">${phone}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
+      ${isFirma?`<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} (${cui})</span></div>`:''}
+    </div>
+    <div class="total-box">
+      <span class="total-label">Total de achitat la îmbarcare</span>
+      <span class="total-value">${total} lei</span>
+    </div>
+    <div class="section-title">Ce urmează</div>
+    <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>${pickupLabel||'Punct conform rezervării'}, ora ${depTime}.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-text"><h4>Pregătește suma în numerar</h4><p>Plătești direct șoferului: <strong>${total} lei</strong>. Nu este necesară altă confirmare.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-text"><h4>Călătorești confortabil și prinzi zborul</h4><p>Sosire estimată la ${aptLabel}: ora ${arrTime}.</p></div></div>
+  </div>
+  <div class="footer">
+    <p><strong>Delta Air Shuttle</strong> · Transfer premium Brașov–Otopeni–Băneasa</p>
+    <p>📞 <a href="tel:+40761617606">+40 761 617 606</a> &nbsp;·&nbsp; 💬 <a href="https://wa.me/40761617606">WhatsApp</a> &nbsp;·&nbsp; 🌐 <a href="https://delta-air.ro">delta-air.ro</a></p>
+    <p style="margin-top:12px;font-size:.72rem;color:#a0aec0">Ai primit acest email deoarece ai efectuat o rezervare pe delta-air.ro.</p>
+  </div>
+</div></body></html>`;
+}
+
+/* ──────────────────────────────────────────────
+   Template email notificare internă Delta Air
+────────────────────────────────────────────── */
+function buildInternalNotificationEmail(meta) {
+  const {
+    dirLabel='—', trLabel='—', aptLabel='—',
+    date='—', depTime='—', arrTime='—',
+    name='—', phone='—', email='—',
+    adults=1, children=0, bags=0,
+    total='—', pickupLabel, obs,
+    firma, cui, paxNames=[], payMethod='online',
+  } = meta;
+  const isCash = payMethod === 'cash';
+  const paxList = paxNames.length ? paxNames.map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('') : '';
+
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+<title>🔔 Rezervare nouă – Delta Air Shuttle</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
+  .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
+  .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:32px 40px;text-align:center}
+  .header h1{color:#fff;font-size:1.3rem;font-weight:700;margin:0}
+  .header p{color:rgba(255,255,255,.75);font-size:.88rem;margin:8px 0 0}
+  .body{padding:32px 40px}
+  .pay-badge{padding:12px 20px;border-radius:10px;margin-bottom:24px;font-weight:700;font-size:.95rem;text-align:center}
+  .pay-badge.cash{background:#fffbeb;border:1.5px solid #f6d860;color:#92400e}
+  .pay-badge.online{background:#f0fff4;border:1.5px solid #9ae6b4;color:#276749}
+  .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 10px}
+  .detail-box{background:#f4f6fb;border-radius:10px;padding:18px 22px;margin-bottom:18px}
+  .detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.88rem}
+  .detail-row:last-child{border-bottom:none}
+  .detail-label{color:#8892a4}
+  .detail-value{font-weight:600;color:#1a202c;text-align:right}
+  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center}
+  .total-label{color:rgba(255,255,255,.75);font-size:.88rem}
+  .total-value{color:#e8c96a;font-size:1.8rem;font-weight:900}
+  .footer{background:#f4f6fb;padding:20px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08);font-size:.76rem;color:#8892a4}
+  @media(max-width:600px){.body,.header,.footer{padding:20px}.detail-row{flex-direction:column;gap:4px}.detail-value{text-align:left}}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <h1>🔔 Rezervare nouă primită!</h1>
+    <p>${date} · ${dirLabel}</p>
+  </div>
+  <div class="body">
+    <div class="pay-badge ${isCash?'cash':'online'}">${isCash?'💵 Plată la îmbarcare — client achită numerar la șofer':'💳 Plată online — confirmată prin Stripe'}</div>
+    <div class="section-title">Detalii cursă</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${date}</span></div>
+      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
+      <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
+      ${pickupLabel?`<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>`:''}
+      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}}</span></div>
+      ${bags>0?`<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags}</span></div>`:''}
+      ${paxList}
+      ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
+    </div>
+    <div class="section-title">Date client</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
+      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value"><a href="tel:${phone}">${phone}</a></span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
+      ${firma?`<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} ${cui?'('+cui+')':''}</span></div>`:''}
+    </div>
+    <div class="total-box">
+      <span class="total-label">Total ${isCash?'de încasat la bord':'achitat online'}</span>
+      <span class="total-value">${total} lei</span>
+    </div>
+  </div>
+  <div class="footer">Email generat automat de sistemul de rezervări delta-air.ro</div>
+</div></body></html>`;
+}
+
+/* ──────────────────────────────────────────────
+   POST /api/reserve-cash
+   Rezervare fără plată online — trimite email
+   clientului și intern la Delta Air
+────────────────────────────────────────────── */
+app.post('/api/reserve-cash', async (req, res) => {
+  try {
+    const { meta = {}, customerEmail } = req.body;
+    if (!customerEmail) return res.status(400).json({ error: 'Email lipsă.' });
+
+    const hasEmail = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+    if (hasEmail) {
+      const transOpts = {
+        from: process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`,
+        subject: `✈ Rezervare confirmată – ${meta.date || ''} ${meta.dirLabel || ''} (plată la îmbarcare)`,
+        html: buildCashConfirmationEmail(meta),
+      };
+      // Email către client
+      await transporter.sendMail({ ...transOpts, to: customerEmail });
+      // Email intern către Delta Air cu toate detaliile
+      await transporter.sendMail({
+        from: transOpts.from,
+        to: process.env.EMAIL_USER,
+        subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată la îmbarcare`,
+        html: buildInternalNotificationEmail(meta),
+      });
+      console.log(`📧 Rezervare cash confirmată → client: ${customerEmail} | intern: ${process.env.EMAIL_USER}`);
+    } else {
+      console.warn('⚠️  EMAIL_USER / EMAIL_PASS lipsă — emailuri netrimise.');
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('❌ Eroare reserve-cash:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ──────────────────────────────────────────────
    POST /api/create-checkout-session
 ────────────────────────────────────────────── */
 app.post('/api/create-checkout-session', async (req, res) => {
