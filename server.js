@@ -523,7 +523,7 @@ function generateContractPDF(meta) {
     const navy = '#1a2f5e', gold = '#c9a84c', gray = '#555555', lgray = '#888888';
     // Foloseste data/ora de pe dispozitivul clientului la momentul confirmarii
     const now = meta.confirmedAt ? new Date(meta.confirmedAt) : new Date();
-    const today = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const today = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Europe/Bucharest' });
     const nowTime = now.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', timeZone:'Europe/Bucharest' });
     const nrContract = `DAS-${Date.now().toString(36).toUpperCase()}`;
     const pasageriStr = `${adults} adult${adults>1?'i':''}${children>0?` + ${children} copil${children>1?'i':''}` : ''}`;
