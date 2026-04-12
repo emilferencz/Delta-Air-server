@@ -481,6 +481,25 @@ app.post('/api/reserve-cash', async (req, res) => {
 });
 
 /* ──────────────────────────────────────────────
+   GET /api/email-status — diagnostic SMTP
+────────────────────────────────────────────── */
+app.get('/api/email-status', async (req, res) => {
+  const cfg = {
+    host: process.env.EMAIL_HOST || '(lipsă)',
+    port: process.env.EMAIL_PORT || '(lipsă)',
+    user: process.env.EMAIL_USER ? process.env.EMAIL_USER.slice(0,6) + '***' : '(lipsă)',
+    pass: process.env.EMAIL_PASS ? '***setat***' : '(lipsă)',
+    from: process.env.EMAIL_FROM || '(lipsă)',
+  };
+  try {
+    await transporter.verify();
+    res.json({ ok: true, smtp: 'conectat', config: cfg });
+  } catch (err) {
+    res.json({ ok: false, smtp: err.message, config: cfg });
+  }
+});
+
+/* ──────────────────────────────────────────────
    POST /api/create-checkout-session
 ────────────────────────────────────────────── */
 app.post('/api/create-checkout-session', async (req, res) => {
