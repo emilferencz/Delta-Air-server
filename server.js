@@ -241,17 +241,65 @@ app.post('/api/stripe-webhook',
     }
 
     if (event.type === 'checkout.session.completed') {
-      const session  = event.data.object;
-      const email    = session.customer_email || session.customer_details?.email;
-      const metaRaw  = session.metadata?.rezervare_info;
+      const session       = event.data.object;
+      const email         = session.customer_email || session.customer_details?.email;
+      const metaRaw       = session.metadata?.rezervare_info;
+      const contractToken = session.metadata?.contract_token;
+      const confirmedAt   = session.metadata?.confirmed_at;
 
       let meta = {};
       try { meta = metaRaw ? JSON.parse(metaRaw) : {}; } catch (_) {}
+      if (confirmedAt) meta.confirmedAt = confirmedAt;
+      meta.payMethod = 'card';
 
-      console.log(`✅ Plată confirmată | ${email} | ${meta.dirLabel || ''} | ${meta.date || ''}`);
+      console.log(`✅ Plată card confirmată | ${email} | ${meta.dirLabel || ''} | ${meta.date || ''}`);
 
-      if (email) {
-        await sendConfirmationEmail(email, meta);
+      const hasEmail = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+      if (email && hasEmail) {
+        // Preia PDF din store (generat la crearea sesiunii) sau regenerează
+        let attachment = null;
+        try {
+          let pdfBuffer, fileName;
+          if (contractToken && contractStore.has(contractToken)) {
+            const stored = contractStore.get(contractToken);
+            pdfBuffer = stored.buffer;
+            fileName  = stored.fileName;
+          } else {
+            pdfBuffer = await generateContractPDF(meta);
+            fileName  = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
+          }
+          attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
+        } catch (pdfErr) {
+          console.warn('⚠️ PDF webhook failed:', pdfErr.message);
+        }
+
+        const from        = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+        const attachments = attachment ? [attachment] : [];
+
+        // Email confirmare → client
+        try {
+          await transporter.sendMail({
+            from,
+            to:      email,
+            subject: `✈ Confirmare rezervare Delta Air Shuttle — ${meta.date || ''} ${meta.dirLabel || ''}`,
+            html:    buildConfirmationEmail(meta),
+            attachments,
+          });
+          console.log(`📧 Email client trimis → ${email}`);
+        } catch (err) { console.error('❌ Email client:', err.message); }
+
+        // Email notificare → intern
+        const internalTo = process.env.EMAIL_INTERNAL || 'office@delta-air.ro';
+        try {
+          await transporter.sendMail({
+            from,
+            to:      internalTo,
+            subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată card`,
+            html:    buildInternalNotificationEmail(meta),
+            attachments,
+          });
+          console.log(`📧 Email intern trimis → ${internalTo}`);
+        } catch (err) { console.error('❌ Email intern:', err.message); }
       }
     }
 
@@ -882,6 +930,28 @@ app.post('/api/create-checkout-session', async (req, res) => {
     if (!lineItems.length) {
       return res.status(400).json({ error: 'Nu există produse în coș.' });
     }
+
+    // Setează timestamp confirmare dacă nu vine de la client
+    if (!meta.confirmedAt) meta.confirmedAt = new Date().toISOString();
+    meta.payMethod = 'card';
+
+    // Generează PDF și stochează cu token — înainte de a crea sesiunea Stripe
+    let token = '';
+    let fileName = '';
+    try {
+      const pdfBuffer = await generateContractPDF(meta);
+      fileName = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
+      token = crypto.randomBytes(16).toString('hex');
+      contractStore.set(token, { buffer: pdfBuffer, fileName, createdAt: Date.now() });
+      console.log(`📄 PDF card generat, token: ${token.slice(0,8)}...`);
+    } catch (pdfErr) {
+      console.warn('⚠️ PDF pre-checkout failed (continua fara):', pdfErr.message);
+    }
+
+    // success_url include email + token pentru pagina de confirmare
+    const successBase = process.env.STRIPE_SUCCESS_URL || 'https://delta-air.ro/rezervare-confirmata';
+    const successUrl  = `${successBase}?email=${encodeURIComponent(customerEmail || '')}${token ? `&token=${token}` : ''}`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'payment',
@@ -900,10 +970,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
       ...(customerEmail ? { customer_email: customerEmail } : {}),
       metadata: {
         sursa:          'Delta Air Shuttle Booking Form',
-        rezervare_info: JSON.stringify(meta).substring(0, 500),
+        rezervare_info: JSON.stringify(meta).substring(0, 490),
+        contract_token: token,
+        confirmed_at:   meta.confirmedAt,
       },
-      success_url: process.env.STRIPE_SUCCESS_URL || 'https://delta-air.ro/rezervare-confirmata',
-      cancel_url:  process.env.STRIPE_CANCEL_URL  || 'https://delta-air.ro/rezervari',
+      success_url: successUrl,
+      cancel_url:  process.env.STRIPE_CANCEL_URL || 'https://delta-air.ro/rezervari',
     });
     res.json({ url: session.url });
   } catch (err) {
