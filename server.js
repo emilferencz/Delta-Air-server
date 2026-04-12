@@ -243,13 +243,18 @@ app.post('/api/stripe-webhook',
     if (event.type === 'checkout.session.completed') {
       const session       = event.data.object;
       const email         = session.customer_email || session.customer_details?.email;
-      const metaRaw       = session.metadata?.rezervare_info;
       const contractToken = session.metadata?.contract_token;
-      const confirmedAt   = session.metadata?.confirmed_at;
 
+      // Preia meta COMPLET din contractStore (evită trunchierile din Stripe metadata)
       let meta = {};
-      try { meta = metaRaw ? JSON.parse(metaRaw) : {}; } catch (_) {}
-      if (confirmedAt) meta.confirmedAt = confirmedAt;
+      if (contractToken && contractStore.has(contractToken)) {
+        meta = contractStore.get(contractToken).meta || {};
+      } else {
+        // Fallback: parsează din metadata Stripe (poate fi trunchiat)
+        try { meta = JSON.parse(session.metadata?.rezervare_info || '{}'); } catch (_) {}
+        const confirmedAt = session.metadata?.confirmed_at;
+        if (confirmedAt) meta.confirmedAt = confirmedAt;
+      }
       meta.payMethod = 'card';
 
       console.log(`✅ Plată card confirmată | ${email} | ${meta.dirLabel || ''} | ${meta.date || ''}`);
@@ -942,7 +947,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
       const pdfBuffer = await generateContractPDF(meta);
       fileName = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
       token = crypto.randomBytes(16).toString('hex');
-      contractStore.set(token, { buffer: pdfBuffer, fileName, createdAt: Date.now() });
+      // Stochează PDF + meta complet (pentru email în webhook, fără limitele Stripe metadata)
+      contractStore.set(token, { buffer: pdfBuffer, fileName, meta, createdAt: Date.now() });
       console.log(`📄 PDF card generat, token: ${token.slice(0,8)}...`);
     } catch (pdfErr) {
       console.warn('⚠️ PDF pre-checkout failed (continua fara):', pdfErr.message);
