@@ -76,10 +76,10 @@ function buildConfirmationEmail(meta) {
   .success-badge p{margin:0;font-size:.95rem;color:#276749;font-weight:600}
   .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
   .detail-box{background:#f4f6fb;border-radius:10px;padding:20px 24px;margin-bottom:20px}
-  .detail-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem}
+  .detail-row{display:table;width:100%;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem;box-sizing:border-box}
   .detail-row:last-child{border-bottom:none}
-  .detail-label{color:#8892a4}
-  .detail-value{font-weight:600;color:#1a202c;text-align:right}
+  .detail-label{display:table-cell;width:45%;color:#8892a4;vertical-align:top;padding-right:8px}
+  .detail-value{display:table-cell;font-weight:600;color:#1a202c;vertical-align:top}
   .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
   .total-label{color:rgba(255,255,255,.75);font-size:.9rem}
   .total-value{color:#e8c96a;font-size:2rem;font-weight:900}
@@ -302,10 +302,10 @@ function buildCashConfirmationEmail(meta) {
   .cash-badge p{margin:0;font-size:.95rem;color:#92400e;font-weight:600}
   .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
   .detail-box{background:#f4f6fb;border-radius:10px;padding:20px 24px;margin-bottom:20px}
-  .detail-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem}
+  .detail-row{display:table;width:100%;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem;box-sizing:border-box}
   .detail-row:last-child{border-bottom:none}
-  .detail-label{color:#8892a4}
-  .detail-value{font-weight:600;color:#1a202c;text-align:right}
+  .detail-label{display:table-cell;width:45%;color:#8892a4;vertical-align:top;padding-right:8px}
+  .detail-value{display:table-cell;font-weight:600;color:#1a202c;vertical-align:top}
   .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
   .total-label{color:rgba(255,255,255,.75);font-size:.9rem}
   .total-value{color:#e8c96a;font-size:2rem;font-weight:900}
@@ -337,7 +337,7 @@ function buildCashConfirmationEmail(meta) {
       <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
       <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
       ${pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}}</span></div>
+      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}</span></div>
       ${bags>0?`<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags} bagaj${bags>1?'e':''}</span></div>`:''}
       ${paxList}
       ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
@@ -421,7 +421,7 @@ function buildInternalNotificationEmail(meta) {
       <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
       <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
       ${pickupLabel?`<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>`:''}
-      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}}</span></div>
+      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}</span></div>
       ${bags>0?`<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags}</span></div>`:''}
       ${paxList}
       ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
@@ -462,13 +462,14 @@ app.post('/api/reserve-cash', async (req, res) => {
       // Email către client
       await transporter.sendMail({ ...transOpts, to: customerEmail });
       // Email intern către Delta Air cu toate detaliile
+      const internalTo = process.env.EMAIL_INTERNAL || 'office@delta-air.ro';
       await transporter.sendMail({
         from: transOpts.from,
-        to: process.env.EMAIL_USER,
+        to: internalTo,
         subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată la îmbarcare`,
         html: buildInternalNotificationEmail(meta),
       });
-      console.log(`📧 Rezervare cash confirmată → client: ${customerEmail} | intern: ${process.env.EMAIL_USER}`);
+      console.log(`📧 Rezervare cash confirmată → client: ${customerEmail} | intern: ${internalTo}`);
     } else {
       console.warn('⚠️  EMAIL_USER / EMAIL_PASS lipsă — emailuri netrimise.');
     }
