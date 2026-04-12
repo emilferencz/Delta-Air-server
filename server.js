@@ -14,9 +14,19 @@ const cors       = require('cors');
 const crypto     = require('crypto');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
+const PDFDocument = require('pdfkit');
 
 /* ── Stocare sesiuni rezervare în memorie (TTL 2 ore) ── */
 const sessions = new Map();
+
+/* ── Stocare contracte PDF în memorie (TTL 2 ore) ── */
+const contractStore = new Map();
+setInterval(() => {
+  const cutoff = Date.now() - 2 * 60 * 60 * 1000;
+  for (const [token, c] of contractStore) {
+    if (c.createdAt < cutoff) contractStore.delete(token);
+  }
+}, 15 * 60 * 1000);
 setInterval(() => {
   const cutoff = Date.now() - 2 * 60 * 60 * 1000;
   for (const [id, s] of sessions) {
@@ -443,6 +453,147 @@ function buildInternalNotificationEmail(meta) {
 }
 
 /* ──────────────────────────────────────────────
+   generateContractPDF(meta) → Promise<Buffer>
+────────────────────────────────────────────── */
+function generateContractPDF(meta) {
+  return new Promise((resolve, reject) => {
+    const {
+      dirLabel='—', trLabel='—', aptLabel='—',
+      date='—', depTime='—', arrTime='—',
+      name='—', phone='—', email='—',
+      adults=1, children=0, bags=0,
+      total='—', pickupLabel='', obs='',
+      firma='', cui='', paxNames=[],
+    } = meta;
+
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    const chunks = [];
+    doc.on('data', chunk => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    const navy = '#1a2f5e';
+    const gold = '#c9a84c';
+    const gray = '#6b7280';
+    const light = '#f4f6fb';
+
+    // ── Header ──
+    doc.rect(0, 0, doc.page.width, 100).fill(navy);
+    doc.fillColor('#ffffff').fontSize(22).font('Helvetica-Bold')
+       .text('DELTA AIR SHUTTLE', 50, 28);
+    doc.fillColor('rgba(255,255,255,0.7)').fontSize(10).font('Helvetica')
+       .text('Transfer premium Brașov – Otopeni – Băneasa', 50, 56);
+    doc.fillColor(gold).fontSize(10)
+       .text('+40 761 617 606  |  office@delta-air.ro  |  delta-air.ro', 50, 72);
+
+    // ── Titlu contract ──
+    doc.moveDown(3);
+    doc.fillColor(navy).fontSize(16).font('Helvetica-Bold')
+       .text('CONTRACT DE TRANSPORT', { align: 'center' });
+    doc.fillColor(gray).fontSize(10).font('Helvetica')
+       .text(`Nr. rezervare: DAS-${Date.now().toString(36).toUpperCase()}  |  Data emiterii: ${new Date().toLocaleDateString('ro-RO')}`, { align: 'center' });
+
+    doc.moveDown(1.5);
+
+    // ── Separator ──
+    const drawLine = () => {
+      doc.moveTo(50, doc.y).lineTo(doc.page.width - 50, doc.y)
+         .strokeColor('#e2e8f0').lineWidth(1).stroke();
+      doc.moveDown(0.5);
+    };
+
+    // ── Funcție rând tabel ──
+    const row = (label, value) => {
+      const y = doc.y;
+      doc.fillColor(gray).fontSize(9).font('Helvetica').text(label, 50, y, { width: 180 });
+      doc.fillColor(navy).fontSize(9).font('Helvetica-Bold').text(String(value), 240, y, { width: 310 });
+      doc.moveDown(0.7);
+    };
+
+    // ── Secțiune cursă ──
+    doc.fillColor(navy).fontSize(11).font('Helvetica-Bold').text('DETALII CURSĂ');
+    doc.moveDown(0.5);
+    drawLine();
+
+    row('Direcție', dirLabel);
+    row('Tip transfer', trLabel);
+    row('Aeroport', aptLabel);
+    row('Data călătoriei', date);
+    if (depTime) row('Ora plecare', depTime);
+    if (arrTime) row('Sosire estimată', arrTime);
+    if (pickupLabel) row('Punct îmbarcare', pickupLabel);
+    row('Pasageri', `${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}`);
+    if (bags > 0) row('Bagaje extra', `${bags} bagaj${bags>1?'e':''}`);
+    if (paxNames.length) {
+      paxNames.forEach((n, i) => row(`Pasager ${i+1}`, n));
+    }
+    if (obs) row('Observații', obs);
+
+    doc.moveDown(0.5);
+
+    // ── Secțiune client ──
+    doc.fillColor(navy).fontSize(11).font('Helvetica-Bold').text('DATE CLIENT');
+    doc.moveDown(0.5);
+    drawLine();
+    row('Nume', name);
+    row('Telefon', phone);
+    row('Email', email);
+    if (firma) row('Firmă / CUI', `${firma} | ${cui}`);
+
+    doc.moveDown(0.5);
+
+    // ── Total ──
+    doc.rect(50, doc.y, doc.page.width - 100, 48).fill(navy);
+    const totalY = doc.y + 8;
+    doc.fillColor('rgba(255,255,255,0.7)').fontSize(10).font('Helvetica')
+       .text('TOTAL DE ACHITAT LA ÎMBARCARE', 65, totalY);
+    doc.fillColor(gold).fontSize(22).font('Helvetica-Bold')
+       .text(`${total} LEI`, doc.page.width - 160, totalY - 4, { width: 120, align: 'right' });
+    doc.moveDown(4);
+
+    // ── Termeni ──
+    doc.fillColor(navy).fontSize(11).font('Helvetica-Bold').text('TERMENI ȘI CONDIȚII');
+    doc.moveDown(0.5);
+    drawLine();
+    const terms = [
+      '1. Pasagerul se obligă să fie prezent la punctul de îmbarcare cu minimum 5 minute înaintea orei de plecare.',
+      '2. Delta Air Shuttle nu răspunde pentru pierderile de zbor cauzate de întârzieri ale traficului rutier independente de voința transportatorului.',
+      '3. Fiecare pasager are dreptul la un bagaj de mână și un bagaj de cală inclus. Bagajele suplimentare se taxează conform tarifului afișat.',
+      '4. Plata se efectuează în numerar, direct șoferului, înainte de pornirea cursei.',
+      '5. Transportatorul își rezervă dreptul de a refuza transportul pasagerilor care se prezintă în stare de ebrietate sau care perturbă ordinea în vehicul.',
+      '6. Prin confirmarea rezervării, clientul acceptă prezentele termeni și condiții.',
+    ];
+    terms.forEach(t => {
+      doc.fillColor(gray).fontSize(8.5).font('Helvetica').text(t, 50, doc.y, { width: doc.page.width - 100, lineGap: 2 });
+      doc.moveDown(0.6);
+    });
+
+    doc.moveDown(1);
+
+    // ── Semnături ──
+    drawLine();
+    const sigY = doc.y + 10;
+    doc.fillColor(navy).fontSize(9).font('Helvetica-Bold')
+       .text('TRANSPORTATOR', 50, sigY)
+       .text('CLIENT', doc.page.width - 200, sigY);
+    doc.fillColor(gray).fontSize(8.5).font('Helvetica')
+       .text('Delta Air Shuttle SRL', 50, sigY + 14)
+       .text(name, doc.page.width - 200, sigY + 14);
+    doc.moveTo(50, sigY + 55).lineTo(200, sigY + 55).strokeColor(navy).lineWidth(0.5).stroke();
+    doc.moveTo(doc.page.width - 200, sigY + 55).lineTo(doc.page.width - 50, sigY + 55).stroke();
+    doc.fillColor(gray).fontSize(7.5)
+       .text('Semnătură și ștampilă', 50, sigY + 58)
+       .text('Semnătură client', doc.page.width - 200, sigY + 58);
+
+    // ── Footer ──
+    doc.fontSize(7.5).fillColor(gray)
+       .text('Document generat automat de sistemul de rezervări delta-air.ro', 50, doc.page.height - 40, { align: 'center', width: doc.page.width - 100 });
+
+    doc.end();
+  });
+}
+
+/* ──────────────────────────────────────────────
    POST /api/reserve-cash
    Rezervare fără plată online — trimite email
    clientului și intern la Delta Air
@@ -452,33 +603,59 @@ app.post('/api/reserve-cash', async (req, res) => {
     const { meta = {}, customerEmail } = req.body;
     if (!customerEmail) return res.status(400).json({ error: 'Email lipsă.' });
 
+    // Generează PDF contract
+    const pdfBuffer = await generateContractPDF(meta);
+    const fileName = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
+
+    // Salvează în store cu token unic (TTL 2 ore)
+    const token = crypto.randomBytes(16).toString('hex');
+    contractStore.set(token, { buffer: pdfBuffer, fileName, createdAt: Date.now() });
+
     const hasEmail = process.env.EMAIL_USER && process.env.EMAIL_PASS;
     if (hasEmail) {
-      const transOpts = {
-        from: process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`,
+      const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      const attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
+
+      // Email către client cu contract atașat
+      await transporter.sendMail({
+        from,
+        to: customerEmail,
         subject: `✈ Rezervare confirmată – ${meta.date || ''} ${meta.dirLabel || ''} (plată la îmbarcare)`,
         html: buildCashConfirmationEmail(meta),
-      };
-      // Email către client
-      await transporter.sendMail({ ...transOpts, to: customerEmail });
-      // Email intern către Delta Air cu toate detaliile
+        attachments: [attachment],
+      });
+
+      // Email intern cu contract atașat
       const internalTo = process.env.EMAIL_INTERNAL || 'office@delta-air.ro';
       await transporter.sendMail({
-        from: transOpts.from,
+        from,
         to: internalTo,
         subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată la îmbarcare`,
         html: buildInternalNotificationEmail(meta),
+        attachments: [attachment],
       });
       console.log(`📧 Rezervare cash confirmată → client: ${customerEmail} | intern: ${internalTo}`);
     } else {
       console.warn('⚠️  EMAIL_USER / EMAIL_PASS lipsă — emailuri netrimise.');
     }
 
-    res.json({ ok: true });
+    res.json({ ok: true, token });
   } catch (err) {
     console.error('❌ Eroare reserve-cash:', err.message);
     res.status(500).json({ error: err.message });
   }
+});
+
+/* ──────────────────────────────────────────────
+   GET /api/download-contract?token=xxx
+────────────────────────────────────────────── */
+app.get('/api/download-contract', (req, res) => {
+  const { token } = req.query;
+  const entry = contractStore.get(token);
+  if (!entry) return res.status(404).json({ error: 'Contractul nu mai este disponibil sau a expirat.' });
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${entry.fileName}"`);
+  res.send(entry.buffer);
 });
 
 /* ──────────────────────────────────────────────
