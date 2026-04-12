@@ -524,7 +524,7 @@ function generateContractPDF(meta) {
     // Foloseste data/ora de pe dispozitivul clientului la momentul confirmarii
     const now = meta.confirmedAt ? new Date(meta.confirmedAt) : new Date();
     const today = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
-    const nowTime = now.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
+    const nowTime = now.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', timeZone:'Europe/Bucharest' });
     const nrContract = `DAS-${Date.now().toString(36).toUpperCase()}`;
     const pasageriStr = `${adults} adult${adults>1?'i':''}${children>0?` + ${children} copil${children>1?'i':''}` : ''}`;
 
@@ -739,7 +739,7 @@ function generateContractPDF(meta) {
     const clauze = [
       'Lege aplicabila: Legea romana',
       'Solutionare litigii: Instantele din Brasov',
-      'Comunicari: Email (office@delta-air.ro | 0268 442 429) sau scrisoare recomandata',
+      'Comunicari: Email (office@delta-air.ro) sau scrisoare recomandata',
       'Modificari: Numai in scris cu acordul ambelor parti',
       'Bunuri personale: Beneficiarul este responsabil; prestatorul nu raspunde pentru pierderi',
       'Contract incheiat in 2 exemplare (prestator si beneficiar)',
