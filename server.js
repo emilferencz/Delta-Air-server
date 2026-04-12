@@ -12,34 +12,23 @@ require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
 const crypto     = require('crypto');
-const https      = require('https');
-const fs         = require('fs');
-const os         = require('os');
-const path       = require('path');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
 
-/* ── Font Unicode pentru diacritice românești ── */
-let FONT_REG = null, FONT_BOLD = null;
-function downloadFont(url) {
-  return new Promise((resolve) => {
-    const tmp = path.join(os.tmpdir(), path.basename(url));
-    if (fs.existsSync(tmp)) return resolve(tmp);
-    const file = fs.createWriteStream(tmp);
-    https.get(url, res => {
-      res.pipe(file);
-      file.on('finish', () => { file.close(); resolve(tmp); });
-    }).on('error', () => resolve(null));
-  });
+/* ── Înlocuire diacritice pentru PDF (Helvetica nu suportă UTF-8) ── */
+function ro(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/ă/g,'a').replace(/Ă/g,'A')
+    .replace(/â/g,'a').replace(/Â/g,'A')
+    .replace(/î/g,'i').replace(/Î/g,'I')
+    .replace(/ș/g,'s').replace(/Ș/g,'S')
+    .replace(/ț/g,'t').replace(/Ț/g,'T')
+    .replace(/ş/g,'s').replace(/Ş/g,'S')
+    .replace(/ţ/g,'t').replace(/Ţ/g,'T')
+    .replace(/→/g,'->').replace(/↔/g,'<->').replace(/·/g,'-');
 }
-Promise.all([
-  downloadFont('https://fonts.bunny.net/roboto/files/roboto-latin-400-normal.ttf'),
-  downloadFont('https://fonts.bunny.net/roboto/files/roboto-latin-700-normal.ttf'),
-]).then(([reg, bold]) => {
-  FONT_REG = reg; FONT_BOLD = bold;
-  console.log('✅ Fonturi PDF încărcate:', !!reg, !!bold);
-}).catch(() => console.warn('⚠️ Fonturi PDF indisponibile, se folosesc diacritice simplificate'));
 
 /* ── Stocare sesiuni rezervare în memorie (TTL 2 ore) ── */
 const sessions = new Map();
@@ -492,18 +481,30 @@ function generateContractPDF(meta) {
       firma='', cui='', paxNames=[],
     } = meta;
 
-    // font cu suport diacritice sau fallback Helvetica
-    const fReg  = FONT_REG  || 'Helvetica';
-    const fBold = FONT_BOLD || 'Helvetica-Bold';
+    // Aplică ro() pe toate câmpurile variabile
+    const rDirLabel    = ro(dirLabel);
+    const rTrLabel     = ro(trLabel);
+    const rAptLabel    = ro(aptLabel);
+    const rDate        = ro(date);
+    const rDepTime     = ro(depTime);
+    const rArrTime     = ro(arrTime);
+    const rName        = ro(name);
+    const rPhone       = ro(phone);
+    const rEmail       = ro(email);
+    const rPickup      = ro(pickupLabel);
+    const rObs         = ro(obs);
+    const rFirma       = ro(firma);
+    const rCui         = ro(cui);
+    const rPaxNames    = paxNames.map(ro);
+
+    const fReg  = 'Helvetica';
+    const fBold = 'Helvetica-Bold';
 
     const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
     const chunks = [];
     doc.on('data', c => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
     doc.on('error', reject);
-
-    if (FONT_REG)  doc.registerFont('Reg',  FONT_REG);
-    if (FONT_BOLD) doc.registerFont('Bold', FONT_BOLD);
 
     const W = doc.page.width;
     const L = 50, R = W - 50, INNER = R - L;
@@ -578,7 +579,7 @@ function generateContractPDF(meta) {
     doc.rect(col2, partiY, colW, 72).fillAndStroke('#fffbeb', '#f6d860');
     doc.fillColor(navy).fontSize(8.5).font(fBold).text('BENEFICIAR', col2+8, partiY+6, { width: colW-16 });
     doc.fillColor(gray).fontSize(7.8).font(fReg)
-       .text(`${name}\nTel: ${phone}\nEmail: ${email}${firma ? `\nFirma: ${firma}\nCUI: ${cui}` : ''}`, col2+8, partiY+18, { width: colW-16 });
+       .text(`${rName}\nTel: ${rPhone}\nEmail: ${rEmail}${rFirma ? `\nFirma: ${rFirma}\nCUI: ${rCui}` : ''}`, col2+8, partiY+18, { width: colW-16 });
 
     doc.y = partiY + 82;
 
@@ -587,20 +588,20 @@ function generateContractPDF(meta) {
     ══════════════════════════════════════════ */
     section('Obiectul contractului');
     doc.fillColor(gray).fontSize(8.5).font(fReg)
-       .text('Serviciu: Transport rutier de persoane pe ruta Brasov \u2194 Aeroportul International Bucuresti', L, doc.y+2, { width: INNER });
+       .text('Serviciu: Transport rutier de persoane pe ruta Brasov <-> Aeroportul International Bucuresti', L, doc.y+2, { width: INNER });
     doc.moveDown(0.5);
-    twoCol('Ruta / Directie', dirLabel, true);
-    twoCol('Tip transfer', trLabel, false);
-    twoCol('Aeroport', aptLabel, false);
-    twoCol('Data calatoriei', date, true);
-    if (depTime) twoCol('Ora plecare', depTime, true);
-    if (arrTime) twoCol('Sosire estimata', arrTime, false);
-    if (pickupLabel) twoCol('Punct imbarcare', pickupLabel, false);
+    twoCol('Ruta / Directie', rDirLabel, true);
+    twoCol('Tip transfer', rTrLabel, false);
+    twoCol('Aeroport', rAptLabel, false);
+    twoCol('Data calatoriei', rDate, true);
+    if (rDepTime) twoCol('Ora plecare', rDepTime, true);
+    if (rArrTime) twoCol('Sosire estimata', rArrTime, false);
+    if (rPickup) twoCol('Punct imbarcare', rPickup, false);
     twoCol('Numar pasageri', pasageriStr, false);
     twoCol('Vehicul', 'BV 61 DAS (asigurat si inspectat tehnic)', false);
     if (bags > 0) twoCol(`Bagaje extra (${bags})`, '20 RON / bagaj', false);
-    if (paxNames.length) paxNames.forEach((n,i) => twoCol(`Pasager ${i+1}`, n, false));
-    if (obs) twoCol('Observatii', obs, false);
+    if (rPaxNames.length) rPaxNames.forEach((n,i) => twoCol(`Pasager ${i+1}`, n, false));
+    if (rObs) twoCol('Observatii', rObs, false);
 
     /* ══════════════════════════════════════════
        PRET SI PLATA
@@ -718,7 +719,7 @@ function generateContractPDF(meta) {
     // Beneficiar
     doc.fillColor(navy).fontSize(9).font(fBold).text('BENEFICIAR', col2, sigY);
     doc.fillColor(gray).fontSize(8).font(fReg)
-       .text(`${name}\nData: ${today}`, col2, sigY+14, {width: colW});
+       .text(`${rName}\nData: ${today}`, col2, sigY+14, {width: colW});
     doc.moveTo(col2, sigY+62).lineTo(col2+160, sigY+62).strokeColor(navy).lineWidth(0.5).stroke();
     doc.fillColor(lgray).fontSize(7).font(fReg).text('Semnatura beneficiar', col2, sigY+65);
 
@@ -731,7 +732,7 @@ function generateContractPDF(meta) {
     doc.fillColor(navy).fontSize(8).font(fBold)
        .text('Contact urgenta Delta Air: Paul Balint  +40 761 617 606', L+8, ctY, {lineBreak:false});
     doc.fillColor(lgray).fontSize(8).font(fReg)
-       .text(`   |   Ruta: ${dirLabel}   |   Plecare: ${depTime||date}`, {lineBreak:false});
+       .text(`   |   Ruta: ${rDirLabel}   |   Plecare: ${rDepTime||rDate}`, {lineBreak:false});
     doc.y = ctY + 26;
 
     /* footer */
