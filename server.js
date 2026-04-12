@@ -12,9 +12,21 @@ require('dotenv').config();
 const express    = require('express');
 const cors       = require('cors');
 const crypto     = require('crypto');
+const https      = require('https');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+
+/* ── Cache logo Delta Air pentru PDF ── */
+let LOGO_BUFFER = null;
+https.get('https://delta-air.ro/img/logo-p3.png', res => {
+  const chunks = [];
+  res.on('data', c => chunks.push(c));
+  res.on('end', () => {
+    LOGO_BUFFER = Buffer.concat(chunks);
+    console.log('✅ Logo PDF incarcat:', LOGO_BUFFER.length, 'bytes');
+  });
+}).on('error', e => console.warn('⚠️ Logo PDF indisponibil:', e.message));
 
 /* ── Înlocuire diacritice pentru PDF (Helvetica nu suportă UTF-8) ── */
 function ro(str) {
@@ -509,7 +521,8 @@ function generateContractPDF(meta) {
     const W = doc.page.width;
     const L = 50, R = W - 50, INNER = R - L;
     const navy = '#1a2f5e', gold = '#c9a84c', gray = '#555555', lgray = '#888888';
-    const now = new Date();
+    // Foloseste data/ora de pe dispozitivul clientului la momentul confirmarii
+    const now = meta.confirmedAt ? new Date(meta.confirmedAt) : new Date();
     const today = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
     const nowTime = now.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
     const nrContract = `DAS-${Date.now().toString(36).toUpperCase()}`;
@@ -553,11 +566,26 @@ function generateContractPDF(meta) {
        HEADER
     ══════════════════════════════════════════ */
     doc.rect(0, 0, W, 80).fill(navy);
-    doc.fillColor('#ffffff').fontSize(18).font(fBold).text('DELTA AIR SHUTTLE S.R.L.', L, 18);
+
+    // Logo badge in coltul dreapta-sus (background alb rotunjit)
+    const logoSize = 68;
+    const logoX = R - logoSize;
+    const logoY = 6;
+    doc.roundedRect(logoX, logoY, logoSize, logoSize, 6).fill('#ffffff');
+    if (LOGO_BUFFER) {
+      try {
+        doc.image(LOGO_BUFFER, logoX + 2, logoY + 2, { width: logoSize - 4, height: logoSize - 4 });
+      } catch(e) { console.warn('Logo insert skipped:', e.message); }
+    }
+
+    // Text companie — latime limitata sa nu se suprapuna cu logo
+    const hTextW = INNER - logoSize - 10;
+    doc.fillColor('#ffffff').fontSize(17).font(fBold)
+       .text('DELTA AIR SHUTTLE S.R.L.', L, 18, { width: hTextW });
     doc.fillColor('rgba(255,255,255,0.6)').fontSize(8).font(fReg)
-       .text('Brasov, str. 13 Decembrie nr. 129A, bl. 7, apt. 55  |  CUI: 53035921  |  J08/2025/...',  L, 40);
+       .text('Brasov, str. 13 Decembrie nr. 129A, bl. 7, apt. 55  |  CUI: 53035921  |  J08/2025/...', L, 40, { width: hTextW });
     doc.fillColor(gold).fontSize(8)
-       .text('Tel: +40 761 617 606  |  office@delta-air.ro  |  delta-air.ro', L, 54);
+       .text('Tel: +40 761 617 606  |  office@delta-air.ro  |  delta-air.ro', L, 54, { width: hTextW });
 
     /* titlu */
     doc.moveDown(2.8);
