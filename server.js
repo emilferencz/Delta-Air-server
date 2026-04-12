@@ -509,7 +509,9 @@ function generateContractPDF(meta) {
     const W = doc.page.width;
     const L = 50, R = W - 50, INNER = R - L;
     const navy = '#1a2f5e', gold = '#c9a84c', gray = '#555555', lgray = '#888888';
-    const today = new Date().toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const now = new Date();
+    const today = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const nowTime = now.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit' });
     const nrContract = `DAS-${Date.now().toString(36).toUpperCase()}`;
     const pasageriStr = `${adults} adult${adults>1?'i':''}${children>0?` + ${children} copil${children>1?'i':''}` : ''}`;
 
@@ -525,9 +527,9 @@ function generateContractPDF(meta) {
       ensureSpace(needed);
       doc.moveDown(0.6);
       const rectY = doc.y;
-      doc.rect(L, rectY, INNER, 18).fill('#e8ecf5');
+      doc.rect(L, rectY, INNER, 20).fill('#e8ecf5');
       doc.fillColor(navy).fontSize(9).font(fBold)
-         .text(title.toUpperCase(), L+6, rectY + 4, { width: INNER });
+         .text(title.toUpperCase(), L+6, rectY + 5, { width: INNER });
       doc.moveDown(0.3);
     };
     const twoCol = (left, right, bold=false) => {
@@ -565,7 +567,7 @@ function generateContractPDF(meta) {
        .text('TRANSPORT RUTIER DE PERSOANE', { align:'center' });
     doc.moveDown(0.3);
     doc.fillColor(lgray).fontSize(8.5).font(fReg)
-       .text(`Nr. ${nrContract}   |   Data: ${today}`, { align:'center' });
+       .text(`Nr. ${nrContract}   |   Data: ${today}, ora ${nowTime}`, { align:'center' });
     doc.moveDown(0.8);
     line(doc.y, navy, 1.5);
 
@@ -616,12 +618,19 @@ function generateContractPDF(meta) {
     ══════════════════════════════════════════ */
     section('Pret si plata');
 
-    // Bloc total
-    doc.rect(L, doc.y+2, INNER, 30).fill(navy);
-    const tY = doc.y + 8;
-    doc.fillColor('rgba(255,255,255,0.7)').fontSize(9).font(fReg).text('Total de achitat:', L+12, tY, {lineBreak:false});
-    doc.fillColor(gold).fontSize(14).font(fBold).text(`${total} RON`, L+120, tY-3, { width: INNER-140, align:'right' });
-    doc.y = tY + 30;
+    // Bloc total — bara navy cu pret centrat vertical
+    const barH = 40;
+    const barY = doc.y + 4;
+    doc.rect(L, barY, INNER, barH).fill(navy);
+    // Label "Total de achitat:" centrat vertical stanga (9pt ≈ 11px)
+    const labelY = barY + Math.round((barH - 11) / 2);
+    doc.fillColor('rgba(255,255,255,0.55)').fontSize(9).font(fReg)
+       .text('Total de achitat:', L+12, labelY, {lineBreak:false});
+    // Pret centrat vertical dreapta (16pt ≈ 19px)
+    const priceY = barY + Math.round((barH - 19) / 2);
+    doc.fillColor(gold).fontSize(16).font(fBold)
+       .text(`${total} RON`, L, priceY, { width: INNER-12, align:'right' });
+    doc.y = barY + barH + 6;
     doc.moveDown(0.4);
 
     doc.fillColor(gray).fontSize(8.5).font(fReg).text('Modalitate de plata:', L, doc.y, { continued:false });
@@ -728,7 +737,7 @@ function generateContractPDF(meta) {
     // Beneficiar
     doc.fillColor(navy).fontSize(9).font(fBold).text('BENEFICIAR', col2, sigY);
     doc.fillColor(gray).fontSize(8).font(fReg)
-       .text(`${rName}\nData: ${today}`, col2, sigY+14, {width: colW});
+       .text(`${rName}\nData: ${today}, ora ${nowTime}`, col2, sigY+14, {width: colW});
     doc.moveTo(col2, sigY+62).lineTo(col2+160, sigY+62).strokeColor(navy).lineWidth(0.5).stroke();
     doc.fillColor(lgray).fontSize(7).font(fReg).text('Semnatura beneficiar', col2, sigY+65);
 
