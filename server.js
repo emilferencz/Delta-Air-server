@@ -514,10 +514,15 @@ function generateContractPDF(meta) {
     const pasageriStr = `${adults} adult${adults>1?'i':''}${children>0?` + ${children} copil${children>1?'i':''}` : ''}`;
 
     /* ─── helpers ─── */
+    const bottomLimit = doc.page.height - 65; // margine de siguranta
+    const ensureSpace = (needed) => {
+      if (doc.y + needed > bottomLimit) doc.addPage();
+    };
     const line = (y, color='#cccccc', w=0.5) => {
       doc.moveTo(L, y||doc.y).lineTo(R, y||doc.y).strokeColor(color).lineWidth(w).stroke();
     };
-    const section = (title) => {
+    const section = (title, needed=80) => {
+      ensureSpace(needed);
       doc.moveDown(0.6);
       doc.rect(L, doc.y, INNER, 18).fill('#e8ecf5');
       doc.fillColor(navy).fontSize(9).font(fBold)
@@ -525,6 +530,7 @@ function generateContractPDF(meta) {
       doc.moveDown(0.3);
     };
     const twoCol = (left, right, bold=false) => {
+      ensureSpace(18);
       const y = doc.y;
       doc.fillColor(lgray).fontSize(8.5).font(fReg).text(left, L, y, { width: 175, lineBreak:false });
       doc.fillColor(bold ? navy : '#222222').fontSize(8.5).font(bold ? fBold : fReg)
@@ -533,6 +539,7 @@ function generateContractPDF(meta) {
       line(doc.y - 2, '#eeeeee');
     };
     const bullet = (txt) => {
+      ensureSpace(16);
       const y = doc.y;
       doc.fillColor(gold).fontSize(8).font(fBold).text('•', L, y, { width:12, lineBreak:false });
       doc.fillColor(gray).fontSize(8).font(fReg).text(txt, L+14, y, { width: INNER-14 });
@@ -632,7 +639,7 @@ function generateContractPDF(meta) {
     /* ══════════════════════════════════════════
        OBLIGATII
     ══════════════════════════════════════════ */
-    section('Obligatii si conditii');
+    section('Obligatii si conditii', 140);
 
     const oblY = doc.y + 4;
     doc.rect(L, oblY, colW, 120).fillAndStroke('#f0f4fb', '#d0d8ea');
@@ -669,7 +676,7 @@ function generateContractPDF(meta) {
     /* ══════════════════════════════════════════
        RASPUNDERI
     ══════════════════════════════════════════ */
-    section('Raspunderi si sanctiuni');
+    section('Raspunderi si sanctiuni', 130);
     const rasp = [
       ['Intarziere prestator (>30 min)', '50 RON taxa'],
       ['Deteriorare vehicul (beneficiar)', 'Reparatii la cheltuiala beneficiarului'],
@@ -704,6 +711,7 @@ function generateContractPDF(meta) {
     /* ══════════════════════════════════════════
        SEMNATURI
     ══════════════════════════════════════════ */
+    ensureSpace(220);
     doc.moveDown(0.8);
     line(doc.y, navy, 1);
     doc.moveDown(0.5);
@@ -733,12 +741,11 @@ function generateContractPDF(meta) {
        .text('Contact urgenta Delta Air: Paul Balint  +40 761 617 606', L+8, ctY, {lineBreak:false});
     doc.fillColor(lgray).fontSize(8).font(fReg)
        .text(`   |   Ruta: ${rDirLabel}   |   Plecare: ${rDepTime||rDate}`, {lineBreak:false});
-    doc.y = ctY + 26;
+    doc.y = ctY + 34;
 
-    /* footer */
-    const footY = doc.page.height - 30;
+    /* footer — imediat sub bara de contact, fara pagina noua */
     doc.fillColor(lgray).fontSize(7).font(fReg)
-       .text(`Document generat automat · delta-air.ro · ${nrContract}`, L, footY, { align:'center', width: INNER });
+       .text(`Document generat automat · delta-air.ro · ${nrContract}`, L, doc.y, { align:'center', width: INNER });
 
     doc.end();
   });
