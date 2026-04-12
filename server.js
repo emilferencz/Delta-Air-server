@@ -42,6 +42,9 @@ function ro(str) {
     .replace(/→/g,'->').replace(/↔/g,'<->').replace(/·/g,'-');
 }
 
+/* ── Adresă email internă (notificări rezervări) ── */
+const OFFICE_EMAIL = process.env.EMAIL_INTERNAL || 'office@delta-air.ro';
+
 /* ── Stocare sesiuni rezervare în memorie (TTL 2 ore) ── */
 const sessions = new Map();
 
@@ -294,7 +297,7 @@ app.post('/api/stripe-webhook',
         } catch (err) { console.error('❌ Email client:', err.message); }
 
         // Email notificare → intern
-        const internalTo = process.env.EMAIL_INTERNAL || 'office@delta-air.ro';
+        const internalTo = OFFICE_EMAIL;
         try {
           await transporter.sendMail({
             from,
@@ -862,28 +865,33 @@ app.post('/api/reserve-cash', async (req, res) => {
 
     const hasEmail = process.env.EMAIL_USER && process.env.EMAIL_PASS;
     if (hasEmail) {
-      const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      const from       = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      const internalTo = OFFICE_EMAIL;
       const attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
 
-      // Email către client cu contract atașat
-      await transporter.sendMail({
-        from,
-        to: customerEmail,
-        subject: `✈ Rezervare confirmată – ${meta.date || ''} ${meta.dirLabel || ''} (plată la îmbarcare)`,
-        html: buildCashConfirmationEmail(meta),
-        attachments: [attachment],
-      });
+      // Email → client
+      try {
+        await transporter.sendMail({
+          from,
+          to: customerEmail,
+          subject: `✈ Rezervare confirmată – ${meta.date || ''} ${meta.dirLabel || ''} (plată la îmbarcare)`,
+          html: buildCashConfirmationEmail(meta),
+          attachments: [attachment],
+        });
+        console.log(`📧 Email client (cash) → ${customerEmail}`);
+      } catch (e) { console.error('❌ Email client (cash):', e.message); }
 
-      // Email intern cu contract atașat
-      const internalTo = process.env.EMAIL_INTERNAL || 'office@delta-air.ro';
-      await transporter.sendMail({
-        from,
-        to: internalTo,
-        subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată la îmbarcare`,
-        html: buildInternalNotificationEmail(meta),
-        attachments: [attachment],
-      });
-      console.log(`📧 Rezervare cash confirmată → client: ${customerEmail} | intern: ${internalTo}`);
+      // Email → office (notificare internă)
+      try {
+        await transporter.sendMail({
+          from,
+          to: internalTo,
+          subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată la îmbarcare`,
+          html: buildInternalNotificationEmail(meta),
+          attachments: [attachment],
+        });
+        console.log(`📧 Email intern (cash) → ${internalTo}`);
+      } catch (e) { console.error('❌ Email intern (cash):', e.message); }
     } else {
       console.warn('⚠️  EMAIL_USER / EMAIL_PASS lipsă — emailuri netrimise.');
     }
@@ -995,17 +1003,19 @@ app.post('/api/create-checkout-session', async (req, res) => {
 ────────────────────────────────────────────── */
 app.get('/health', (_req, res) => {
   res.json({
-    status: 'ok',
-    mode:   process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
-    email:  process.env.EMAIL_USER ? 'configured' : 'NOT configured',
-    webhook: process.env.STRIPE_WEBHOOK_SECRET ? 'configured' : 'NOT configured',
+    status:       'ok',
+    mode:         process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
+    email:        process.env.EMAIL_USER ? 'configured' : 'NOT configured',
+    emailInternal: process.env.EMAIL_INTERNAL || 'office@delta-air.ro (default)',
+    webhook:      process.env.STRIPE_WEBHOOK_SECRET ? 'configured' : 'NOT configured',
   });
 });
 
 app.listen(PORT, () => {
   console.log(`\n✅ Delta Air Shuttle server pornit pe http://localhost:${PORT}`);
-  console.log(`   Mod Stripe:  ${process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? '🔴 LIVE' : '🟡 TEST'}`);
-  console.log(`   Email:       ${process.env.EMAIL_USER || '⚠️  neconfigurat'}`);
-  console.log(`   Webhook:     ${process.env.STRIPE_WEBHOOK_SECRET ? '✅ configurat' : '⚠️  neconfigurat'}`);
-  console.log(`   Health:      http://localhost:${PORT}/health\n`);
+  console.log(`   Mod Stripe:     ${process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? '🔴 LIVE' : '🟡 TEST'}`);
+  console.log(`   Email SMTP:     ${process.env.EMAIL_USER || '⚠️  neconfigurat'}`);
+  console.log(`   Email intern:   ${OFFICE_EMAIL}`);
+  console.log(`   Webhook:        ${process.env.STRIPE_WEBHOOK_SECRET ? '✅ configurat' : '⚠️  neconfigurat'}`);
+  console.log(`   Health:         http://localhost:${PORT}/health\n`);
 });
