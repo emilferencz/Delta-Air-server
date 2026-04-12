@@ -142,7 +142,7 @@ function buildConfirmationEmail(meta) {
   </div>
   <div class="footer">
     <p><strong>Delta Air Shuttle</strong> · Transfer premium Brașov–Otopeni–Băneasa</p>
-    <p>📞 <a href="tel:+40XXXXXXXXX">+40 XXX XXX XXX</a> &nbsp;·&nbsp; 💬 <a href="https://wa.me/40XXXXXXXXX">WhatsApp</a> &nbsp;·&nbsp; 🌐 <a href="https://delta-air.ro">delta-air.ro</a></p>
+    <p>📞 <a href="tel:+40761617606">+40 761 617 606</a> &nbsp;·&nbsp; 💬 <a href="https://wa.me/40761617606">WhatsApp</a> &nbsp;·&nbsp; 🌐 <a href="https://delta-air.ro">delta-air.ro</a></p>
     <p style="margin-top:12px;font-size:.72rem;color:#a0aec0">Ai primit acest email deoarece ai efectuat o rezervare pe delta-air.ro. Dacă ai întrebări, contactează-ne oricând.</p>
   </div>
 </div>
