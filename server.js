@@ -299,17 +299,7 @@ app.post('/api/stripe-webhook',
           console.log(`📧 Email client (card) → ${email} | BCC → ${internalTo}`);
         } catch (err) { console.error('❌ Email client (card):', err.message); }
 
-        // Email notificare → office (template intern dedicat)
-        try {
-          await transporter.sendMail({
-            from,
-            to:      internalTo,
-            subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată card`,
-            html:    buildInternalNotificationEmail(meta),
-            attachments,
-          });
-          console.log(`📧 Email intern (card) → ${internalTo}`);
-        } catch (err) { console.error('❌ Email intern (card):', err.message); }
+        // Notificarea internă la plata card vine prin BCC-ul de mai sus (evită duplicat)
       }
     }
 
@@ -581,7 +571,8 @@ function generateContractPDF(meta) {
     const navy = '#1a2f5e', gold = '#c9a84c', gray = '#555555', lgray = '#888888';
     // Foloseste data/ora de pe dispozitivul clientului la momentul confirmarii
     const now = meta.confirmedAt ? new Date(meta.confirmedAt) : new Date();
-    const today = now.toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric', timeZone:'Europe/Bucharest' });
+    const _d = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Bucharest' }));
+    const today = `${String(_d.getDate()).padStart(2,'0')}-${String(_d.getMonth()+1).padStart(2,'0')}-${_d.getFullYear()}`;
     const nowTime = now.toLocaleTimeString('ro-RO', { hour:'2-digit', minute:'2-digit', timeZone:'Europe/Bucharest' });
     const nrContract = `DAS-${Date.now().toString(36).toUpperCase()}`;
     const pasageriStr = `${adults} adult${adults>1?'i':''}${children>0?` + ${children} copil${children>1?'i':''}` : ''}`;
