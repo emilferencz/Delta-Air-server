@@ -875,17 +875,7 @@ app.post('/api/reserve-cash', async (req, res) => {
         console.log(`📧 Email client (cash) → ${customerEmail} | BCC → ${internalTo}`);
       } catch (e) { console.error('❌ Email client (cash):', e.message); }
 
-      // Email → office (notificare internă cu template dedicat)
-      try {
-        await transporter.sendMail({
-          from,
-          to: internalTo,
-          subject: `🔔 Rezervare nouă – ${meta.date || ''} ${meta.dirLabel || ''} | ${meta.name || ''} | Plată la îmbarcare`,
-          html: buildInternalNotificationEmail(meta),
-          attachments: [attachment],
-        });
-        console.log(`📧 Email intern (cash) → ${internalTo}`);
-      } catch (e) { console.error('❌ Email intern (cash):', e.message); }
+      // Notificarea internă la plata la îmbarcare vine prin BCC-ul de mai sus (evită duplicat)
     } else {
       console.warn('⚠️  EMAIL_USER / EMAIL_PASS lipsă — emailuri netrimise.');
     }
