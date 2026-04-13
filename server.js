@@ -284,20 +284,22 @@ app.post('/api/stripe-webhook',
         const from        = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
         const attachments = attachment ? [attachment] : [];
 
-        // Email confirmare → client
+        const internalTo = OFFICE_EMAIL;
+
+        // Email confirmare → client (+ BCC office ca copie garantată)
         try {
           await transporter.sendMail({
             from,
-            to:      email,
+            to:  email,
+            bcc: internalTo,
             subject: `✈ Confirmare rezervare Delta Air Shuttle — ${meta.date || ''} ${meta.dirLabel || ''}`,
             html:    buildConfirmationEmail(meta),
             attachments,
           });
-          console.log(`📧 Email client trimis → ${email}`);
-        } catch (err) { console.error('❌ Email client:', err.message); }
+          console.log(`📧 Email client (card) → ${email} | BCC → ${internalTo}`);
+        } catch (err) { console.error('❌ Email client (card):', err.message); }
 
-        // Email notificare → intern
-        const internalTo = OFFICE_EMAIL;
+        // Email notificare → office (template intern dedicat)
         try {
           await transporter.sendMail({
             from,
@@ -306,8 +308,8 @@ app.post('/api/stripe-webhook',
             html:    buildInternalNotificationEmail(meta),
             attachments,
           });
-          console.log(`📧 Email intern trimis → ${internalTo}`);
-        } catch (err) { console.error('❌ Email intern:', err.message); }
+          console.log(`📧 Email intern (card) → ${internalTo}`);
+        } catch (err) { console.error('❌ Email intern (card):', err.message); }
       }
     }
 
@@ -869,19 +871,20 @@ app.post('/api/reserve-cash', async (req, res) => {
       const internalTo = OFFICE_EMAIL;
       const attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
 
-      // Email → client
+      // Email → client (+ BCC office ca copie garantată)
       try {
         await transporter.sendMail({
           from,
-          to: customerEmail,
+          to:  customerEmail,
+          bcc: internalTo,
           subject: `✈ Rezervare confirmată – ${meta.date || ''} ${meta.dirLabel || ''} (plată la îmbarcare)`,
           html: buildCashConfirmationEmail(meta),
           attachments: [attachment],
         });
-        console.log(`📧 Email client (cash) → ${customerEmail}`);
+        console.log(`📧 Email client (cash) → ${customerEmail} | BCC → ${internalTo}`);
       } catch (e) { console.error('❌ Email client (cash):', e.message); }
 
-      // Email → office (notificare internă)
+      // Email → office (notificare internă cu template dedicat)
       try {
         await transporter.sendMail({
           from,
