@@ -928,6 +928,7 @@ app.get('/api/email-status', async (req, res) => {
     user: process.env.EMAIL_USER ? process.env.EMAIL_USER.slice(0,6) + '***' : '(lipsă)',
     pass: process.env.EMAIL_PASS ? '***setat***' : '(lipsă)',
     from: process.env.EMAIL_FROM || '(lipsă)',
+    internal: OFFICE_EMAIL,
   };
   try {
     await transporter.verify();
@@ -935,6 +936,58 @@ app.get('/api/email-status', async (req, res) => {
   } catch (err) {
     res.json({ ok: false, smtp: err.message, config: cfg });
   }
+});
+
+/* ──────────────────────────────────────────────
+   GET /api/test-internal-email
+   Trimite un email de test direct la OFFICE_EMAIL.
+   Apelează din browser: /api/test-internal-email
+────────────────────────────────────────────── */
+app.get('/api/test-internal-email', async (req, res) => {
+  const from      = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+  const internalTo = OFFICE_EMAIL;
+  const ts = new Date().toISOString();
+  const result    = { from, to: internalTo, ts, steps: [] };
+
+  // Pas 1: Verifică conexiunea SMTP
+  try {
+    await transporter.verify();
+    result.steps.push({ step: 'smtp_verify', ok: true });
+  } catch (err) {
+    result.steps.push({ step: 'smtp_verify', ok: false, error: err.message });
+    return res.status(500).json({ ok: false, result });
+  }
+
+  // Pas 2: Trimite email test direct (fara BCC, fara atasament)
+  try {
+    const info = await transporter.sendMail({
+      from,
+      to: internalTo,
+      subject: `[TEST] Delta Air – email intern ${ts}`,
+      text: `Acesta este un email de test trimis la ${ts}.\nDaca primesti acest mesaj, livrarea la ${internalTo} functioneaza corect.`,
+      html: `<p><strong>TEST email intern Delta Air</strong></p><p>Timestamp: <code>${ts}</code></p><p>Daca ai primit acest mesaj, livrarea la <strong>${internalTo}</strong> functioneaza corect.</p>`,
+    });
+    result.steps.push({ step: 'send_direct', ok: true, messageId: info.messageId, response: info.response });
+  } catch (err) {
+    result.steps.push({ step: 'send_direct', ok: false, error: err.message, code: err.code, responseCode: err.responseCode });
+    return res.status(500).json({ ok: false, result });
+  }
+
+  // Pas 3: Trimite al doilea email cu BCC la acelasi destinatar (simulare BCC reala)
+  try {
+    const info2 = await transporter.sendMail({
+      from,
+      to: `"Test BCC target" <test-dummy-${Date.now()}@delta-air.ro>`,
+      bcc: internalTo,
+      subject: `[TEST BCC] Delta Air – email intern ${ts}`,
+      text: `Test BCC catre ${internalTo}. Daca primesti asta, BCC functioneaza.`,
+    });
+    result.steps.push({ step: 'send_bcc', ok: true, messageId: info2.messageId });
+  } catch (err) {
+    result.steps.push({ step: 'send_bcc', ok: false, error: err.message });
+  }
+
+  res.json({ ok: true, result });
 });
 
 /* ──────────────────────────────────────────────
