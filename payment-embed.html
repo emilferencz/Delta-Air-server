@@ -1,0 +1,552 @@
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║   DELTA AIR SHUTTLE — Finalizare rezervare (Pagina 2)       ║
+  ║   Inserează în pagina "Finalizare rezervare" din WebWave.   ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+.dap{
+  --d-navy:#1a2f5e;--d-nd:#0f1e3d;--d-nl:#243d75;
+  --d-gold:#c9a84c;--d-gl:#e8c96a;
+  --d-w:#fff;--d-off:#f5f7fa;--d-brd:#e8edf5;
+  --d-gr:#8892a4;--d-gd:#4a5568;--d-tx:#1a202c;
+  --d-err:#e53e3e;--d-ok:#38a169;
+  --d-sh2:0 8px 32px rgba(26,47,94,.2);
+  --d-r:12px;--d-rs:8px;--d-tr:all .22s ease;
+  font-family:'Segoe UI',system-ui,sans-serif;
+  color:var(--d-tx);line-height:1.6;box-sizing:border-box;
+}
+.dap *,.dap *::before,.dap *::after{box-sizing:border-box;margin:0;padding:0}
+.dap button{font-family:inherit;cursor:pointer}
+
+.dap-card{background:var(--d-w);border-radius:20px;padding:40px;box-shadow:var(--d-sh2);max-width:640px;margin:0 auto}
+
+/* ── LOADING ── */
+.dap-loading{text-align:center;padding:60px 20px;color:var(--d-gr)}
+.dap-loading svg{animation:dap-spin .8s linear infinite;margin-bottom:12px}
+.dap-err{background:#fff5f5;border:1.5px solid #fc8181;border-radius:var(--d-r);padding:20px;text-align:center;color:#c53030;font-weight:600;display:none}
+.dap-err.vis{display:block}
+
+/* ── SUMAR REZERVARE ── */
+.dap-summary{background:linear-gradient(135deg,var(--d-navy),var(--d-nl));border-radius:var(--d-r);padding:20px 24px;color:#fff;margin-bottom:24px}
+.dap-sum-title{font-size:.62rem;text-transform:uppercase;letter-spacing:2px;opacity:.6;margin-bottom:12px}
+.dap-sum-row{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.84rem}
+.dap-sum-row:last-of-type{border:none}
+.dap-sum-lbl{opacity:.75}
+.dap-sum-val{font-weight:600}
+.dap-sum-total{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:2px solid rgba(255,255,255,.2)}
+.dap-sum-total-l{font-size:.9rem;font-weight:700}
+.dap-sum-total-v{font-size:1.5rem;font-weight:800;color:var(--d-gold)}
+
+/* ── STEP HEADER ── */
+.dap-sh{display:flex;align-items:center;gap:8px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--d-navy);margin-bottom:14px;padding-bottom:8px;border-top:2px solid var(--d-brd);padding-top:20px}
+.dap-sn{width:22px;height:22px;background:var(--d-navy);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;flex-shrink:0}
+
+/* ── RADIO PLATĂ ── */
+.dap-pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.dap-pay-opt input[type=radio]{display:none}
+.dap-pay-lbl{display:flex;flex-direction:column;gap:4px;padding:14px;border:2px solid var(--d-brd);border-radius:var(--d-rs);cursor:pointer;transition:var(--d-tr)}
+.dap-pay-opt input:checked+.dap-pay-lbl{border-color:var(--d-navy);background:rgba(26,47,94,.05)}
+.dap-pay-lbl:hover{border-color:var(--d-nl)}
+.dap-pay-name{font-size:.84rem;font-weight:700;color:var(--d-navy);display:flex;align-items:center;gap:6px}
+.dap-pay-info{font-size:.7rem;color:var(--d-gr)}
+
+/* ── STRIPE ELEMENT ── */
+#dap-pe-wrap{border:1.5px solid var(--d-brd);border-radius:var(--d-rs);padding:16px;background:var(--d-off);margin-bottom:14px}
+#dap-payment-element{min-height:44px}
+.dap-pe-loading{text-align:center;padding:14px;color:var(--d-gr);font-size:.83rem}
+.dap-pe-loading svg{animation:dap-spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* ── BUTOANE ── */
+.dap-acts{display:grid;gap:10px;margin-bottom:10px}
+.dap-btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:14px 18px;border:none;border-radius:var(--d-rs);font-size:.9rem;font-weight:700;transition:var(--d-tr);width:100%;cursor:pointer}
+.dap-btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.dap-btn-pdf{background:var(--d-off);border:1.5px solid var(--d-brd);color:var(--d-navy)}
+.dap-btn-pdf:hover{background:var(--d-brd)}
+.dap-btn-online{background:linear-gradient(135deg,#635bff,#4f46e5);color:#fff;font-size:1rem;padding:16px}
+.dap-btn-online:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(99,91,255,.4)}
+.dap-btn-boarding{background:linear-gradient(135deg,var(--d-navy),var(--d-nl));color:#fff;font-size:1rem;padding:16px}
+.dap-btn-boarding:hover{transform:translateY(-2px);box-shadow:var(--d-sh2)}
+
+/* ── SUCCESS ── */
+.dap-success{background:linear-gradient(135deg,#f0fff4,#c6f6d5);border:1.5px solid #38a169;border-radius:var(--d-r);padding:24px;text-align:center;margin-top:16px}
+.dap-success-ico{font-size:2.5rem;margin-bottom:10px}
+.dap-success-t{font-weight:700;color:#276749;font-size:1.1rem;margin-bottom:6px}
+.dap-success-s{font-size:.85rem;color:#2f855a;line-height:1.6}
+
+/* ── TOAST ── */
+.dap-toast{position:fixed;bottom:24px;right:24px;background:var(--d-navy);color:#fff;padding:12px 18px;border-radius:10px;font-size:.83rem;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:99999;transform:translateY(100px);opacity:0;transition:all .3s ease;max-width:300px;pointer-events:none}
+.dap-toast.show{transform:translateY(0);opacity:1}
+
+/* ── SPINNER ── */
+@keyframes dap-spin{to{transform:rotate(360deg)}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .dap-card{padding:22px 16px}
+  .dap-pay-grid{grid-template-columns:1fr}
+}
+</style>
+
+<div class="dap">
+<div class="dap-card">
+
+  <!-- Loading state -->
+  <div class="dap-loading" id="dap-loading">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#1a2f5e" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    <p style="color:#1a2f5e;font-weight:600;margin-top:4px">Se încarcă detaliile rezervării...</p>
+  </div>
+
+  <!-- Error state -->
+  <div class="dap-err" id="dap-err">
+    ⚠️ Sesiunea a expirat sau este invalidă.<br>
+    <a href="javascript:history.back()" style="color:#c53030;text-decoration:underline;font-size:.85rem;font-weight:normal;margin-top:8px;display:inline-block">← Înapoi la formular</a>
+  </div>
+
+  <!-- Conținut principal (ascuns până la încărcarea datelor) -->
+  <div id="dap-content" style="display:none">
+
+    <!-- SUMAR REZERVARE -->
+    <div class="dap-summary">
+      <div class="dap-sum-title">Sumar rezervare</div>
+      <div id="dap-sum-rows"></div>
+      <div class="dap-sum-total">
+        <span class="dap-sum-total-l">TOTAL DE PLATĂ</span>
+        <span class="dap-sum-total-v" id="dap-total">— lei</span>
+      </div>
+    </div>
+
+    <!-- MODALITATE PLATĂ -->
+    <div class="dap-sh"><span class="dap-sn">1</span>Modalitate de plată</div>
+    <div class="dap-pay-grid">
+      <label class="dap-pay-opt">
+        <input type="radio" name="dap_pay" value="boarding" checked onchange="dapPayChange()">
+        <div class="dap-pay-lbl">
+          <span class="dap-pay-name">💵 La îmbarcare</span>
+          <span class="dap-pay-info">Numerar sau card · plată la urcarea în vehicul</span>
+        </div>
+      </label>
+      <label class="dap-pay-opt">
+        <input type="radio" name="dap_pay" value="online" onchange="dapPayChange()">
+        <div class="dap-pay-lbl">
+          <span class="dap-pay-name">💳 Online cu cardul</span>
+          <span class="dap-pay-info">Plată securizată Stripe · confirmare imediată</span>
+        </div>
+      </label>
+    </div>
+
+    <!-- Stripe Payment Element (apare când se alege "Online") -->
+    <div id="dap-pe-wrap" style="display:none">
+      <div class="dap-pe-loading" id="dap-pe-loading">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        Se încarcă formularul de plată...
+      </div>
+      <div id="dap-payment-element"></div>
+    </div>
+
+    <!-- ACȚIUNI -->
+    <div class="dap-sh" style="margin-top:4px"><span class="dap-sn">2</span>Contract & Confirmare</div>
+    <div class="dap-acts">
+      <button class="dap-btn dap-btn-pdf" onclick="dapDownloadPDF()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+        Descarcă Contract PDF
+      </button>
+    </div>
+    <div class="dap-acts">
+      <button class="dap-btn dap-btn-boarding" id="dap-finalize-btn" onclick="dapFinalize()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        Confirmă rezervarea
+      </button>
+    </div>
+
+    <!-- Success -->
+    <div class="dap-success" id="dap-success" style="display:none">
+      <div class="dap-success-ico">✅</div>
+      <div class="dap-success-t" id="dap-success-t">Rezervare confirmată!</div>
+      <div class="dap-success-s" id="dap-success-s">Te așteptăm la îmbarcare! Contractul PDF a fost descărcat.</div>
+    </div>
+
+  </div><!-- #dap-content -->
+</div><!-- .dap-card -->
+</div><!-- .dap -->
+
+<div class="dap-toast" id="dap-toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CONFIGURARE — completează înainte de publicare
+   ═══════════════════════════════════════════════════════════════ */
+const DAP_CONFIG = {
+  serverUrl:          'https://delta-air-server-production.up.railway.app',
+  stripePublishableKey: 'pk_test_51T96P5CbTt6s0regCRlyFzCLYa5WW0GiUBEexUPS25Xqgb8LJ8Nt0QV0uou4ifqIumpKr2UMYQl7QPcWOtgwYZy700RYCISjtj',
+  // URL pagina de rezervari (pentru redirect 3DS)
+  bookingPageUrl: 'https://delta-air.ro/rezervare',
+};
+
+/* ── Helpers ── */
+const dg  = id => document.getElementById(id);
+const dgr = name => document.querySelector(`input[name=${name}]:checked`)?.value || '';
+
+/* ── Date rezervare (populate din server) ── */
+let _bk   = null;   // bookingData
+let _stripe = null, _stripeElements = null;
+
+/* ══════════════════════════════════════════════════════════════
+   INIȚIALIZARE — citește sesiunea din URL și afișează datele
+   ══════════════════════════════════════════════════════════════ */
+(async function dapInit() {
+  const params    = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session');
+
+  if (!sessionId) { showErr(); return; }
+
+  try {
+    const res = await fetch(`${DAP_CONFIG.serverUrl}/api/get-session/${sessionId}`);
+    if (!res.ok) throw new Error('not found');
+    const { bookingData } = await res.json();
+    _bk = bookingData;
+    renderSummary();
+    dg('dap-loading').style.display = 'none';
+    dg('dap-content').style.display = 'block';
+  } catch (_) {
+    showErr();
+  }
+})();
+
+function showErr() {
+  dg('dap-loading').style.display = 'none';
+  dg('dap-err').classList.add('vis');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RENDER SUMAR
+   ══════════════════════════════════════════════════════════════ */
+function renderSummary() {
+  const b = _bk;
+  const rows = [];
+
+  rows.push(['Direcție',      b.dirLabel]);
+  rows.push(['Cursă · Data',  `${b.tripLabel} · ${b.date}`]);
+  rows.push(['Tip transfer',  b.trLabel]);
+  if (b.depTime) rows.push(['Plecare',  b.depTime + (b.pickupLabel ? ` din ${b.pickupLabel}` : '')]);
+  if (b.arrTime) rows.push(['Sosire',   b.arrTime]);
+  rows.push(['Pasageri',      `${b.adults} adult(ți)${b.children > 0 ? ` · ${b.children} copil` : ''}${b.bags > 0 ? ` · ${b.bags} bagaj extra` : ''}`]);
+  if (b.buyer === 'pf') {
+    rows.push(['Client',  b.name]);
+    rows.push(['Contact', `${b.phone} · ${b.email}`]);
+  } else {
+    rows.push(['Societate', b.firm]);
+    rows.push(['CUI',       b.cui]);
+    rows.push(['Contact',   `${b.contactName} · ${b.contactPhone}`]);
+  }
+
+  dg('dap-sum-rows').innerHTML = rows.map(([l, v]) =>
+    `<div class="dap-sum-row"><span class="dap-sum-lbl">${l}</span><span class="dap-sum-val">${v}</span></div>`
+  ).join('');
+
+  dg('dap-total').textContent = `${b.total} lei`;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ALEGERE MODALITATE PLATĂ
+   ══════════════════════════════════════════════════════════════ */
+function dapPayChange() {
+  const pay    = dgr('dap_pay');
+  const btn    = dg('dap-finalize-btn');
+  const peWrap = dg('dap-pe-wrap');
+
+  dg('dap-success').style.display = 'none';
+
+  if (pay === 'online') {
+    peWrap.style.display = 'block';
+    btn.className = 'dap-btn dap-btn-online';
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg> Plătește online`;
+    if (!_stripeElements) dapInitStripe();
+  } else {
+    peWrap.style.display = 'none';
+    btn.className = 'dap-btn dap-btn-boarding';
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg> Confirmă rezervarea`;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STRIPE PAYMENT ELEMENT
+   ══════════════════════════════════════════════════════════════ */
+async function dapInitStripe() {
+  if (!window.Stripe) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://js.stripe.com/v3/';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+  _stripe = Stripe(DAP_CONFIG.stripePublishableKey);
+
+  _stripeElements = _stripe.elements({
+    mode: 'payment',
+    amount: Math.round((_bk.total || 0) * 100),
+    currency: 'ron',
+    payment_method_types: ['card'],
+    appearance: {
+      theme: 'stripe',
+      variables: { colorPrimary:'#1a2f5e', borderRadius:'8px', fontFamily:"'Segoe UI',system-ui,sans-serif" },
+    },
+  });
+
+  const pe = _stripeElements.create('payment', {
+    fields:  { billingDetails: { address: { postalCode: 'never' } } },
+    wallets: { link:'never', applePay:'never', googlePay:'never' },
+  });
+
+  dg('dap-pe-loading').style.display = 'none';
+  pe.mount('#dap-payment-element');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FINALIZARE
+   ══════════════════════════════════════════════════════════════ */
+async function dapFinalize() {
+  const pay = dgr('dap_pay');
+  const btn = dg('dap-finalize-btn');
+
+  /* ── La îmbarcare ── */
+  if (pay === 'boarding') {
+    btn.disabled = true;
+    dg('dap-success').style.display = 'block';
+    dg('dap-success').scrollIntoView({ behavior:'smooth', block:'nearest' });
+    return;
+  }
+
+  /* ── Online ── */
+  if (!_stripeElements) { dapToast('Formularul de plată nu e gata. Încearcă din nou.'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:dap-spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Se procesează...`;
+
+  /* 1. Validează câmpurile card */
+  const { error: submitErr } = await _stripeElements.submit();
+  if (submitErr) {
+    dapToast(submitErr.message);
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg> Plătește online`;
+    return;
+  }
+
+  /* 2. Creează PaymentIntent pe server */
+  const meta = { buyer: _bk.buyer, ..._bk };
+  let clientSecret;
+  try {
+    const res = await fetch(`${DAP_CONFIG.serverUrl}/api/create-payment-intent`, {
+      method:  'POST',
+      headers: { 'Content-Type':'application/json' },
+      body:    JSON.stringify({ amount: Math.round(_bk.total * 100), currency:'ron', meta }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    ({ clientSecret } = await res.json());
+  } catch (err) {
+    dapToast(`Eroare server: ${err.message}.`);
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg> Plătește online`;
+    return;
+  }
+
+  /* 3. Confirmă plata */
+  const custEmail = _bk.buyer === 'pf' ? _bk.email : _bk.contactEmail;
+  const custName  = _bk.buyer === 'pf' ? _bk.name  : _bk.contactName;
+  const { error } = await _stripe.confirmPayment({
+    elements:      _stripeElements,
+    clientSecret,
+    confirmParams: {
+      return_url: `${DAP_CONFIG.bookingPageUrl}?session=${new URLSearchParams(window.location.search).get('session')}`,
+      payment_method_data: { billing_details: { name: custName, email: custEmail } },
+    },
+    redirect: 'if_required',
+  });
+
+  if (error) {
+    dapToast(`Eroare plată: ${error.message}`);
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg> Plătește online`;
+    return;
+  }
+
+  /* 4. Succes */
+  await dapGeneratePDF();
+  dg('dap-success-t').textContent = 'Plată procesată cu succes!';
+  dg('dap-success-s').innerHTML   = `Vei primi confirmarea pe email la <strong>${custEmail}</strong>.<br>Contractul PDF a fost descărcat automat.`;
+  dg('dap-success').style.display = 'block';
+  dg('dap-success').scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PDF CONTRACT
+   ══════════════════════════════════════════════════════════════ */
+function dapDownloadPDF() { dapGeneratePDF(); }
+
+function dapLoadScript(src) {
+  return new Promise((res, rej) => {
+    if (document.querySelector(`script[src="${src}"]`)) { res(); return; }
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+function dapNumToWords(n) {
+  const u=['','unu','doi','trei','patru','cinci','sase','sapte','opt','noua','zece',
+           'unsprezece','doisprezece','treisprezece','paisprezece','cincisprezece',
+           'saisprezece','saptesprezece','optsprezece','nouasprezece'];
+  const d=['','','douazeci','treizeci','patruzeci','cincizeci','saizeci','saptezeci','optzeci','nouazeci'];
+  if(n===0)return'zero';if(n<20)return u[n];
+  if(n<100)return d[Math.floor(n/10)]+(n%10?' si '+u[n%10]:'');
+  if(n<1000){const h=Math.floor(n/100),r=n%100;return(h===1?'una suta':u[h]+' sute')+(r?' '+dapNumToWords(r):'');}
+  if(n<10000){const th=Math.floor(n/1000),r=n%1000;return(th===1?'una mie':dapNumToWords(th)+' mii')+(r?' '+dapNumToWords(r):'');}
+  return n.toString();
+}
+
+async function dapGeneratePDF() {
+  try { await dapLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'); }
+  catch(e){ dapToast('Nu s-a putut genera PDF-ul.'); return; }
+
+  const b = _bk;
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const payL = dgr('dap_pay') === 'online' ? 'Card online (Stripe)' : 'Numerar / Card la îmbarcare';
+  const totalNum = b.total || 0;
+
+  let benefName, benefRep, benefContact, benefAddr='';
+  if (b.buyer==='pf') {
+    benefName=b.name; benefRep=b.name;
+    benefContact=`Tel: ${b.phone} | E-mail: ${b.email}`;
+  } else {
+    benefName=b.firm; benefRep=b.contactName; benefAddr=b.sediu||'';
+    benefContact=`CUI: ${b.cui} | Tel: ${b.contactPhone} | E-mail: ${b.contactEmail}`;
+  }
+  const flightNum = b.buyer==='pf' ? (b.flight||'—') : (b.scFlight||'—');
+  const paxList   = (b.paxNames||[]).length>0 ? b.paxNames.join(', ') : benefName;
+
+  let plecare='—', sosire='—';
+  if (b.dir==='tur') {
+    plecare = `${b.depTime||''} – ${b.pickupLabel||''}`;
+    sosire  = `${b.arrTime||''} – ${b.aptLabel||''}`;
+  } else {
+    plecare = `${b.depTime||''} – ${b.aptLabel||''} (parcare)`;
+    sosire  = `${b.arrTime||''} – Brașov, Sala Sporturilor`;
+  }
+
+  const priceRowsHtml = (b.priceLines||[]).map(l=>
+    `<tr><td>${l.l}</td><td style="text-align:right;font-weight:bold">${l.v}</td></tr>`
+  ).join('');
+
+  const html=`<!DOCTYPE html>
+<html lang="ro"><head><meta charset="UTF-8"><style>
+@page{size:A4;margin:0}*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;font-size:8.5pt;color:#1e1e1e;background:#fff;width:210mm}
+.wrap{width:190mm;margin:0 auto;padding:8mm 0 4mm}
+.header{background:#1a2f5e;padding:3.5mm 5mm;display:flex;justify-content:space-between;align-items:center;margin:-8mm -10mm 0;width:210mm}
+.header .logo{color:#c9a84c;font-weight:bold;font-size:10pt}
+.header .sub{color:#ccc;font-size:7pt}
+.title-block{text-align:center;padding:4mm 0 3mm;border-bottom:1.5px solid #d2d7e1;margin-bottom:3mm}
+.title-block h1{color:#1a2f5e;font-size:12pt;font-weight:800}
+.title-block h2{color:#1a2f5e;font-size:9.5pt;font-weight:normal;margin-top:1.5mm}
+.doc-date{text-align:right;font-size:7.5pt;color:#888;margin-top:1mm}
+.sec{background:#1a2f5e;color:#fff;font-weight:bold;font-size:8pt;padding:1.8mm 4mm;border-radius:3px;margin:3.5mm 0 2mm}
+.parties{display:flex;gap:3mm;margin-bottom:3mm}
+.party{flex:1;border-radius:3px;overflow:hidden;border:1px solid #dde2ed;font-size:7.5pt;line-height:1.65}
+.party .ph{padding:1.5mm 3.5mm;font-weight:bold;font-size:7.5pt}
+.party.pre .ph{background:#1a2f5e;color:#fff}.party.ben .ph{background:#c9a84c;color:#1a2f5e}
+.party .pb{background:#f5f7fa;padding:2.5mm 3.5mm}
+table{width:100%;border-collapse:collapse;font-size:7.8pt;margin-bottom:2.5mm}
+table th{background:#1a2f5e;color:#fff;padding:1.8mm 3mm;text-align:left;font-size:7.5pt}
+table td{padding:1.8mm 3mm;border-bottom:1px solid #eaecf2}
+table td.lbl{font-weight:bold;background:#f5f7fa;width:36%}
+.price-total{font-size:9.5pt;font-weight:bold;color:#1a2f5e;padding:1.5mm 0}
+.sigs{display:flex;gap:3mm;margin:3mm 0 2mm}
+.sig{flex:1;border:1px solid #dde2ed;border-radius:3px;overflow:hidden}
+.sig .sh{padding:1.5mm 3.5mm;font-weight:bold;font-size:7.5pt}
+.sig.pre .sh{background:#1a2f5e;color:#fff}.sig.ben .sh{background:#c9a84c;color:#1a2f5e}
+.sig .sb{background:#f5f7fa;padding:2.5mm 3.5mm;font-size:7.5pt;line-height:1.8;min-height:28mm}
+.sig-line{border-top:1.2px solid #1a2f5e;margin-top:7mm;padding-top:.8mm;font-size:6.5pt;color:#aaa}
+.footer{background:#1a2f5e;color:#c9a84c;text-align:center;font-size:6.5pt;padding:2.5mm 5mm;margin:3mm -10mm -4mm;width:210mm}
+</style></head><body><div class="wrap">
+<div class="header">
+  <span class="logo">DELTA AIR SHUTTLE S.R.L.</span>
+  <span class="sub">Transfer Aeroport Brașov – Otopeni – Băneasa &nbsp;|&nbsp; office@delta-air.ro</span>
+</div>
+<div class="title-block">
+  <h1>CONTRACT DE PRESTĂRI SERVICII</h1>
+  <h2>Transfer rutier aeroport · ${b.dirLabel}</h2>
+  <div class="doc-date">Data emiterii: ${dateStr}</div>
+</div>
+<div class="sec">PĂRȚILE CONTRACTANTE</div>
+<div class="parties">
+  <div class="party pre">
+    <div class="ph">PRESTATOR</div>
+    <div class="pb">
+      <strong>Delta Air Shuttle S.R.L.</strong><br>
+      CUI: RO________ | Reg. Com.: J________<br>
+      Brașov, România<br>
+      Tel: +40 761 617 606 | office@delta-air.ro
+    </div>
+  </div>
+  <div class="party ben">
+    <div class="ph">BENEFICIAR</div>
+    <div class="pb">
+      <strong>${benefName}</strong>${benefAddr?'<br>'+benefAddr:''}<br>
+      ${benefContact}<br>
+      Rep.: ${benefRep}
+    </div>
+  </div>
+</div>
+<div class="sec">DETALII SERVICIU</div>
+<table>
+  <tr><td class="lbl">Rută</td><td>${b.dirLabel}</td></tr>
+  <tr><td class="lbl">Tip transfer</td><td>${b.trLabel}</td></tr>
+  <tr><td class="lbl">Cursă · Data</td><td>${b.tripLabel} · ${b.date}</td></tr>
+  <tr><td class="lbl">Plecare</td><td>${plecare}</td></tr>
+  <tr><td class="lbl">Sosire estimată</td><td>${sosire}</td></tr>
+  <tr><td class="lbl">Nr. pasageri</td><td>${(b.adults||1)+(b.children||0)} (${b.adults||1} adulți${b.children>0?', '+b.children+' copii':''})</td></tr>
+  <tr><td class="lbl">Pasageri</td><td>${paxList}</td></tr>
+  ${b.bags>0?`<tr><td class="lbl">Bagaj suplimentar</td><td>${b.bags} buc</td></tr>`:''}
+  <tr><td class="lbl">Nr. zbor</td><td>${flightNum}</td></tr>
+  <tr><td class="lbl">Modalitate plată</td><td>${payL}</td></tr>
+  ${b.notes?`<tr><td class="lbl">Observații</td><td>${b.notes}</td></tr>`:''}
+</table>
+<div class="sec">VALOARE CONTRACT</div>
+<table>
+  <tr><th>Descriere</th><th style="text-align:right">Valoare</th></tr>
+  ${priceRowsHtml}
+</table>
+<div class="price-total">TOTAL: ${totalNum} lei (${dapNumToWords(totalNum)} lei) · TVA inclus</div>
+<div class="sec">SEMNĂTURI</div>
+<div class="sigs">
+  <div class="sig pre"><div class="sh">PRESTATOR — Delta Air Shuttle S.R.L.</div>
+    <div class="sb">Numele și prenumele: ________________________<br>Funcția: Administrator<br>Data: ${dateStr}<br><div class="sig-line">Semnătură și ștampilă</div></div></div>
+  <div class="sig ben"><div class="sh">BENEFICIAR — ${benefName}</div>
+    <div class="sb">Numele și prenumele: ________________________<br>Data: ${dateStr}<br><br><div class="sig-line" style="border-color:#c9a84c">Semnătură</div></div></div>
+</div>
+<div class="footer">Delta Air Shuttle S.R.L. · office@delta-air.ro · +40 761 617 606</div>
+</div></body></html>`;
+
+  const opt = {
+    margin:[10,10,10,10], filename:`Contract-DeltaAir-${b.date||dateStr}.pdf`,
+    image:{type:'jpeg',quality:.92}, html2canvas:{scale:2,useCORS:true},
+    jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  };
+  try { await html2pdf().set(opt).from(html).save(); dapToast('✅ Contract PDF descărcat!'); }
+  catch(e){ dapToast('Eroare generare PDF.'); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════════════════════════ */
+function dapToast(msg) {
+  const el = dg('dap-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3500);
+}
+</script>

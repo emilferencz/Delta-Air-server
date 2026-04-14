@@ -199,7 +199,7 @@ async function sendConfirmationEmail(customerEmail, meta) {
     await transporter.sendMail({
       from:    process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`,
       to:      customerEmail,
-      bcc:     process.env.EMAIL_USER,          // copie internă
+      bcc:     OFFICE_EMAIL,                     // copie internă → rezervari@delta-air.ro
       subject: `✈ Confirmare rezervare Delta Air Shuttle — ${meta.date || ''} ${meta.dirLabel || ''}`,
       html:    buildConfirmationEmail(meta),
     });

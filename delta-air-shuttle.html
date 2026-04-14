@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Delta Air Shuttle - Transfer Aeroport Brașov - Otopeni - Băneasa. Rezervă bilet online rapid și ușor.">
+<title>Delta Air Shuttle | Transfer Aeroport Brașov</title>
+<style>
+:root {
+  --navy:#1a2f5e; --navy-d:#0f1e3d; --navy-l:#243d75;
+  --gold:#c9a84c; --gold-l:#e8c96a;
+  --white:#fff; --off:#f5f7fa; --gl:#e8edf5;
+  --gray:#8892a4; --gd:#4a5568; --text:#1a202c;
+  --green:#25d366; --green-d:#128c7e;
+  --sh:0 4px 20px rgba(26,47,94,.12);
+  --sh2:0 8px 32px rgba(26,47,94,.22);
+  --r:12px; --rs:8px; --tr:all .25s ease;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:var(--white);line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+img{max-width:100%;height:auto}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(15,30,61,.97);backdrop-filter:blur(10px);box-shadow:0 2px 16px rgba(0,0,0,.25)}
+.hdr-in{max-width:1200px;margin:0 auto;padding:0 20px;height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-svg{width:48px;height:48px;object-fit:contain}
+.logo-txt{display:flex;flex-direction:column;line-height:1}
+.logo-name{font-size:.95rem;font-weight:800;color:#fff;letter-spacing:.5px}
+.logo-sub{font-size:.58rem;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.hdr-nav{display:flex;align-items:center;gap:4px}
+.nav-a{color:rgba(255,255,255,.8);font-size:.82rem;padding:6px 11px;border-radius:6px;transition:var(--tr);white-space:nowrap}
+.nav-a:hover{color:var(--gold);background:rgba(255,255,255,.08)}
+.lang{display:flex;background:rgba(255,255,255,.1);border-radius:20px;padding:3px;gap:2px;margin-left:6px}
+.lang-b{padding:4px 10px;border:none;background:transparent;color:rgba(255,255,255,.65);font-size:.72rem;font-weight:700;cursor:pointer;border-radius:16px;transition:var(--tr);letter-spacing:.5px}
+.lang-b.on{background:var(--gold);color:var(--navy-d)}
+.hdr-cta{background:var(--gold);color:var(--navy-d);font-weight:700;font-size:.82rem;padding:9px 18px;border-radius:8px;border:none;transition:var(--tr);white-space:nowrap}
+.hdr-cta:hover{background:var(--gold-l);transform:translateY(-1px)}
+.burger{display:none;flex-direction:column;gap:5px;padding:4px;background:none;border:none}
+.burger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:var(--tr)}
+.mnav{display:none;background:var(--navy-d);padding:12px 20px;border-top:1px solid rgba(255,255,255,.1)}
+.mnav.open{display:block}
+.mnav a{display:block;color:rgba(255,255,255,.8);padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:.9rem}
+.mnav a:last-child{border:none}
+
+/* ── HERO ── */
+.hero{min-height:100vh;background:linear-gradient(140deg,var(--navy-d) 0%,var(--navy) 55%,#1e4080 100%);display:flex;align-items:center;position:relative;overflow:hidden;padding-top:68px}
+.hero::before{content:'';position:absolute;top:-30%;right:-15%;width:70%;height:130%;background:radial-gradient(ellipse,rgba(201,168,76,.09) 0%,transparent 65%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to top,var(--off),transparent)}
+.hero-in{max-width:1200px;margin:0 auto;padding:60px 20px 100px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative;z-index:1}
+.hero-h1{font-size:clamp(1.9rem,3.8vw,3rem);color:#fff;font-weight:800;line-height:1.15;margin-bottom:14px}
+.hero-h1 em{color:var(--gold);font-style:normal}
+.hero-p{color:rgba(255,255,255,.72);font-size:1rem;margin-bottom:28px;max-width:460px}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+.stat-n{font-size:1.7rem;font-weight:800;color:var(--gold);line-height:1}
+.stat-l{font-size:.7rem;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px}
+.hero-card{background:#fff;border-radius:18px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.hero-card h3{font-size:1.05rem;color:var(--navy);font-weight:700;margin-bottom:18px;text-align:center}
+.qf{display:flex;flex-direction:column;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:.72rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
+.fg select,.fg input{padding:9px 13px;border:1.5px solid var(--gl);border-radius:var(--rs);font-size:.88rem;color:var(--text);background:#fff;outline:none;transition:var(--tr);width:100%}
+.fg select:focus,.fg input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,47,94,.1)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px 20px;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:700;transition:var(--tr);width:100%}
+.btn-navy{background:linear-gradient(135deg,var(--navy),var(--navy-l));color:#fff}
+.btn-navy:hover{background:linear-gradient(135deg,var(--navy-d),var(--navy));transform:translateY(-1px);box-shadow:var(--sh2)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-l));color:var(--navy-d)}
+.btn-gold:hover{background:linear-gradient(135deg,#b8963e,var(--gold));transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,.4)}
+.btn-wa{background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff}
+.btn-wa:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,211,102,.35)}
+
+/* ── SECTION BASE ── */
+section{padding:76px 20px}
+.cnt{max-width:1200px;margin:0 auto}
+.sec-hd{text-align:center;margin-bottom:44px}
+.tag{display:inline-block;background:rgba(26,47,94,.08);color:var(--navy);font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:10px}
+.sec-hd h2{font-size:clamp(1.5rem,3vw,2.2rem);color:var(--navy);font-weight:800;margin-bottom:10px}
+.sec-hd p{color:var(--gd);font-size:.95rem;max-width:580px;margin:0 auto}
+.div{width:56px;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;margin:12px auto 0}
+
+/* ── SERVICES ── */
+.srv-bg{background:var(--off)}
+.srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.srv-card{background:#fff;border-radius:var(--r);padding:28px 24px;box-shadow:var(--sh);transition:var(--tr);position:relative;border:2px solid transparent}
+.srv-card:hover:not(.soon){transform:translateY(-4px);box-shadow:var(--sh2);border-color:var(--gold)}
+.srv-card.soon{opacity:.8;cursor:not-allowed}
+.badge{position:absolute;top:14px;right:14px;font-size:.62rem;font-weight:700;padding:4px 10px;border-radius:12px;letter-spacing:.5px;text-transform:uppercase}
+.badge-navy{background:var(--navy);color:#fff}
+.badge-gold{background:var(--gold);color:var(--navy-d)}
+.badge-gray{background:var(--gray);color:#fff}
+.srv-ico{width:52px;height:52px;background:linear-gradient(135deg,var(--navy),var(--navy-l));border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:1.5rem}
+.srv-card h3{font-size:1.15rem;color:var(--navy);font-weight:700;margin-bottom:7px}
+.srv-card>p{color:var(--gd);font-size:.85rem;margin-bottom:18px;line-height:1.6}
+.prices{display:flex;flex-direction:column;gap:7px;margin-bottom:18px}
+.pi{display:flex;justify-content:space-between;align-items:center;padding:7px 11px;background:var(--off);border-radius:7px}
+.pi-l{font-size:.82rem;color:var(--gd)}
+.pi-v{font-size:.95rem;font-weight:700;color:var(--navy)}
+.pi-v.g{color:var(--gold)}
+.feats{list-style:none;display:flex;flex-direction:column;gap:7px}
+.feats li{font-size:.82rem;color:var(--gd);display:flex;align-items:center;gap:7px}
+.feats li::before{content:'✓';color:var(--gold);font-weight:700;font-size:.82rem;flex-shrink:0}
+
+/* ── SCHEDULE ── */
+.tabs{display:flex;justify-content:center;gap:8px;margin-bottom:28px;flex-wrap:wrap}
+.tab{padding:9px 22px;border:2px solid var(--navy);background:transparent;color:var(--navy);font-size:.85rem;font-weight:700;border-radius:8px;transition:var(--tr)}
+.tab.on,.tab:hover{background:var(--navy);color:#fff}
+.tp{display:none}
+.tp.on{display:block}
+.sch-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.sch-card{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.sch-hd{background:linear-gradient(135deg,var(--navy),var(--navy-l));padding:18px 22px;color:#fff}
+.sch-hd h4{font-size:1rem;font-weight:700;margin-bottom:3px}
+.sch-hd p{font-size:.75rem;opacity:.72}
+.stops{padding:22px;display:flex;flex-direction:column;gap:0}
+.stop{display:flex;gap:14px;padding-bottom:18px;position:relative}
+.stop:last-child{padding-bottom:0}
+.stop::before{content:'';position:absolute;left:14px;top:30px;bottom:0;width:2px;background:var(--gl)}
+.stop:last-child::before{display:none}
+.dot{width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.65rem;color:#fff;font-weight:700;position:relative;z-index:1}
+.dot.arr{background:var(--gold);color:var(--navy-d)}
+.si{flex:1;padding-top:3px}
+.st{font-size:1.05rem;font-weight:800;color:var(--navy);line-height:1}
+.sn{font-size:.82rem;color:var(--gd);margin-top:2px}
+.sg{font-size:.72rem;color:var(--gray);font-style:italic}
+
+/* ── BAGGAGE ── */
+.bag-bg{background:var(--off)}
+.bag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.bag-card{background:#fff;border-radius:var(--r);padding:26px 22px;text-align:center;box-shadow:var(--sh)}
+.bag-ico{font-size:2.4rem;margin-bottom:10px}
+.bag-card h4{font-size:.95rem;color:var(--navy);font-weight:700;margin-bottom:7px}
+.bag-card p{font-size:.82rem;color:var(--gd);line-height:1.55}
+.ptag{display:inline-block;margin-top:10px;background:var(--gold);color:var(--navy-d);font-size:.8rem;font-weight:700;padding:3px 12px;border-radius:20px}
+
+/* ── BOOKING FORM ── */
+.bk-bg{background:linear-gradient(140deg,var(--navy-d) 0%,var(--navy) 100%)}
+.bk-bg .tag{background:rgba(255,255,255,.15);color:var(--gold)}
+.bk-bg .sec-hd h2{color:#fff}
+.bk-bg .sec-hd p{color:rgba(255,255,255,.68)}
+.bk-box{background:#fff;border-radius:20px;padding:44px;box-shadow:0 24px 64px rgba(0,0,0,.3);max-width:860px;margin:0 auto}
+.fst{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--navy);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--gl);display:flex;align-items:center;gap:8px}
+.fst .fnum{width:22px;height:22px;background:var(--navy);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0}
+.fblk{display:flex;flex-direction:column;gap:16px;margin-bottom:28px}
+.dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dir-opt input[type=radio]{display:none}
+.dir-lbl{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 14px;border:2px solid var(--gl);border-radius:var(--rs);transition:var(--tr);text-align:center;cursor:pointer}
+.dir-opt input:checked+.dir-lbl{border-color:var(--navy);background:rgba(26,47,94,.05)}
+.dir-ico{font-size:1.6rem}
+.dir-t{font-size:.82rem;font-weight:700;color:var(--navy)}
+.dir-s{font-size:.7rem;color:var(--gray)}
+.tr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tr-opt input[type=radio]{display:none}
+.tr-lbl{display:flex;flex-direction:column;gap:5px;padding:14px;border:2px solid var(--gl);border-radius:var(--rs);transition:var(--tr);cursor:pointer;position:relative;overflow:hidden}
+.tr-opt input:checked+.tr-lbl{border-color:var(--navy);background:rgba(26,47,94,.05)}
+.tr-name{font-size:.88rem;font-weight:700;color:var(--navy)}
+.tr-price{font-size:.78rem;color:var(--gold);font-weight:600}
+.tr-info{font-size:.7rem;color:var(--gray)}
+.soon-ov{position:absolute;inset:0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;border-radius:var(--rs)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fc{grid-column:1/-1}
+.fg label{font-size:.72rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px}
+.fg select,.fg input{padding:10px 13px;border:1.5px solid var(--gl);border-radius:var(--rs);font-size:.88rem;color:var(--text);background:#fff;outline:none;transition:var(--tr);width:100%}
+.fg select:focus,.fg input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,47,94,.1)}
+.fg small{font-size:.7rem;color:var(--gray);margin-top:3px;display:block}
+.price-box{background:linear-gradient(135deg,var(--navy),var(--navy-l));border-radius:var(--r);padding:22px;color:#fff;margin-bottom:20px}
+.price-box-t{font-size:.72rem;text-transform:uppercase;letter-spacing:1.5px;opacity:.65;margin-bottom:14px}
+.pl{display:flex;justify-content:space-between;font-size:.85rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.pl:last-of-type{border:none}
+.ptl{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid rgba(255,255,255,.18)}
+.ptl-l{font-size:.95rem;font-weight:700}
+.ptl-v{font-size:1.5rem;font-weight:800;color:var(--gold)}
+.pnote{font-size:.68rem;opacity:.55;margin-top:6px}
+.form-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wa-sub{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;display:none}
+.wa-sub .btn{font-size:.78rem;padding:10px 8px}
+.hidden{display:none!important}
+
+/* ── CONTACT ── */
+.ct-bg{background:var(--off)}
+.ct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:28px}
+.ct-card{background:#fff;border-radius:var(--r);padding:26px 22px;box-shadow:var(--sh);text-align:center;transition:var(--tr)}
+.ct-card:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.ct-ico{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:1.3rem}
+.ico-ph{background:rgba(26,47,94,.1)}
+.ico-wa{background:rgba(37,211,102,.12)}
+.ico-em{background:rgba(201,168,76,.15)}
+.ct-card h4{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gray);margin-bottom:10px}
+.ct-card a{display:block;color:var(--navy);font-size:.88rem;font-weight:600;margin-bottom:3px;transition:var(--tr)}
+.ct-card a:hover{color:var(--gold)}
+.ct-pname{font-size:.72rem;color:var(--gray)}
+.addr-bar{background:var(--navy);color:#fff;border-radius:var(--r);padding:24px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.addr-ico{font-size:2rem;flex-shrink:0}
+.addr-inf h4{font-size:.95rem;font-weight:700;margin-bottom:3px}
+.addr-inf p{font-size:.82rem;opacity:.72}
+.addr-leg{margin-left:auto;text-align:right}
+.addr-leg p{font-size:.72rem;opacity:.55;line-height:1.8}
+
+/* ── FOOTER ── */
+footer{background:var(--navy-d);color:rgba(255,255,255,.5);padding:28px 20px;text-align:center}
+footer p{font-size:.75rem;line-height:1.9}
+footer a{color:var(--gold)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:13px 20px;border-radius:10px;font-size:.85rem;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hdr-nav{display:none}
+  .burger{display:flex}
+  .hero-in{grid-template-columns:1fr;gap:36px;padding:40px 20px 90px}
+  .hero-content{text-align:center}
+  .hero-stats{justify-content:center}
+  .hero-p{margin:0 auto 28px}
+  .srv-grid,.sch-grid,.bag-grid,.ct-grid{grid-template-columns:1fr}
+  .bk-box{padding:24px 18px}
+  .form-row,.form-row-3{grid-template-columns:1fr}
+  .tr-grid{grid-template-columns:1fr 1fr}
+  .form-acts{grid-template-columns:1fr}
+  .addr-bar{flex-direction:column;text-align:center}
+  .addr-leg{margin-left:0;text-align:center}
+  .wa-sub{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  section{padding:56px 16px}
+  .tr-grid{grid-template-columns:1fr}
+  .dir-grid{grid-template-columns:1fr 1fr}
+  .fr{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="#" class="logo">
+      <img src="logo.svg" class="logo-svg" alt="Delta Air Shuttle Logo">
+      <div class="logo-txt">
+        <span class="logo-name">DELTA AIR SHUTTLE</span>
+        <span class="logo-sub">Transfer Aeroport</span>
+      </div>
+    </a>
+    <nav class="hdr-nav">
+      <a href="#servicii" class="nav-a" data-i18n="nav_services">Servicii</a>
+      <a href="#orar" class="nav-a" data-i18n="nav_schedule">Orar</a>
+      <a href="#bagaje" class="nav-a" data-i18n="nav_baggage">Bagaje</a>
+      <a href="#contact" class="nav-a" data-i18n="nav_contact">Contact</a>
+      <div class="lang">
+        <button class="lang-b on" onclick="setLang('ro')">RO</button>
+        <button class="lang-b" onclick="setLang('en')">EN</button>
+      </div>
+    </nav>
+    <button class="hdr-cta" onclick="document.getElementById('rezervare').scrollIntoView({behavior:'smooth'})" data-i18n="btn_book">Rezervă Acum</button>
+    <button class="burger" onclick="toggleMnav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="mnav" id="mnav">
+    <a href="#servicii" onclick="closeMnav()" data-i18n="nav_services">Servicii</a>
+    <a href="#orar" onclick="closeMnav()" data-i18n="nav_schedule">Orar</a>
+    <a href="#bagaje" onclick="closeMnav()" data-i18n="nav_baggage">Bagaje</a>
+    <a href="#rezervare" onclick="closeMnav()" data-i18n="nav_book">Rezervare</a>
+    <a href="#contact" onclick="closeMnav()" data-i18n="nav_contact">Contact</a>
+    <div class="lang" style="margin-top:12px">
+      <button class="lang-b on" onclick="setLang('ro')">RO</button>
+      <button class="lang-b" onclick="setLang('en')">EN</button>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="acasa">
+  <div class="hero-in">
+    <div class="hero-content">
+      <h1 class="hero-h1" data-i18n="hero_title">Transfer rapid<br><em>Brașov ↔ Aeroporturi</em><br>București</h1>
+      <p class="hero-p" data-i18n="hero_sub">Curse zilnice spre Otopeni (Henri Coandă) și Băneasa. Confortabil, punctual, la prețuri accesibile.</p>
+      <div class="hero-stats">
+        <div><div class="stat-n">2</div><div class="stat-l" data-i18n="stat_trips">curse/zi</div></div>
+        <div><div class="stat-n">365</div><div class="stat-l" data-i18n="stat_days">zile/an</div></div>
+        <div><div class="stat-n">120<span style="font-size:1rem">lei</span></div><div class="stat-l" data-i18n="stat_from">de la / adult</div></div>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3 data-i18n="quick_title">Verifică orarul & rezervă</h3>
+      <div class="qf">
+        <div class="fg">
+          <label data-i18n="lbl_direction">Direcție</label>
+          <select id="q-dir" onchange="updateHeroAirport()">
+            <option value="tur" data-i18n-opt="opt_tur">➡ Brașov → București</option>
+            <option value="retur" data-i18n-opt="opt_retur">⬅ București → Brașov</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label data-i18n="lbl_airport">Aeroport</label>
+          <select id="q-apt">
+            <option value="otopeni">✈ Otopeni – Henri Coandă</option>
+            <option value="baneasa">✈ Băneasa</option>
+          </select>
+        </div>
+        <div class="fr">
+          <div class="fg">
+            <label data-i18n="lbl_date">Data</label>
+            <input type="date" id="q-date" min="">
+          </div>
+          <div class="fg">
+            <label data-i18n="lbl_trip">Cursă</label>
+            <select id="q-trip">
+              <option value="c1" data-i18n-opt="opt_c1">Cursa 1 (01:30)</option>
+              <option value="c2" data-i18n-opt="opt_c2">Cursa 2 (14:00)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-gold" onclick="scrollToBook()" data-i18n="btn_book_now">🎫 Rezervă Acum</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="srv-bg" id="servicii">
+  <div class="cnt">
+    <div class="sec-hd">
+      <div class="tag" data-i18n="tag_services">Serviciile Noastre</div>
+      <h2 data-i18n="srv_title">Alege tipul de transfer</h2>
+      <p data-i18n="srv_sub">Soluții pentru fiecare nevoie, de la transfer shared economic până la transfer privat dedicat.</p>
+      <div class="div"></div>
+    </div>
+    <div class="srv-grid">
+      <!-- Economy -->
+      <div class="srv-card">
+        <span class="badge badge-navy" data-i18n="badge_popular">Cel mai popular</span>
+        <div class="srv-ico">🚐</div>
+        <h3 data-i18n="eco_title">Transfer Economy</h3>
+        <p data-i18n="eco_desc">Transfer shared Brașov–Otopeni–Băneasa și retur. Confortabil, eficient și la prețuri accesibile.</p>
+        <div class="prices">
+          <div class="pi">
+            <span class="pi-l" data-i18n="lbl_adult">Adult</span>
+            <span class="pi-v">de la 120 lei</span>
+          </div>
+          <div class="pi">
+            <span class="pi-l" data-i18n="lbl_child">Copil (0–12 ani)</span>
+            <span class="pi-v">de la 75 lei</span>
+          </div>
+        </div>
+        <ul class="feats">
+          <li data-i18n="eco_f1">Preț per persoană</li>
+          <li data-i18n="eco_f2">Bagaj standard inclus</li>
+          <li data-i18n="eco_f3">Curse zilnice, 365 zile/an</li>
+          <li data-i18n="eco_f4">TVA inclus</li>
+        </ul>
+      </div>
+      <!-- Privat -->
+      <div class="srv-card" style="border-color:var(--gold)">
+        <span class="badge badge-gold" data-i18n="badge_private">Transfer Privat</span>
+        <div class="srv-ico" style="background:linear-gradient(135deg,var(--gold),var(--gold-l))">🚗</div>
+        <h3 data-i18n="prv_title">Transfer Privat</h3>
+        <p data-i18n="prv_desc">Transfer dedicat per cursă, Brașov–Otopeni–Băneasa și retur. Flexibil la oră și adresă. Rezervare per mașină.</p>
+        <div class="prices">
+          <div class="pi">
+            <span class="pi-l">Otopeni (Henri Coandă)</span>
+            <span class="pi-v g">800 lei / cursă</span>
+          </div>
+          <div class="pi">
+            <span class="pi-l">Băneasa</span>
+            <span class="pi-v g">850 lei / cursă</span>
+          </div>
+        </div>
+        <ul class="feats">
+          <li data-i18n="prv_f1">Preț per vehicul (nu per persoană)</li>
+          <li data-i18n="prv_f2">Flexibil la orar și adresă</li>
+          <li data-i18n="prv_f3">Bagaj standard inclus</li>
+          <li data-i18n="prv_f4">TVA inclus</li>
+        </ul>
+      </div>
+      <!-- Business (soon) -->
+      <div class="srv-card soon">
+        <span class="badge badge-gray" data-i18n="badge_soon">În curând</span>
+        <div class="srv-ico" style="background:linear-gradient(135deg,var(--gray),var(--gd))">💼</div>
+        <h3 data-i18n="bus_title">Transfer Business</h3>
+        <p data-i18n="bus_desc">Pachet Business premium cu servicii dedicate pentru călători de afaceri. Disponibil în curând.</p>
+        <div class="prices">
+          <div class="pi">
+            <span class="pi-l" data-i18n="bus_coming">Prețuri</span>
+            <span class="pi-v" style="color:var(--gray)" data-i18n="soon_txt">În curând</span>
+          </div>
+        </div>
+        <ul class="feats">
+          <li data-i18n="bus_f1">Servicii premium dedicate</li>
+          <li data-i18n="bus_f2">Anunț în curând</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCHEDULE -->
+<section id="orar">
+  <div class="cnt">
+    <div class="sec-hd">
+      <div class="tag" data-i18n="tag_schedule">Orar Curse</div>
+      <h2 data-i18n="sch_title">Program zilnic de curse</h2>
+      <p data-i18n="sch_sub">2 curse pe zi, în fiecare zi a anului. Selectează cursa pentru a vedea orarul complet.</p>
+      <div class="div"></div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="showTab('t1',this)" data-i18n="tab_c1">🌙 Cursa 1 – Plecare 01:30</button>
+      <button class="tab" onclick="showTab('t2',this)" data-i18n="tab_c2">☀️ Cursa 2 – Plecare 14:00</button>
+    </div>
+
+    <!-- Cursa 1 -->
+    <div class="tp on" id="t1">
+      <div class="sch-grid">
+        <div class="sch-card">
+          <div class="sch-hd">
+            <h4 data-i18n="sch_tur">🛫 TUR: Brașov → București</h4>
+            <p data-i18n="sch_c1_tur_sub">Plecare noaptea – sosire dimineață</p>
+          </div>
+          <div class="stops">
+            <div class="stop"><div class="dot">1</div><div class="si"><div class="st">01:30</div><div class="sn">Sala Sporturilor</div><div class="sg">B-dul Gării, Brașov</div></div></div>
+            <div class="stop"><div class="dot">2</div><div class="si"><div class="st">01:35</div><div class="sn">Petrom Calea București</div><div class="sg">Lângă McDonald's</div></div></div>
+            <div class="stop"><div class="dot">3</div><div class="si"><div class="st">01:40</div><div class="sn">OMV Dârste</div><div class="sg">Vis-a-vis de Ramada</div></div></div>
+            <div class="stop"><div class="dot arr">✈</div><div class="si"><div class="st">04:30</div><div class="sn" data-i18n="arr_oto">Sosire Otopeni (Henri Coandă)</div></div></div>
+            <div class="stop"><div class="dot arr">✈</div><div class="si"><div class="st">05:00</div><div class="sn" data-i18n="arr_ban">Sosire Băneasa</div></div></div>
+          </div>
+        </div>
+        <div class="sch-card">
+          <div class="sch-hd" style="background:linear-gradient(135deg,#2d6a2d,#3a8a3a)">
+            <h4 data-i18n="sch_ret">🛬 RETUR: București → Brașov</h4>
+            <p data-i18n="sch_c1_ret_sub">Plecare dimineață – sosire la prânz</p>
+          </div>
+          <div class="stops">
+            <div class="stop"><div class="dot" style="background:#2d6a2d">✈</div><div class="si"><div class="st">06:30</div><div class="sn" data-i18n="dep_ban">Plecare Aeroport Băneasa</div><div class="sg" data-i18n="parking">Parcare aeroport</div></div></div>
+            <div class="stop"><div class="dot" style="background:#2d6a2d">✈</div><div class="si"><div class="st">07:00</div><div class="sn" data-i18n="dep_oto">Plecare Aeroport Otopeni</div><div class="sg" data-i18n="parking">Parcare aeroport</div></div></div>
+            <div class="stop"><div class="dot arr">🏠</div><div class="si"><div class="st">10:00</div><div class="sn" data-i18n="arr_bv">Sosire Brașov</div><div class="sg" data-i18n="drop_bv">Debarcare: Sala Sporturilor, B-dul Gării</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cursa 2 -->
+    <div class="tp" id="t2">
+      <div class="sch-grid">
+        <div class="sch-card">
+          <div class="sch-hd">
+            <h4 data-i18n="sch_tur">🛫 TUR: Brașov → București</h4>
+            <p data-i18n="sch_c2_tur_sub">Plecare după-amiaza – sosire seara</p>
+          </div>
+          <div class="stops">
+            <div class="stop"><div class="dot">1</div><div class="si"><div class="st">14:00</div><div class="sn">Sala Sporturilor</div><div class="sg">B-dul Gării, Brașov</div></div></div>
+            <div class="stop"><div class="dot">2</div><div class="si"><div class="st">14:05</div><div class="sn">Petrom Calea București</div><div class="sg">Lângă McDonald's</div></div></div>
+            <div class="stop"><div class="dot">3</div><div class="si"><div class="st">14:10</div><div class="sn">OMV Dârste</div><div class="sg">Vis-a-vis de Ramada</div></div></div>
+            <div class="stop"><div class="dot arr">✈</div><div class="si"><div class="st">17:00</div><div class="sn" data-i18n="arr_oto">Sosire Otopeni (Henri Coandă)</div></div></div>
+            <div class="stop"><div class="dot arr">✈</div><div class="si"><div class="st">17:30</div><div class="sn" data-i18n="arr_ban">Sosire Băneasa</div></div></div>
+          </div>
+        </div>
+        <div class="sch-card">
+          <div class="sch-hd" style="background:linear-gradient(135deg,#2d6a2d,#3a8a3a)">
+            <h4 data-i18n="sch_ret">🛬 RETUR: București → Brașov</h4>
+            <p data-i18n="sch_c2_ret_sub">Plecare seara – sosire noaptea</p>
+          </div>
+          <div class="stops">
+            <div class="stop"><div class="dot" style="background:#2d6a2d">✈</div><div class="si"><div class="st">19:00</div><div class="sn" data-i18n="dep_ban">Plecare Aeroport Băneasa</div><div class="sg" data-i18n="parking">Parcare aeroport</div></div></div>
+            <div class="stop"><div class="dot" style="background:#2d6a2d">✈</div><div class="si"><div class="st">19:30</div><div class="sn" data-i18n="dep_oto">Plecare Aeroport Otopeni</div><div class="sg" data-i18n="parking">Parcare aeroport</div></div></div>
+            <div class="stop"><div class="dot arr">🏠</div><div class="si"><div class="st">22:30</div><div class="sn" data-i18n="arr_bv">Sosire Brașov</div><div class="sg" data-i18n="drop_bv">Debarcare: Sala Sporturilor, B-dul Gării</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BAGGAGE -->
+<section class="bag-bg" id="bagaje">
+  <div class="cnt">
+    <div class="sec-hd">
+      <div class="tag" data-i18n="tag_baggage">Politică Bagaje</div>
+      <h2 data-i18n="bag_title">Informații bagaje</h2>
+      <p data-i18n="bag_sub">Fiecare bilet include bagaj standard. Bagaj suplimentar disponibil contra cost.</p>
+      <div class="div"></div>
+    </div>
+    <div class="bag-grid">
+      <div class="bag-card">
+        <div class="bag-ico">👜</div>
+        <h4 data-i18n="bag1_t">Bagaj de mână</h4>
+        <p data-i18n="bag1_p">1 geantă de călătorie (mână)<br>Greutate maximă: <strong>10 kg</strong><br>Inclus în bilet / persoană</p>
+      </div>
+      <div class="bag-card">
+        <div class="bag-ico">🧳</div>
+        <h4 data-i18n="bag2_t">Bagaj de cală</h4>
+        <p data-i18n="bag2_p">1 valiză de cală<br>Greutate maximă: <strong>23 kg</strong><br>Inclus în bilet / persoană</p>
+      </div>
+      <div class="bag-card">
+        <div class="bag-ico">➕</div>
+        <h4 data-i18n="bag3_t">Bagaj suplimentar</h4>
+        <p data-i18n="bag3_p">Bagaj suplimentar de până la 20 kg, disponibil contra cost.</p>
+        <span class="ptag">20 lei / bagaj (20 kg)</span>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:18px;font-size:.8rem;color:var(--gray)" data-i18n="bag_note">
+      * Copilul (junior) este considerat pasagerul cu vârsta de până la 12 ani.
+    </p>
+  </div>
+</section>
+
+<!-- BOOKING FORM -->
+<section class="bk-bg" id="rezervare">
+  <div class="cnt">
+    <div class="sec-hd">
+      <div class="tag" data-i18n="tag_book">Rezervare Online</div>
+      <h2 data-i18n="bk_title">Rezervă-ți locul acum</h2>
+      <p data-i18n="bk_sub">Completează formularul de mai jos și trimite rezervarea pe email sau WhatsApp.</p>
+      <div class="div" style="background:linear-gradient(90deg,var(--gold),var(--gold-l))"></div>
+    </div>
+    <div class="bk-box">
+      <form id="bkForm" onsubmit="return false">
+
+        <!-- STEP 1: Direction -->
+        <div class="fblk">
+          <div class="fst"><span class="fnum">1</span><span data-i18n="step1">Direcție de călătorie</span></div>
+          <div class="dir-grid">
+            <label class="dir-opt">
+              <input type="radio" name="direction" value="tur" checked onchange="onFormChange()">
+              <div class="dir-lbl">
+                <span class="dir-ico">✈️</span>
+                <span class="dir-t" data-i18n="dir_tur">Brașov → București</span>
+                <span class="dir-s" data-i18n="dir_tur_s">Tur spre aeroport</span>
+              </div>
+            </label>
+            <label class="dir-opt">
+              <input type="radio" name="direction" value="retur" onchange="onFormChange()">
+              <div class="dir-lbl">
+                <span class="dir-ico">🏠</span>
+                <span class="dir-t" data-i18n="dir_ret">București → Brașov</span>
+                <span class="dir-s" data-i18n="dir_ret_s">Retur din aeroport</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- STEP 2: Transfer type -->
+        <div class="fblk">
+          <div class="fst"><span class="fnum">2</span><span data-i18n="step2">Tip transfer</span></div>
+          <div class="tr-grid">
+            <label class="tr-opt">
+              <input type="radio" name="transfer" value="economy" checked onchange="onFormChange()">
+              <div class="tr-lbl">
+                <span class="tr-name">🚐 Economy</span>
+                <span class="tr-price">120 lei / adult · 75 lei / copil</span>
+                <span class="tr-info" data-i18n="tr_eco_info">Shared · per persoană</span>
+              </div>
+            </label>
+            <label class="tr-opt">
+              <input type="radio" name="transfer" value="privat" onchange="onFormChange()">
+              <div class="tr-lbl">
+                <span class="tr-name">🚗 Privat</span>
+                <span class="tr-price">800 / 850 lei · cursă</span>
+                <span class="tr-info" data-i18n="tr_prv_info">Dedicat · per mașină</span>
+              </div>
+            </label>
+            <label class="tr-opt">
+              <input type="radio" name="transfer" value="business" disabled>
+              <div class="tr-lbl" style="opacity:.65">
+                <span class="tr-name">💼 Business</span>
+                <span class="tr-price" style="color:var(--gray)" data-i18n="soon_txt">În curând</span>
+                <span class="tr-info" data-i18n="tr_bus_info">Premium · anunț în curând</span>
+                <div class="soon-ov" data-i18n="soon_txt">În curând</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- STEP 3: Trip details -->
+        <div class="fblk">
+          <div class="fst"><span class="fnum">3</span><span data-i18n="step3">Detalii cursă</span></div>
+          <div class="form-row">
+            <div class="fg">
+              <label data-i18n="lbl_date">Data călătoriei</label>
+              <input type="date" id="f-date" onchange="onFormChange()" required>
+            </div>
+            <div class="fg">
+              <label data-i18n="lbl_trip">Cursă</label>
+              <select id="f-trip" onchange="onFormChange()">
+                <option value="c1_tur" data-i18n-opt="c1_tur">Cursa 1 – Plecare 01:30 din Brașov</option>
+                <option value="c1_ret">Cursa 1 – Plecare 06:30/07:00 din București</option>
+                <option value="c2_tur">Cursa 2 – Plecare 14:00 din Brașov</option>
+                <option value="c2_ret">Cursa 2 – Plecare 19:00/19:30 din București</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label data-i18n="lbl_airport">Aeroport</label>
+              <select id="f-apt" onchange="onFormChange()">
+                <option value="otopeni">✈ Otopeni – Henri Coandă (800 lei privat)</option>
+                <option value="baneasa">✈ Băneasa (850 lei privat)</option>
+              </select>
+            </div>
+            <div class="fg" id="f-pickup-wrap">
+              <label data-i18n="lbl_pickup">Punct de îmbarcare (Brașov)</label>
+              <select id="f-pickup" onchange="onFormChange()">
+                <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30 / 14:00</option>
+                <option value="petrom">Petrom Calea București (McDonald's) – 01:35 / 14:05</option>
+                <option value="omv">OMV Dârste (Vis-a-vis Ramada) – 01:40 / 14:10</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 4: Passengers -->
+        <div class="fblk">
+          <div class="fst"><span class="fnum">4</span><span data-i18n="step4">Pasageri & Bagaje</span></div>
+          <div class="form-row-3">
+            <div class="fg" id="f-adults-wrap">
+              <label data-i18n="lbl_adults">Nr. Adulți</label>
+              <select id="f-adults" onchange="onFormChange()">
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                <option value="7">7</option><option value="8">8</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label data-i18n="lbl_children">Nr. Copii (0–12 ani)</label>
+              <select id="f-children" onchange="onFormChange()">
+                <option value="0" data-i18n="opt_none">0 (niciunul)</option>
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+              </select>
+              <small data-i18n="child_note">Optional – gratuit sub 3 ani (la cerere)</small>
+            </div>
+            <div class="fg">
+              <label data-i18n="lbl_extrabag">Bagaj suplimentar (20 lei)</label>
+              <select id="f-bags" onchange="onFormChange()">
+                <option value="0">0</option><option value="1">1</option><option value="2">2</option>
+                <option value="3">3</option><option value="4">4</option>
+              </select>
+              <small data-i18n="bag_note2">1 bag = max 20 kg · 20 lei/buc</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 5: Contact -->
+        <div class="fblk">
+          <div class="fst"><span class="fnum">5</span><span data-i18n="step5">Date de contact</span></div>
+          <div class="form-row">
+            <div class="fg">
+              <label data-i18n="lbl_name">Nume și prenume *</label>
+              <input type="text" id="f-name" placeholder="Ex: Ionescu Alexandru" required>
+            </div>
+            <div class="fg">
+              <label data-i18n="lbl_phone">Telefon *</label>
+              <input type="tel" id="f-phone" placeholder="+40 7XX XXX XXX" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="fg">
+              <label data-i18n="lbl_email">Email *</label>
+              <input type="email" id="f-email" placeholder="email@exemplu.com" required>
+            </div>
+            <div class="fg">
+              <label data-i18n="lbl_flight">Nr. zbor / Terminal (opțional)</label>
+              <input type="text" id="f-flight" placeholder="Ex: RO123 / Terminal T1">
+            </div>
+          </div>
+          <div class="fg">
+            <label data-i18n="lbl_notes">Observații (opțional)</label>
+            <input type="text" id="f-notes" placeholder="Cereri speciale, adresă suplimentară...">
+          </div>
+        </div>
+
+        <!-- PRICE SUMMARY -->
+        <div class="price-box" id="priceBox">
+          <div class="price-box-t" data-i18n="price_title">Sumar preț (estimat, TVA inclus)</div>
+          <div id="priceLines"></div>
+          <div class="ptl">
+            <span class="ptl-l" data-i18n="total">TOTAL</span>
+            <span class="ptl-v" id="totalPrice">— lei</span>
+          </div>
+          <div class="pnote" data-i18n="price_note">* Prețul final poate varia în funcție de opțiunile specifice.</div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="form-acts">
+          <button type="button" class="btn btn-wa" onclick="toggleWA()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 1C5.927 1 1 5.927 1 12c0 1.874.487 3.636 1.341 5.17L1 23l5.985-1.314A10.95 10.95 0 0 0 12 23c6.072 0 11-4.927 11-11S18.072 1 12 1zm0 20c-1.657 0-3.218-.453-4.561-1.241l-.327-.193-3.551.78.815-3.441-.212-.346A8.977 8.977 0 0 1 3 12c0-4.963 4.037-9 9-9s9 4.037 9 9-4.037 9-9 9z"/></svg>
+            <span data-i18n="btn_wa">Rezervă pe WhatsApp</span>
+          </button>
+          <button type="button" class="btn btn-navy" onclick="submitEmail()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+            <span data-i18n="btn_email">Trimite pe Email</span>
+          </button>
+        </div>
+
+        <!-- WhatsApp sub-buttons -->
+        <div class="wa-sub" id="waSub" style="margin-top:10px">
+          <button type="button" class="btn btn-wa" onclick="submitWA('+40761617606')" style="font-size:.78rem;padding:10px 8px">
+            📱 Paul<br><small>+40 761 617 606</small>
+          </button>
+          <button type="button" class="btn btn-wa" onclick="submitWA('+40723320310')" style="font-size:.78rem;padding:10px 8px">
+            📱 Bogdan<br><small>+40 723 320 310</small>
+          </button>
+          <button type="button" class="btn btn-wa" onclick="submitWA('+40722818481')" style="font-size:.78rem;padding:10px 8px">
+            📱 Doru<br><small>+40 722 818 481</small>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="ct-bg" id="contact">
+  <div class="cnt">
+    <div class="sec-hd">
+      <div class="tag" data-i18n="tag_contact">Contact</div>
+      <h2 data-i18n="ct_title">Contactează-ne</h2>
+      <p data-i18n="ct_sub">Suntem disponibili zilnic pentru rezervări și informații.</p>
+      <div class="div"></div>
+    </div>
+    <div class="ct-grid">
+      <div class="ct-card">
+        <div class="ct-ico ico-ph">📞</div>
+        <h4 data-i18n="ct_phone">Telefon</h4>
+        <a href="tel:+40761617606">+40 761 617 606</a>
+        <span class="ct-pname">Paul</span>
+        <a href="tel:+40723320310" style="margin-top:8px">+40 723 320 310</a>
+        <span class="ct-pname">Bogdan</span>
+        <a href="tel:+40722818481" style="margin-top:8px">+40 722 818 481</a>
+        <span class="ct-pname">Doru</span>
+      </div>
+      <div class="ct-card">
+        <div class="ct-ico ico-wa">💬</div>
+        <h4>WhatsApp</h4>
+        <a href="https://wa.me/40761617606" target="_blank" rel="noopener">Paul – +40 761 617 606</a>
+        <a href="https://wa.me/40723320310" target="_blank" rel="noopener" style="margin-top:4px">Bogdan – +40 723 320 310</a>
+        <a href="https://wa.me/40722818481" target="_blank" rel="noopener" style="margin-top:4px">Doru – +40 722 818 481</a>
+      </div>
+      <div class="ct-card">
+        <div class="ct-ico ico-em">✉️</div>
+        <h4>Email</h4>
+        <a href="mailto:office@delta-air.ro">office@delta-air.ro</a>
+        <p style="font-size:.78rem;color:var(--gray);margin-top:8px" data-i18n="ct_email_note">Răspundem în maxim 24 ore</p>
+      </div>
+    </div>
+    <div class="addr-bar">
+      <div class="addr-ico">📍</div>
+      <div class="addr-inf">
+        <h4>DELTA AIR SHUTTLE S.R.L.</h4>
+        <p>Str. 13 Decembrie, nr.129A, bl.7, et.4, ap.55 · 500164 Brașov, Jud. Brașov</p>
+      </div>
+      <div class="addr-leg">
+        <p>CUI: 53035921<br>Nr. Reg. Com.: J2025093942000</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="cnt">
+    <p>© 2025 <strong style="color:var(--gold)">DELTA AIR SHUTTLE S.R.L.</strong> · CUI 53035921 · J2025093942000<br>
+    Str. 13 Decembrie, nr.129A, bl.7, et.4, ap.55, 500164 Brașov · <a href="mailto:office@delta-air.ro">office@delta-air.ro</a><br>
+    <span style="font-size:.7rem;opacity:.6" data-i18n="footer_rights">Toate drepturile rezervate · Prețuri cu TVA inclus</span></p>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── TRANSLATIONS ──
+const T = {
+  ro:{
+    nav_services:'Servicii',nav_schedule:'Orar',nav_baggage:'Bagaje',nav_contact:'Contact',nav_book:'Rezervare',
+    btn_book:'Rezervă Acum',btn_book_now:'🎫 Rezervă Acum',
+    hero_title:'Transfer rapid<br><em>Brașov ↔ Aeroporturi</em><br>București',
+    hero_sub:'Curse zilnice spre Otopeni (Henri Coandă) și Băneasa. Confortabil, punctual, la prețuri accesibile.',
+    stat_trips:'curse/zi',stat_days:'zile/an',stat_from:'de la / adult',
+    quick_title:'Verifică orarul & rezervă',
+    lbl_direction:'Direcție',lbl_airport:'Aeroport',lbl_date:'Data',lbl_trip:'Cursă',
+    tag_services:'Serviciile Noastre',srv_title:'Alege tipul de transfer',
+    srv_sub:'Soluții pentru fiecare nevoie, de la transfer shared economic până la transfer privat dedicat.',
+    badge_popular:'Cel mai popular',badge_private:'Transfer Privat',badge_soon:'În curând',
+    eco_title:'Transfer Economy',eco_desc:'Transfer shared Brașov–Otopeni–Băneasa și retur. Confortabil, eficient și la prețuri accesibile.',
+    lbl_adult:'Adult',lbl_child:'Copil (0–12 ani)',
+    eco_f1:'Preț per persoană',eco_f2:'Bagaj standard inclus',eco_f3:'Curse zilnice, 365 zile/an',eco_f4:'TVA inclus',
+    prv_title:'Transfer Privat',prv_desc:'Transfer dedicat per cursă, Brașov–Otopeni–Băneasa și retur. Flexibil la oră și adresă. Rezervare per mașină.',
+    prv_f1:'Preț per vehicul (nu per persoană)',prv_f2:'Flexibil la orar și adresă',prv_f3:'Bagaj standard inclus',prv_f4:'TVA inclus',
+    bus_title:'Transfer Business',bus_desc:'Pachet Business premium cu servicii dedicate pentru călători de afaceri. Disponibil în curând.',
+    bus_coming:'Prețuri',soon_txt:'În curând',bus_f1:'Servicii premium dedicate',bus_f2:'Anunț în curând',
+    tag_schedule:'Orar Curse',sch_title:'Program zilnic de curse',
+    sch_sub:'2 curse pe zi, în fiecare zi a anului. Selectează cursa pentru a vedea orarul complet.',
+    tab_c1:'🌙 Cursa 1 – Plecare 01:30',tab_c2:'☀️ Cursa 2 – Plecare 14:00',
+    sch_tur:'🛫 TUR: Brașov → București',sch_ret:'🛬 RETUR: București → Brașov',
+    sch_c1_tur_sub:'Plecare noaptea – sosire dimineață',sch_c1_ret_sub:'Plecare dimineață – sosire la prânz',
+    sch_c2_tur_sub:'Plecare după-amiaza – sosire seara',sch_c2_ret_sub:'Plecare seara – sosire noaptea',
+    arr_oto:'Sosire Otopeni (Henri Coandă)',arr_ban:'Sosire Băneasa',
+    dep_ban:'Plecare Aeroport Băneasa',dep_oto:'Plecare Aeroport Otopeni',
+    arr_bv:'Sosire Brașov',drop_bv:'Debarcare: Sala Sporturilor, B-dul Gării',parking:'Parcare aeroport',
+    tag_baggage:'Politică Bagaje',bag_title:'Informații bagaje',
+    bag_sub:'Fiecare bilet include bagaj standard. Bagaj suplimentar disponibil contra cost.',
+    bag1_t:'Bagaj de mână',bag1_p:'1 geantă de călătorie (mână)<br>Greutate maximă: <strong>10 kg</strong><br>Inclus în bilet / persoană',
+    bag2_t:'Bagaj de cală',bag2_p:'1 valiză de cală<br>Greutate maximă: <strong>23 kg</strong><br>Inclus în bilet / persoană',
+    bag3_t:'Bagaj suplimentar',bag3_p:'Bagaj suplimentar de până la 20 kg, disponibil contra cost.',
+    bag_note:'* Copilul (junior) este considerat pasagerul cu vârsta de până la 12 ani.',
+    tag_book:'Rezervare Online',bk_title:'Rezervă-ți locul acum',
+    bk_sub:'Completează formularul de mai jos și trimite rezervarea pe email sau WhatsApp.',
+    step1:'Direcție de călătorie',step2:'Tip transfer',step3:'Detalii cursă',step4:'Pasageri & Bagaje',step5:'Date de contact',
+    dir_tur:'Brașov → București',dir_tur_s:'Tur spre aeroport',dir_ret:'București → Brașov',dir_ret_s:'Retur din aeroport',
+    tr_eco_info:'Shared · per persoană',tr_prv_info:'Dedicat · per mașină',tr_bus_info:'Premium · anunț în curând',
+    lbl_adults:'Nr. Adulți',lbl_children:'Nr. Copii (0–12 ani)',lbl_extrabag:'Bagaj suplimentar (20 lei)',
+    lbl_pickup:'Punct de îmbarcare (Brașov)',lbl_name:'Nume și prenume *',lbl_phone:'Telefon *',
+    lbl_email:'Email *',lbl_flight:'Nr. zbor / Terminal (opțional)',lbl_notes:'Observații (opțional)',
+    child_note:'Optional – gratuit sub 3 ani (la cerere)',bag_note2:'1 bag = max 20 kg · 20 lei/buc',
+    opt_none:'0 (niciunul)',
+    price_title:'Sumar preț (estimat, TVA inclus)',total:'TOTAL',price_note:'* Prețul final poate varia în funcție de opțiunile specifice.',
+    btn_wa:'Rezervă pe WhatsApp',btn_email:'Trimite pe Email',
+    tag_contact:'Contact',ct_title:'Contactează-ne',
+    ct_sub:'Suntem disponibili zilnic pentru rezervări și informații.',
+    ct_phone:'Telefon',ct_email_note:'Răspundem în maxim 24 ore',
+    footer_rights:'Toate drepturile rezervate · Prețuri cu TVA inclus',
+    toast_valid:'Te rugăm completează câmpurile obligatorii: Nume, Telefon și Email.',
+    toast_email:'Se deschide clientul de email...',toast_wa:'Se deschide WhatsApp...',
+    price_adult:'Adult(ți)',price_child:'Copil(ii)',price_bag:'Bagaj supli.',price_priv:'Transfer privat',
+    opt_tur:'➡ Brașov → București',opt_retur:'⬅ București → Brașov',
+    opt_c1:'Cursa 1 (01:30)',opt_c2:'Cursa 2 (14:00)',
+  },
+  en:{
+    nav_services:'Services',nav_schedule:'Schedule',nav_baggage:'Baggage',nav_contact:'Contact',nav_book:'Booking',
+    btn_book:'Book Now',btn_book_now:'🎫 Book Now',
+    hero_title:'Fast Transfer<br><em>Brașov ↔ Airports</em><br>Bucharest',
+    hero_sub:'Daily rides to Otopeni (Henri Coandă) and Băneasa. Comfortable, punctual, and affordable.',
+    stat_trips:'trips/day',stat_days:'days/year',stat_from:'from / adult',
+    quick_title:'Check schedule & book',
+    lbl_direction:'Direction',lbl_airport:'Airport',lbl_date:'Date',lbl_trip:'Trip',
+    tag_services:'Our Services',srv_title:'Choose your transfer type',
+    srv_sub:'Solutions for every need, from shared economy transfer to dedicated private transfer.',
+    badge_popular:'Most popular',badge_private:'Private Transfer',badge_soon:'Coming soon',
+    eco_title:'Economy Transfer',eco_desc:'Shared transfer Brașov–Otopeni–Băneasa and return. Comfortable, efficient, and affordable.',
+    lbl_adult:'Adult',lbl_child:'Child (0–12 years)',
+    eco_f1:'Price per person',eco_f2:'Standard baggage included',eco_f3:'Daily trips, 365 days/year',eco_f4:'VAT included',
+    prv_title:'Private Transfer',prv_desc:'Dedicated transfer per ride, Brașov–Otopeni–Băneasa and return. Flexible time and address. Booking per vehicle.',
+    prv_f1:'Price per vehicle (not per person)',prv_f2:'Flexible schedule and address',prv_f3:'Standard baggage included',prv_f4:'VAT included',
+    bus_title:'Business Transfer',bus_desc:'Premium Business package with dedicated services for business travelers. Available soon.',
+    bus_coming:'Pricing',soon_txt:'Coming soon',bus_f1:'Dedicated premium services',bus_f2:'Announcement coming soon',
+    tag_schedule:'Trip Schedule',sch_title:'Daily trip schedule',
+    sch_sub:'2 trips per day, every day of the year. Select a trip to see the full schedule.',
+    tab_c1:'🌙 Trip 1 – Departs 01:30',tab_c2:'☀️ Trip 2 – Departs 14:00',
+    sch_tur:'🛫 OUTBOUND: Brașov → Bucharest',sch_ret:'🛬 RETURN: Bucharest → Brașov',
+    sch_c1_tur_sub:'Night departure – morning arrival',sch_c1_ret_sub:'Morning departure – midday arrival',
+    sch_c2_tur_sub:'Afternoon departure – evening arrival',sch_c2_ret_sub:'Evening departure – night arrival',
+    arr_oto:'Arrival Otopeni (Henri Coandă)',arr_ban:'Arrival Băneasa',
+    dep_ban:'Departure Băneasa Airport',dep_oto:'Departure Otopeni Airport',
+    arr_bv:'Arrival Brașov',drop_bv:'Drop-off: Sala Sporturilor, B-dul Gării',parking:'Airport parking',
+    tag_baggage:'Baggage Policy',bag_title:'Baggage information',
+    bag_sub:'Every ticket includes standard baggage. Extra baggage available at additional cost.',
+    bag1_t:'Hand baggage',bag1_p:'1 travel bag (hand)<br>Maximum weight: <strong>10 kg</strong><br>Included per ticket/person',
+    bag2_t:'Hold baggage',bag2_p:'1 hold suitcase<br>Maximum weight: <strong>23 kg</strong><br>Included per ticket/person',
+    bag3_t:'Extra baggage',bag3_p:'Additional baggage up to 20 kg, available at extra cost.',
+    bag_note:'* A child (junior) is a passenger up to 12 years of age.',
+    tag_book:'Online Booking',bk_title:'Book your seat now',
+    bk_sub:'Fill in the form below and send your booking by email or WhatsApp.',
+    step1:'Travel direction',step2:'Transfer type',step3:'Trip details',step4:'Passengers & Baggage',step5:'Contact details',
+    dir_tur:'Brașov → Bucharest',dir_tur_s:'Outbound to airport',dir_ret:'Bucharest → Brașov',dir_ret_s:'Return from airport',
+    tr_eco_info:'Shared · per person',tr_prv_info:'Dedicated · per vehicle',tr_bus_info:'Premium · coming soon',
+    lbl_adults:'Nr. Adults',lbl_children:'Nr. Children (0–12 yrs)',lbl_extrabag:'Extra baggage (20 lei)',
+    lbl_pickup:'Boarding point (Brașov)',lbl_name:'Full name *',lbl_phone:'Phone *',
+    lbl_email:'Email *',lbl_flight:'Flight nr. / Terminal (optional)',lbl_notes:'Notes (optional)',
+    child_note:'Optional – free under 3 years (on request)',bag_note2:'1 bag = max 20 kg · 20 lei/each',
+    opt_none:'0 (none)',
+    price_title:'Price summary (estimated, VAT incl.)',total:'TOTAL',price_note:'* Final price may vary based on specific options.',
+    btn_wa:'Book on WhatsApp',btn_email:'Send by Email',
+    tag_contact:'Contact',ct_title:'Contact us',
+    ct_sub:'We are available daily for bookings and information.',
+    ct_phone:'Phone',ct_email_note:'We reply within 24 hours',
+    footer_rights:'All rights reserved · Prices include VAT',
+    toast_valid:'Please fill in required fields: Name, Phone and Email.',
+    toast_email:'Opening email client...',toast_wa:'Opening WhatsApp...',
+    price_adult:'Adult(s)',price_child:'Child(ren)',price_bag:'Extra bag',price_priv:'Private transfer',
+    opt_tur:'➡ Brașov → Bucharest',opt_retur:'⬅ Bucharest → Brașov',
+    opt_c1:'Trip 1 (01:30)',opt_c2:'Trip 2 (14:00)',
+  }
+};
+
+let lang = 'ro';
+
+function t(k){ return T[lang][k] || T.ro[k] || k; }
+
+function setLang(l){
+  lang = l;
+  document.querySelectorAll('.lang-b').forEach(b => b.classList.toggle('on', b.textContent===l.toUpperCase()));
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if(T[l][k]) el.innerHTML = T[l][k];
+  });
+  // Update hero trip options
+  const qdir = document.getElementById('q-dir');
+  if(qdir){
+    qdir.options[0].text = t('opt_tur');
+    qdir.options[1].text = t('opt_retur');
+  }
+  const qtrip = document.getElementById('q-trip');
+  if(qtrip){
+    qtrip.options[0].text = t('opt_c1');
+    qtrip.options[1].text = t('opt_c2');
+  }
+  updateTripOptions();
+}
+
+// ── MOBILE NAV ──
+function toggleMnav(){ document.getElementById('mnav').classList.toggle('open'); }
+function closeMnav(){ document.getElementById('mnav').classList.remove('open'); }
+
+// ── TABS ──
+function showTab(id, btn){
+  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── SCROLL TO BOOK ──
+function scrollToBook(){
+  const dir = document.getElementById('q-dir').value;
+  const apt = document.getElementById('q-apt').value;
+  const date = document.getElementById('q-date').value;
+  const trip = document.getElementById('q-trip').value;
+  if(dir) document.querySelector(`input[name=direction][value=${dir}]`).click();
+  if(apt) document.getElementById('f-apt').value = apt;
+  if(date) document.getElementById('f-date').value = date;
+  // map c1/c2 to f-trip
+  const tripMap = {c1: dir==='retur'?'c1_ret':'c1_tur', c2: dir==='retur'?'c2_ret':'c2_tur'};
+  if(trip && tripMap[trip]) document.getElementById('f-trip').value = tripMap[trip];
+  document.getElementById('rezervare').scrollIntoView({behavior:'smooth'});
+  onFormChange();
+}
+
+function updateHeroAirport(){
+  // No logic needed – just cosmetic
+}
+
+// ── SET TRIP OPTIONS ──
+function updateTripOptions(){
+  const ft = document.getElementById('f-trip');
+  if(!ft) return;
+  ft.innerHTML = `
+    <option value="c1_tur">Cursa 1 – ${lang==='en'?'Dep.':'Plecare'} 01:30 ${lang==='en'?'from Brașov':'din Brașov'}</option>
+    <option value="c1_ret">Cursa 1 – ${lang==='en'?'Dep.':'Plecare'} 06:30/07:00 ${lang==='en'?'from Bucharest':'din București'}</option>
+    <option value="c2_tur">Cursa 2 – ${lang==='en'?'Dep.':'Plecare'} 14:00 ${lang==='en'?'from Brașov':'din Brașov'}</option>
+    <option value="c2_ret">Cursa 2 – ${lang==='en'?'Dep.':'Plecare'} 19:00/19:30 ${lang==='en'?'from Bucharest':'din București'}</option>
+  `;
+}
+
+// ── FORM LOGIC ──
+function onFormChange(){
+  const dir = document.querySelector('input[name=direction]:checked')?.value || 'tur';
+  const isRetur = dir === 'retur';
+  const pickupWrap = document.getElementById('f-pickup-wrap');
+  if(pickupWrap) pickupWrap.style.display = isRetur ? 'none' : '';
+
+  // Show adult count only for economy
+  const transfer = document.querySelector('input[name=transfer]:checked')?.value || 'economy';
+  const adultsWrap = document.getElementById('f-adults-wrap');
+
+  calcPrice();
+}
+
+function calcPrice(){
+  const transfer = document.querySelector('input[name=transfer]:checked')?.value || 'economy';
+  const apt = document.getElementById('f-apt')?.value || 'otopeni';
+  const adults = parseInt(document.getElementById('f-adults')?.value || 1);
+  const children = parseInt(document.getElementById('f-children')?.value || 0);
+  const bags = parseInt(document.getElementById('f-bags')?.value || 0);
+  const linesEl = document.getElementById('priceLines');
+  const totalEl = document.getElementById('totalPrice');
+  if(!linesEl || !totalEl) return;
+
+  let lines = [];
+  let total = 0;
+
+  if(transfer === 'economy'){
+    const adultCost = adults * 120;
+    const childCost = children * 75;
+    total += adultCost + childCost;
+    lines.push({l:`${adults} ${t('price_adult')} × 120 lei`, v:`${adultCost} lei`});
+    if(children > 0) lines.push({l:`${children} ${t('price_child')} × 75 lei`, v:`${childCost} lei`});
+  } else if(transfer === 'privat'){
+    const base = apt === 'baneasa' ? 850 : 800;
+    total += base;
+    lines.push({l:`${t('price_priv')} (${apt==='baneasa'?'Băneasa':'Otopeni'})`, v:`${base} lei`});
+  } else {
+    totalEl.textContent = '—';
+    linesEl.innerHTML = `<div class="pl"><span>${t('soon_txt')}</span><span>—</span></div>`;
+    return;
+  }
+
+  if(bags > 0){
+    const bagCost = bags * 20;
+    total += bagCost;
+    lines.push({l:`${bags} ${t('price_bag')} × 20 lei`, v:`${bagCost} lei`});
+  }
+
+  linesEl.innerHTML = lines.map(({l,v})=>`<div class="pl"><span>${l}</span><span>${v}</span></div>`).join('');
+  totalEl.textContent = `${total} lei`;
+}
+
+// ── FORM VALIDATION ──
+function validateForm(){
+  const name = document.getElementById('f-name')?.value.trim();
+  const phone = document.getElementById('f-phone')?.value.trim();
+  const email = document.getElementById('f-email')?.value.trim();
+  if(!name || !phone || !email){
+    showToast(t('toast_valid'));
+    return false;
+  }
+  return true;
+}
+
+// ── BUILD MESSAGE ──
+function buildMessage(){
+  const dir = document.querySelector('input[name=direction]:checked')?.value || 'tur';
+  const transfer = document.querySelector('input[name=transfer]:checked')?.value || 'economy';
+  const apt = document.getElementById('f-apt')?.value || 'otopeni';
+  const trip = document.getElementById('f-trip')?.value || 'c1_tur';
+  const date = document.getElementById('f-date')?.value || '—';
+  const pickup = document.getElementById('f-pickup')?.value || '—';
+  const adults = document.getElementById('f-adults')?.value || '1';
+  const children = document.getElementById('f-children')?.value || '0';
+  const bags = document.getElementById('f-bags')?.value || '0';
+  const name = document.getElementById('f-name')?.value.trim() || '—';
+  const phone = document.getElementById('f-phone')?.value.trim() || '—';
+  const email = document.getElementById('f-email')?.value.trim() || '—';
+  const flight = document.getElementById('f-flight')?.value.trim() || '—';
+  const notes = document.getElementById('f-notes')?.value.trim() || '—';
+  const total = document.getElementById('totalPrice')?.textContent || '—';
+
+  const dirLabel = dir==='tur' ? 'Brașov → București' : 'București → Brașov';
+  const transferLabel = {economy:'Economy (Shared)', privat:'Privat (Dedicat)', business:'Business'}[transfer] || transfer;
+  const aptLabel = apt==='baneasa' ? 'Băneasa' : 'Otopeni (Henri Coandă)';
+  const pickupLabels = {sala:'Sala Sporturilor (B-dul Gării)', petrom:'Petrom Calea București (McDonald\'s)', omv:'OMV Dârste (Ramada)'};
+  const tripLabels = {c1_tur:'Cursa 1 (01:30 Brașov)', c1_ret:'Cursa 1 (06:30/07:00 București)', c2_tur:'Cursa 2 (14:00 Brașov)', c2_ret:'Cursa 2 (19:00/19:30 București)'};
+
+  return `🚐 *REZERVARE DELTA AIR SHUTTLE*\n\n` +
+    `📋 *Detalii cursă:*\n` +
+    `• Direcție: ${dirLabel}\n` +
+    `• Aeroport: ${aptLabel}\n` +
+    `• Cursă: ${tripLabels[trip]||trip}\n` +
+    `• Data: ${date}\n` +
+    (dir==='tur' ? `• Punct îmbarcare: ${pickupLabels[pickup]||pickup}\n` : '') +
+    `• Tip transfer: ${transferLabel}\n\n` +
+    `👥 *Pasageri:*\n` +
+    `• Adulți: ${adults}\n` +
+    `• Copii (0–12 ani): ${children}\n` +
+    `• Bagaj suplimentar: ${bags} buc\n\n` +
+    `💰 *Total estimat: ${total}*\n\n` +
+    `👤 *Contact pasager:*\n` +
+    `• Nume: ${name}\n` +
+    `• Telefon: ${phone}\n` +
+    `• Email: ${email}\n` +
+    `• Nr. zbor / Terminal: ${flight}\n` +
+    `• Observații: ${notes}`;
+}
+
+// ── WA TOGGLE ──
+function toggleWA(){
+  const sub = document.getElementById('waSub');
+  if(!validateForm()) return;
+  sub.style.display = sub.style.display === 'grid' ? 'none' : 'grid';
+}
+
+function submitWA(number){
+  if(!validateForm()) return;
+  const msg = buildMessage();
+  const url = `https://wa.me/${number.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(msg)}`;
+  showToast(t('toast_wa'));
+  setTimeout(()=> window.open(url,'_blank'), 400);
+}
+
+function submitEmail(){
+  if(!validateForm()) return;
+  const msg = buildMessage();
+  const subject = encodeURIComponent('Rezervare Transfer – Delta Air Shuttle');
+  const body = encodeURIComponent(msg.replace(/\*/g,''));
+  showToast(t('toast_email'));
+  setTimeout(()=>{ window.location.href = `mailto:office@delta-air.ro?subject=${subject}&body=${body}`; }, 400);
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  ['q-date','f-date'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.min = today;
+  });
+  updateTripOptions();
+  calcPrice();
+
+  // Smooth scroll for all nav anchors
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const target = document.querySelector(a.getAttribute('href'));
+      if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth'}); }
+    });
+  });
+
+  // Observe fade-in
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:.08});
+  document.querySelectorAll('.srv-card,.sch-card,.bag-card,.ct-card').forEach(el=>{
+    el.classList.add('fade-in');
+    obs.observe(el);
+  });
+});
+
+// Fade-in CSS
+const style = document.createElement('style');
+style.textContent = `.fade-in{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}.fade-in.visible{opacity:1;transform:translateY(0)}`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>

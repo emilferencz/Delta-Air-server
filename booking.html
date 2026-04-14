@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Delta Air Shuttle – Book your transfer Brașov–Otopeni–Băneasa. Fill in the form and we'll confirm right away.">
+<title>Booking | Delta Air Shuttle</title>
+<style>
+:root{
+  --navy:#1a2f5e;--navy-d:#0f1e3d;--navy-l:#243d75;
+  --gold:#c9a84c;--gold-l:#e8c96a;
+  --white:#fff;--off:#f5f7fa;--gl:#e8edf5;
+  --gray:#8892a4;--gd:#4a5568;--text:#1a202c;
+  --green:#25d366;--green-d:#128c7e;
+  --sh:0 4px 20px rgba(26,47,94,.12);
+  --sh2:0 8px 32px rgba(26,47,94,.22);
+  --r:12px;--rs:8px;--tr:all .25s ease;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:linear-gradient(140deg,var(--navy-d) 0%,var(--navy) 100%);min-height:100vh;line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+img{max-width:100%;height:auto}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(15,30,61,.97);backdrop-filter:blur(10px);box-shadow:0 2px 16px rgba(0,0,0,.25)}
+.hdr-in{max-width:960px;margin:0 auto;padding:0 20px;height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-img{width:44px;height:44px;object-fit:contain}
+.logo-txt{display:flex;flex-direction:column;line-height:1}
+.logo-name{font-size:.92rem;font-weight:800;color:#fff;letter-spacing:.5px}
+.logo-sub{font-size:.56rem;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.hdr-link{color:rgba(255,255,255,.75);font-size:.8rem;padding:6px 12px;border-radius:6px;transition:var(--tr)}
+.hdr-link:hover{color:var(--gold);background:rgba(255,255,255,.08)}
+
+/* ── MAIN WRAPPER ── */
+.wrap{max-width:860px;margin:0 auto;padding:90px 20px 60px}
+
+/* ── PAGE TITLE ── */
+.page-hd{text-align:center;margin-bottom:32px}
+.page-hd .tag{display:inline-block;background:rgba(255,255,255,.15);color:var(--gold);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:10px}
+.page-hd h1{font-size:clamp(1.6rem,3.5vw,2.2rem);color:#fff;font-weight:800;margin-bottom:8px}
+.page-hd p{color:rgba(255,255,255,.65);font-size:.92rem;max-width:520px;margin:0 auto}
+.div{width:50px;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;margin:14px auto 0}
+
+/* ── FORM CARD ── */
+.bk-box{background:#fff;border-radius:20px;padding:44px;box-shadow:0 24px 64px rgba(0,0,0,.3)}
+
+/* ── FORM SECTIONS ── */
+.fblk{margin-bottom:28px}
+.fst{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--navy);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--gl);display:flex;align-items:center;gap:8px}
+.fnum{width:22px;height:22px;background:var(--navy);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.63rem;flex-shrink:0}
+
+/* ── DIRECTION ── */
+.dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dir-opt input[type=radio]{display:none}
+.dir-lbl{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 14px;border:2px solid var(--gl);border-radius:var(--rs);transition:var(--tr);text-align:center;cursor:pointer}
+.dir-opt input:checked+.dir-lbl{border-color:var(--navy);background:rgba(26,47,94,.05)}
+.dir-lbl:hover{border-color:var(--navy-l)}
+.dir-ico{font-size:1.6rem}
+.dir-t{font-size:.82rem;font-weight:700;color:var(--navy)}
+.dir-s{font-size:.7rem;color:var(--gray)}
+
+/* ── TRANSFER TYPE ── */
+.tr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.tr-opt input[type=radio]{display:none}
+.tr-lbl{display:flex;flex-direction:column;gap:5px;padding:14px;border:2px solid var(--gl);border-radius:var(--rs);transition:var(--tr);cursor:pointer;position:relative;overflow:hidden}
+.tr-opt input:checked+.tr-lbl{border-color:var(--navy);background:rgba(26,47,94,.05)}
+.tr-lbl:hover{border-color:var(--navy-l)}
+.tr-name{font-size:.88rem;font-weight:700;color:var(--navy)}
+.tr-price{font-size:.76rem;color:var(--gold);font-weight:600}
+.tr-info{font-size:.7rem;color:var(--gray)}
+.soon-ov{position:absolute;inset:0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:1px;border-radius:calc(var(--rs) - 2px)}
+
+/* ── FIELDS ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:.7rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px}
+.fg select,.fg input{padding:10px 13px;border:1.5px solid var(--gl);border-radius:var(--rs);font-size:.88rem;color:var(--text);background:#fff;outline:none;transition:var(--tr);width:100%}
+.fg select:focus,.fg input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,47,94,.1)}
+.fg small{font-size:.68rem;color:var(--gray);margin-top:2px}
+
+/* ── PRICE BOX ── */
+.price-box{background:linear-gradient(135deg,var(--navy),var(--navy-l));border-radius:var(--r);padding:22px;color:#fff;margin-bottom:20px}
+.price-box-t{font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;opacity:.6;margin-bottom:12px}
+.pl{display:flex;justify-content:space-between;font-size:.85rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.pl:last-of-type{border:none}
+.ptl{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:2px solid rgba(255,255,255,.18)}
+.ptl-l{font-size:.95rem;font-weight:700}
+.ptl-v{font-size:1.5rem;font-weight:800;color:var(--gold)}
+.pnote{font-size:.66rem;opacity:.5;margin-top:6px}
+
+/* ── BUTTONS ── */
+.form-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border:none;border-radius:var(--rs);font-size:.9rem;font-weight:700;transition:var(--tr);width:100%;cursor:pointer}
+.btn-wa{background:linear-gradient(135deg,var(--green),var(--green-d));color:#fff}
+.btn-wa:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,211,102,.35)}
+.btn-navy{background:linear-gradient(135deg,var(--navy),var(--navy-l));color:#fff}
+.btn-navy:hover{transform:translateY(-1px);box-shadow:var(--sh2)}
+.wa-sub{display:none;grid-template-columns:repeat(3,1fr);gap:8px}
+.wa-sub .btn{font-size:.78rem;padding:10px 8px;flex-direction:column;gap:2px}
+
+/* ── FOOTER ── */
+.foot{text-align:center;padding:24px 20px;color:rgba(255,255,255,.4);font-size:.72rem;line-height:1.9}
+.foot a{color:var(--gold)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:13px 20px;border-radius:10px;font-size:.85rem;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:700px){
+  .bk-box{padding:24px 16px}
+  .form-row,.form-row-3{grid-template-columns:1fr}
+  .tr-grid{grid-template-columns:1fr 1fr}
+  .form-acts{grid-template-columns:1fr}
+  .wa-sub{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .tr-grid{grid-template-columns:1fr}
+  .wrap{padding:82px 12px 48px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-in">
+    <a href="#" class="logo">
+      <img src="logo.svg" class="logo-img" alt="Delta Air Shuttle">
+      <div class="logo-txt">
+        <span class="logo-name">DELTA AIR SHUTTLE</span>
+        <span class="logo-sub">Airport Transfer</span>
+      </div>
+    </a>
+    <div class="hdr-right">
+      <a href="rezervare.html" class="hdr-link">🇷🇴 Română</a>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="wrap">
+  <div class="page-hd">
+    <div class="tag">Online Booking</div>
+    <h1>Book your seat now</h1>
+    <p>Fill in the form below and send your booking by email or WhatsApp. We'll confirm as soon as possible.</p>
+    <div class="div"></div>
+  </div>
+
+  <div class="bk-box">
+    <form id="bkForm" onsubmit="return false">
+
+      <!-- 1. Direction -->
+      <div class="fblk">
+        <div class="fst"><span class="fnum">1</span>Travel direction</div>
+        <div class="dir-grid">
+          <label class="dir-opt">
+            <input type="radio" name="direction" value="tur" checked onchange="onFormChange()">
+            <div class="dir-lbl">
+              <span class="dir-ico">✈️</span>
+              <span class="dir-t">Brașov → Bucharest</span>
+              <span class="dir-s">Outbound to airport</span>
+            </div>
+          </label>
+          <label class="dir-opt">
+            <input type="radio" name="direction" value="retur" onchange="onFormChange()">
+            <div class="dir-lbl">
+              <span class="dir-ico">🏠</span>
+              <span class="dir-t">Bucharest → Brașov</span>
+              <span class="dir-s">Return from airport</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 2. Transfer type -->
+      <div class="fblk">
+        <div class="fst"><span class="fnum">2</span>Transfer type</div>
+        <div class="tr-grid">
+          <label class="tr-opt">
+            <input type="radio" name="transfer" value="economy" checked onchange="onFormChange()">
+            <div class="tr-lbl">
+              <span class="tr-name">🚐 Economy</span>
+              <span class="tr-price">120 lei / adult · 75 lei / child</span>
+              <span class="tr-info">Shared · per person</span>
+            </div>
+          </label>
+          <label class="tr-opt">
+            <input type="radio" name="transfer" value="privat" onchange="onFormChange()">
+            <div class="tr-lbl">
+              <span class="tr-name">🚗 Private</span>
+              <span class="tr-price">800 / 850 lei · per ride</span>
+              <span class="tr-info">Dedicated · per vehicle</span>
+            </div>
+          </label>
+          <label class="tr-opt">
+            <input type="radio" name="transfer" value="business" disabled>
+            <div class="tr-lbl" style="opacity:.65">
+              <span class="tr-name">💼 Business</span>
+              <span class="tr-price" style="color:var(--gray)">Coming soon</span>
+              <span class="tr-info">Premium · coming soon</span>
+              <div class="soon-ov">Coming soon</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 3. Trip details -->
+      <div class="fblk">
+        <div class="fst"><span class="fnum">3</span>Trip details</div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Travel date *</label>
+            <input type="date" id="f-date" onchange="onFormChange()" required>
+          </div>
+          <div class="fg">
+            <label>Trip</label>
+            <select id="f-trip" onchange="onFormChange()">
+              <option value="c1_tur">Trip 1 – Departs 01:30 from Brașov</option>
+              <option value="c1_ret">Trip 1 – Departs 06:30/07:00 from Bucharest</option>
+              <option value="c2_tur">Trip 2 – Departs 14:00 from Brașov</option>
+              <option value="c2_ret">Trip 2 – Departs 19:00/19:30 from Bucharest</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Airport</label>
+            <select id="f-apt" onchange="onFormChange()">
+              <option value="otopeni">✈ Otopeni – Henri Coandă (800 lei private)</option>
+              <option value="baneasa">✈ Băneasa (850 lei private)</option>
+            </select>
+          </div>
+          <div class="fg" id="f-pickup-wrap">
+            <label>Pick-up point – Brașov</label>
+            <select id="f-pickup">
+              <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30 / 14:00</option>
+              <option value="petrom">Petrom Calea București (McDonald's) – 01:35 / 14:05</option>
+              <option value="omv">OMV Dârste (opposite Ramada) – 01:40 / 14:10</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Passengers & Baggage -->
+      <div class="fblk">
+        <div class="fst"><span class="fnum">4</span>Passengers &amp; Baggage</div>
+        <div class="form-row-3">
+          <div class="fg">
+            <label>No. of Adults</label>
+            <select id="f-adults" onchange="onFormChange()">
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+              <option>5</option><option>6</option><option>7</option><option>8</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>No. of Children (0–12 yrs)</label>
+            <select id="f-children" onchange="onFormChange()">
+              <option value="0">0 (none)</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option>
+            </select>
+            <small>Optional · free under 3 yrs (on request)</small>
+          </div>
+          <div class="fg">
+            <label>Extra baggage (20 lei/bag)</label>
+            <select id="f-bags" onchange="onFormChange()">
+              <option value="0">0</option><option>1</option><option>2</option>
+              <option>3</option><option>4</option>
+            </select>
+            <small>1 bag = max 20 kg · 20 lei each</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Contact details -->
+      <div class="fblk">
+        <div class="fst"><span class="fnum">5</span>Contact details</div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Full name *</label>
+            <input type="text" id="f-name" placeholder="e.g. John Smith" required>
+          </div>
+          <div class="fg">
+            <label>Phone *</label>
+            <input type="tel" id="f-phone" placeholder="+40 7XX XXX XXX" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg">
+            <label>Email *</label>
+            <input type="email" id="f-email" placeholder="email@example.com" required>
+          </div>
+          <div class="fg">
+            <label>Flight no. / Terminal (optional)</label>
+            <input type="text" id="f-flight" placeholder="e.g. RO123 / Terminal T1">
+          </div>
+        </div>
+        <div class="fg">
+          <label>Notes (optional)</label>
+          <input type="text" id="f-notes" placeholder="Special requests, additional address...">
+        </div>
+      </div>
+
+      <!-- Price summary -->
+      <div class="price-box">
+        <div class="price-box-t">Price summary (estimated, VAT included)</div>
+        <div id="priceLines"></div>
+        <div class="ptl">
+          <span class="ptl-l">TOTAL</span>
+          <span class="ptl-v" id="totalPrice">— lei</span>
+        </div>
+        <div class="pnote">* Final price may vary depending on specific options.</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-acts">
+        <button type="button" class="btn btn-wa" onclick="toggleWA()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 1C5.927 1 1 5.927 1 12c0 1.874.487 3.636 1.341 5.17L1 23l5.985-1.314A10.95 10.95 0 0 0 12 23c6.072 0 11-4.927 11-11S18.072 1 12 1zm0 20c-1.657 0-3.218-.453-4.561-1.241l-.327-.193-3.551.78.815-3.441-.212-.346A8.977 8.977 0 0 1 3 12c0-4.963 4.037-9 9-9s9 4.037 9 9-4.037 9-9 9z"/></svg>
+          Book on WhatsApp
+        </button>
+        <button type="button" class="btn btn-navy" onclick="submitEmail()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+          Send by Email
+        </button>
+      </div>
+      <div class="wa-sub" id="waSub">
+        <button type="button" class="btn btn-wa" onclick="submitWA('+40761617606')">
+          📱 Paul<br><small>+40 761 617 606</small>
+        </button>
+        <button type="button" class="btn btn-wa" onclick="submitWA('+40723320310')">
+          📱 Bogdan<br><small>+40 723 320 310</small>
+        </button>
+        <button type="button" class="btn btn-wa" onclick="submitWA('+40722818481')">
+          📱 Doru<br><small>+40 722 818 481</small>
+        </button>
+      </div>
+
+    </form>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <p>© 2025 <strong style="color:var(--gold)">DELTA AIR SHUTTLE S.R.L.</strong> · CUI 53035921 · J2025093942000<br>
+  Str. 13 Decembrie nr.129A, bl.7, fl.4, ap.55 · 500164 Brașov, Romania ·
+  <a href="mailto:office@delta-air.ro">office@delta-air.ro</a><br>
+  All rights reserved · Prices include VAT</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('f-date').min = today;
+
+function onFormChange(){
+  const dir = document.querySelector('input[name=direction]:checked')?.value||'tur';
+  document.getElementById('f-pickup-wrap').style.display = dir==='retur' ? 'none' : '';
+  calcPrice();
+}
+
+function calcPrice(){
+  const transfer = document.querySelector('input[name=transfer]:checked')?.value||'economy';
+  const apt = document.getElementById('f-apt').value;
+  const adults = parseInt(document.getElementById('f-adults').value)||1;
+  const children = parseInt(document.getElementById('f-children').value)||0;
+  const bags = parseInt(document.getElementById('f-bags').value)||0;
+  const linesEl = document.getElementById('priceLines');
+  const totalEl = document.getElementById('totalPrice');
+  let lines=[], total=0;
+  if(transfer==='economy'){
+    const ac=adults*120, cc=children*75;
+    total+=ac+cc;
+    lines.push({l:`${adults} adult(s) × 120 lei`,v:`${ac} lei`});
+    if(children>0) lines.push({l:`${children} child(ren) × 75 lei`,v:`${cc} lei`});
+  } else if(transfer==='privat'){
+    const base=apt==='baneasa'?850:800;
+    total+=base;
+    lines.push({l:`Private transfer (${apt==='baneasa'?'Băneasa':'Otopeni'})`,v:`${base} lei`});
+  } else {
+    totalEl.textContent='—';
+    linesEl.innerHTML='<div class="pl"><span>Business Transfer</span><span>Coming soon</span></div>';
+    return;
+  }
+  if(bags>0){ const bc=bags*20; total+=bc; lines.push({l:`${bags} extra bag(s) × 20 lei`,v:`${bc} lei`}); }
+  linesEl.innerHTML=lines.map(({l,v})=>`<div class="pl"><span>${l}</span><span>${v}</span></div>`).join('');
+  totalEl.textContent=`${total} lei`;
+}
+
+function validate(){
+  const n=document.getElementById('f-name').value.trim();
+  const p=document.getElementById('f-phone').value.trim();
+  const e=document.getElementById('f-email').value.trim();
+  if(!n||!p||!e){ showToast('Please fill in the required fields: Name, Phone and Email.'); return false; }
+  return true;
+}
+
+function buildMsg(){
+  const dir=document.querySelector('input[name=direction]:checked')?.value||'tur';
+  const transfer=document.querySelector('input[name=transfer]:checked')?.value||'economy';
+  const apt=document.getElementById('f-apt').value;
+  const trip=document.getElementById('f-trip').value;
+  const date=document.getElementById('f-date').value||'—';
+  const pickup=document.getElementById('f-pickup').value;
+  const adults=document.getElementById('f-adults').value;
+  const children=document.getElementById('f-children').value;
+  const bags=document.getElementById('f-bags').value;
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const flight=document.getElementById('f-flight').value.trim()||'—';
+  const notes=document.getElementById('f-notes').value.trim()||'—';
+  const total=document.getElementById('totalPrice').textContent;
+  const dirL=dir==='tur'?'Brașov → Bucharest':'Bucharest → Brașov';
+  const trL={economy:'Economy (Shared)',privat:'Private (Dedicated)',business:'Business'}[transfer]||transfer;
+  const aptL=apt==='baneasa'?'Băneasa':'Otopeni (Henri Coandă)';
+  const pickL={sala:'Sala Sporturilor (B-dul Gării)',petrom:'Petrom Calea București (McDonald\'s)',omv:'OMV Dârste (opposite Ramada)'}[pickup]||pickup;
+  const tripL={c1_tur:'Trip 1 (01:30 Brașov)',c1_ret:'Trip 1 (06:30/07:00 Bucharest)',c2_tur:'Trip 2 (14:00 Brașov)',c2_ret:'Trip 2 (19:00/19:30 Bucharest)'}[trip]||trip;
+  return `🚐 *BOOKING – DELTA AIR SHUTTLE*\n\n`+
+    `📋 *Trip details:*\n`+
+    `• Direction: ${dirL}\n• Airport: ${aptL}\n• Trip: ${tripL}\n• Date: ${date}\n`+
+    (dir==='tur'?`• Pick-up: ${pickL}\n`:'')+
+    `• Transfer type: ${trL}\n\n`+
+    `👥 *Passengers:*\n• Adults: ${adults}\n• Children: ${children}\n• Extra baggage: ${bags} bag(s)\n\n`+
+    `💰 *Estimated total: ${total}*\n\n`+
+    `👤 *Contact:*\n• Name: ${name}\n• Phone: ${phone}\n• Email: ${email}\n• Flight no.: ${flight}\n• Notes: ${notes}`;
+}
+
+function toggleWA(){
+  if(!validate()) return;
+  const s=document.getElementById('waSub');
+  s.style.display=s.style.display==='grid'?'none':'grid';
+}
+
+function submitWA(number){
+  if(!validate()) return;
+  const url=`https://wa.me/${number.replace(/\D/g,'')}?text=${encodeURIComponent(buildMsg())}`;
+  showToast('Opening WhatsApp...');
+  setTimeout(()=>window.open(url,'_blank'),400);
+}
+
+function submitEmail(){
+  if(!validate()) return;
+  const sub=encodeURIComponent('Transfer Booking – Delta Air Shuttle');
+  const body=encodeURIComponent(buildMsg().replace(/\*/g,''));
+  showToast('Opening email client...');
+  setTimeout(()=>{ window.location.href=`mailto:office@delta-air.ro?subject=${sub}&body=${body}`; },400);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+calcPrice();
+</script>
+</body>
+</html>
