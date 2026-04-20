@@ -1054,7 +1054,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
       apiKey:       process.env.NETOPIA_API_KEY,
       posSignature: process.env.NETOPIA_SIGNATURE,
       notifyUrl:    `https://delta-air-server-production.up.railway.app/api/netopia-notify?token=${token}`,
-      redirectUrl:  `https://delta-air.ro/rezervare-confirmata?email=${encodeURIComponent(customerEmail)}&token=${token}`,
+      redirectUrl:  `https://delta-air.ro/rezervare-confirmata?netopia=pending&email=${encodeURIComponent(customerEmail)}`,
       sandbox:      isSandbox,
     });
 
