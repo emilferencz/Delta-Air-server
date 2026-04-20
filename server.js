@@ -50,7 +50,38 @@ async function initDB() {
     CREATE INDEX IF NOT EXISTS idx_bookings_trip
     ON bookings(trip_date, trip_time, direction, status)
   `);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS pending_payments (
+      token      VARCHAR(64)  PRIMARY KEY,
+      meta_json  TEXT         NOT NULL,
+      created_at TIMESTAMPTZ  DEFAULT NOW()
+    )
+  `);
   console.log('✅ DB bookings table gata');
+}
+
+async function savePendingPayment(token, meta) {
+  if (!db) return;
+  await db.query(
+    `INSERT INTO pending_payments (token, meta_json) VALUES ($1, $2)
+     ON CONFLICT (token) DO UPDATE SET meta_json = $2`,
+    [token, JSON.stringify(meta)]
+  );
+}
+
+async function getPendingPayment(token) {
+  if (!db) return null;
+  const { rows } = await db.query(
+    'SELECT meta_json FROM pending_payments WHERE token = $1',
+    [token]
+  );
+  if (!rows.length) return null;
+  try { return JSON.parse(rows[0].meta_json); } catch (_) { return null; }
+}
+
+async function deletePendingPayment(token) {
+  if (!db) return;
+  await db.query('DELETE FROM pending_payments WHERE token = $1', [token]);
 }
 initDB().catch(e => console.error('❌ DB init error:', e.message));
 
@@ -427,7 +458,12 @@ app.post('/api/netopia-notify',
 
       if (isSuccess && token) {
         const stored = contractStore.get(`netopia-${token}`);
-        const meta   = stored?.meta || {};
+        let meta = stored?.meta || null;
+        if (!meta) {
+          meta = await getPendingPayment(token);
+          console.log(`📦 Meta din DB: ${meta ? 'găsit' : 'negăsit'}`);
+        }
+        meta = meta || {};
         const customerEmail = meta.email || body?.order?.billing?.email;
 
         try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (netopia):', dbErr.message); }
@@ -455,6 +491,7 @@ app.post('/api/netopia-notify',
         }
 
         contractStore.delete(`netopia-${token}`);
+        try { await deletePendingPayment(token); } catch (_) {}
       }
 
       res.json({ errorCode: 0 });
@@ -1062,6 +1099,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
     if (!meta.confirmedAt) meta.confirmedAt = new Date().toISOString();
     meta.payMethod = 'card';
     contractStore.set(`netopia-${token}`, { meta, createdAt: Date.now() });
+    try { await savePendingPayment(token, meta); } catch (dbErr) { console.warn('⚠️ savePendingPayment:', dbErr.message); }
 
     const isSandbox = process.env.NETOPIA_SANDBOX !== 'false';
     const netopia = new Netopia({
