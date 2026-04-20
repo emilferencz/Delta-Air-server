@@ -16,6 +16,58 @@ const https      = require('https');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
+const { Pool }   = require('pg');
+
+/* ── PostgreSQL — disponibilitate curse ── */
+const db = process.env.DATABASE_URL ? new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+}) : null;
+
+const CAPACITY   = 7;
+const TRIP_TIMES = {
+  tur:   { c1: '01:30', c2: '14:00' },
+  retur: { c1: '07:00', c2: '19:30' }
+};
+
+async function initDB() {
+  if (!db) { console.warn('⚠️  DATABASE_URL lipsă — disponibilitate dezactivată'); return; }
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS bookings (
+      id            SERIAL PRIMARY KEY,
+      trip_date     DATE         NOT NULL,
+      trip_time     VARCHAR(5)   NOT NULL,
+      direction     VARCHAR(10)  NOT NULL,
+      passengers    INTEGER      NOT NULL DEFAULT 1,
+      transfer_type VARCHAR(20)  DEFAULT 'economy',
+      booking_ref   VARCHAR(100),
+      status        VARCHAR(20)  DEFAULT 'confirmed',
+      created_at    TIMESTAMPTZ  DEFAULT NOW()
+    )
+  `);
+  await db.query(`
+    CREATE INDEX IF NOT EXISTS idx_bookings_trip
+    ON bookings(trip_date, trip_time, direction, status)
+  `);
+  console.log('✅ DB bookings table gata');
+}
+initDB().catch(e => console.error('❌ DB init error:', e.message));
+
+async function recordBooking(meta) {
+  if (!db) return;
+  const { dir, tr, trip, date } = meta || {};
+  const tripTime = TRIP_TIMES[dir]?.[trip];
+  if (!tripTime || !date || !dir) return;
+  const passengers = tr === 'privat'
+    ? CAPACITY
+    : (parseInt(meta.adults || 1) + parseInt(meta.children || 0));
+  await db.query(
+    `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [date, tripTime, dir, passengers, tr || 'economy', meta.name || '']
+  );
+  console.log(`📋 Booking înregistrat: ${date} ${tripTime} ${dir} — ${passengers} loc(uri)`);
+}
 
 /* ── Cache logo Delta Air pentru PDF ── */
 let LOGO_BUFFER = null;
@@ -262,6 +314,9 @@ app.post('/api/stripe-webhook',
 
       console.log(`✅ Plată card confirmată | ${email} | ${meta.dirLabel || ''} | ${meta.date || ''}`);
 
+      // Înregistrează în baza de date
+      try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (card):', dbErr.message); }
+
       const hasEmail = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
       if (email && hasEmail) {
         // Preia PDF din store (generat la crearea sesiunii) sau regenerează
@@ -306,6 +361,35 @@ app.post('/api/stripe-webhook',
     res.json({ received: true });
   }
 );
+
+/* ──────────────────────────────────────────────
+   GET /api/availability?date=YYYY-MM-DD&direction=tur|retur
+   Returnează locuri disponibile per cursă
+────────────────────────────────────────────── */
+app.get('/api/availability', async (req, res) => {
+  if (!db) return res.json({ c1: null, c2: null, error: 'DB indisponibil' });
+  const { date, direction } = req.query;
+  if (!date || !direction) return res.status(400).json({ error: 'Parametri lipsă: date, direction' });
+  const times = TRIP_TIMES[direction];
+  if (!times) return res.status(400).json({ error: 'direction invalid' });
+  try {
+    const result = {};
+    for (const [key, time] of Object.entries(times)) {
+      const { rows } = await db.query(
+        `SELECT COALESCE(SUM(passengers), 0)::int AS ocupate
+         FROM bookings
+         WHERE trip_date = $1 AND trip_time = $2 AND direction = $3 AND status = 'confirmed'`,
+        [date, time, direction]
+      );
+      const ocupate = rows[0].ocupate;
+      result[key] = { time, ocupate, disponibile: Math.max(0, CAPACITY - ocupate) };
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('❌ /api/availability error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* ── Rest middleware (după webhook!) ── */
 app.use(express.json());
@@ -848,6 +932,9 @@ app.post('/api/reserve-cash', async (req, res) => {
     const { meta = {}, customerEmail } = req.body;
     if (!customerEmail) return res.status(400).json({ error: 'Email lipsă.' });
 
+    // Înregistrează în baza de date
+    try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (cash):', dbErr.message); }
+
     // Generează PDF contract
     const pdfBuffer = await generateContractPDF(meta);
     const fileName = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
@@ -1040,11 +1127,12 @@ app.post('/api/create-checkout-session', async (req, res) => {
 ────────────────────────────────────────────── */
 app.get('/health', (_req, res) => {
   res.json({
-    status:       'ok',
-    mode:         process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
-    email:        process.env.EMAIL_USER ? 'configured' : 'NOT configured',
+    status:        'ok',
+    mode:          process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
+    email:         process.env.EMAIL_USER ? 'configured' : 'NOT configured',
     emailInternal: process.env.EMAIL_INTERNAL || 'office@delta-air.ro (default)',
-    webhook:      process.env.STRIPE_WEBHOOK_SECRET ? 'configured' : 'NOT configured',
+    webhook:       process.env.STRIPE_WEBHOOK_SECRET ? 'configured' : 'NOT configured',
+    database:      db ? 'configured' : 'NOT configured',
   });
 });
 
