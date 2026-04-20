@@ -1049,7 +1049,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
     meta.payMethod = 'card';
     contractStore.set(`netopia-${token}`, { meta, createdAt: Date.now() });
 
-    const isSandbox = process.env.NODE_ENV !== 'production';
+    const isSandbox = process.env.NETOPIA_SANDBOX !== 'false';
     const netopia = new Netopia({
       apiKey:       process.env.NETOPIA_API_KEY,
       posSignature: process.env.NETOPIA_SIGNATURE,
