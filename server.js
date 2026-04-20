@@ -1246,12 +1246,14 @@ app.post('/api/create-checkout-session', async (req, res) => {
 ────────────────────────────────────────────── */
 app.get('/health', (_req, res) => {
   res.json({
-    status:        'ok',
-    mode:          process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
-    email:         process.env.EMAIL_USER ? 'configured' : 'NOT configured',
-    emailInternal: process.env.EMAIL_INTERNAL || 'office@delta-air.ro (default)',
-    webhook:       process.env.STRIPE_WEBHOOK_SECRET ? 'configured' : 'NOT configured',
-    database:      db ? 'configured' : 'NOT configured',
+    status:          'ok',
+    mode:            process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? 'LIVE' : 'TEST',
+    email:           process.env.EMAIL_USER ? 'configured' : 'NOT configured',
+    emailInternal:   process.env.EMAIL_INTERNAL || 'office@delta-air.ro (default)',
+    webhook:         process.env.STRIPE_WEBHOOK_SECRET ? 'configured' : 'NOT configured',
+    database:        db ? 'configured' : 'NOT configured',
+    netopiaApiKey:   process.env.NETOPIA_API_KEY ? `set (${process.env.NETOPIA_API_KEY.slice(0,6)}...)` : 'NOT SET',
+    netopiaSignature:process.env.NETOPIA_SIGNATURE ? `set (${process.env.NETOPIA_SIGNATURE.slice(0,4)}...)` : 'NOT SET',
   });
 });
 
