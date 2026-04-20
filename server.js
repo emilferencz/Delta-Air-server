@@ -398,7 +398,14 @@ app.get('/api/availability', async (req, res) => {
    Trebuie să răspundă cu { errorCode: 0 } pentru confirmare
 ────────────────────────────────────────────── */
 app.post('/api/netopia-notify',
-  rawTextBodyParser,
+  (req, res, next) => {
+    const ct = req.headers['content-type'] || '';
+    if (ct.includes('application/json')) {
+      express.json()(req, res, next);
+    } else {
+      rawTextBodyParser(req, res, next);
+    }
+  },
   async (req, res) => {
     try {
       const { token } = req.query;
@@ -407,8 +414,15 @@ app.post('/api/netopia-notify',
         try { body = JSON.parse(body); } catch (_) {}
       }
 
-      const errorCode = body?.payment?.status?.errorCode ?? body?.payment?.errorCode ?? body?.errorCode;
-      const isSuccess = errorCode === '00' || errorCode === 0 || errorCode === '0';
+      console.log(`📬 Netopia IPN raw body type: ${typeof body}`);
+      console.log(`📬 Netopia IPN body: ${JSON.stringify(body).substring(0, 400)}`);
+      console.log(`📬 Netopia IPN token: ${token}`);
+
+      const errorCode = body?.payment?.status?.errorCode
+        ?? body?.payment?.errorCode
+        ?? body?.errorCode
+        ?? body?.status?.errorCode;
+      const isSuccess = errorCode === '00' || errorCode === 0 || errorCode === '0' || String(errorCode) === '0';
       console.log(`📬 Netopia IPN: errorCode=${errorCode}, success=${isSuccess}`);
 
       if (isSuccess && token) {
