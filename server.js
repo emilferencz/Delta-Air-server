@@ -456,15 +456,22 @@ app.post('/api/netopia-notify',
       const isSuccess = errorCode === '00' || errorCode === 0 || errorCode === '0' || String(errorCode) === '0';
       console.log(`📬 Netopia IPN: errorCode=${errorCode}, success=${isSuccess}`);
 
-      if (isSuccess && token) {
-        const stored = contractStore.get(`netopia-${token}`);
+      if (isSuccess) {
+        const orderIDFromBody = body?.order?.id || body?.orderID || body?.order?.orderID;
+        const stored = (token && contractStore.get(`netopia-${token}`))
+          || (orderIDFromBody && contractStore.get(`netopia-order-${orderIDFromBody}`));
         let meta = stored?.meta || null;
-        if (!meta) {
+        if (!meta && token) {
           meta = await getPendingPayment(token);
-          console.log(`📦 Meta din DB: ${meta ? 'găsit' : 'negăsit'}`);
+          console.log(`📦 Meta din DB (token): ${meta ? 'găsit' : 'negăsit'}`);
+        }
+        if (!meta && orderIDFromBody) {
+          meta = await getPendingPayment(orderIDFromBody);
+          console.log(`📦 Meta din DB (orderID ${orderIDFromBody}): ${meta ? 'găsit' : 'negăsit'}`);
         }
         meta = meta || {};
         const customerEmail = meta.email || body?.order?.billing?.email;
+        console.log(`📬 Netopia IPN: token=${token}, orderID=${orderIDFromBody}, email=${customerEmail}`);
 
         try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (netopia):', dbErr.message); }
 
@@ -490,8 +497,10 @@ app.post('/api/netopia-notify',
           } catch (mailErr) { console.error('❌ Email netopia:', mailErr.message); }
         }
 
-        contractStore.delete(`netopia-${token}`);
-        try { await deletePendingPayment(token); } catch (_) {}
+        if (token) contractStore.delete(`netopia-${token}`);
+        if (orderIDFromBody) contractStore.delete(`netopia-order-${orderIDFromBody}`);
+        try { if (token) await deletePendingPayment(token); } catch (_) {}
+        try { if (orderIDFromBody) await deletePendingPayment(orderIDFromBody); } catch (_) {}
       }
 
       res.json({ errorCode: 0 });
@@ -1096,10 +1105,14 @@ app.post('/api/netopia-initiate', async (req, res) => {
     if (!meta.total || parseFloat(meta.total) <= 0) return res.status(400).json({ error: 'Sumă invalidă.' });
 
     const token = crypto.randomBytes(16).toString('hex');
+    const orderID = `DAS-${Date.now()}`;
     if (!meta.confirmedAt) meta.confirmedAt = new Date().toISOString();
     meta.payMethod = 'card';
+    meta._netopiaOrderID = orderID;
     contractStore.set(`netopia-${token}`, { meta, createdAt: Date.now() });
-    try { await savePendingPayment(token, meta); } catch (dbErr) { console.warn('⚠️ savePendingPayment:', dbErr.message); }
+    contractStore.set(`netopia-order-${orderID}`, { meta, createdAt: Date.now() });
+    try { await savePendingPayment(token, meta); } catch (dbErr) { console.warn('⚠️ savePendingPayment token:', dbErr.message); }
+    try { await savePendingPayment(orderID, meta); } catch (dbErr) { console.warn('⚠️ savePendingPayment orderID:', dbErr.message); }
 
     const isSandbox = process.env.NETOPIA_SANDBOX !== 'false';
     const netopia = new Netopia({
@@ -1112,7 +1125,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
 
     const nameParts = (meta.name || 'Client Delta').trim().split(/\s+/);
     netopia.setOrderData({
-      orderID:     `DAS-${Date.now()}`,
+      orderID,
       amount:      parseFloat(meta.total),
       currency:    'RON',
       dateTime:    meta.confirmedAt,
