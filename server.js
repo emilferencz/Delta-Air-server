@@ -1119,7 +1119,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
       apiKey:       process.env.NETOPIA_API_KEY,
       posSignature: process.env.NETOPIA_SIGNATURE,
       notifyUrl:    `https://delta-air-server-production.up.railway.app/api/netopia-notify?token=${token}`,
-      redirectUrl:  `https://delta-air.ro/rezervare-confirmata?netopia=pending&email=${encodeURIComponent(customerEmail)}`,
+      redirectUrl:  `https://www.delta-air.ro/rezervare-confirmata?netopia=pending&email=${encodeURIComponent(customerEmail)}`,
       sandbox:      isSandbox,
     });
 
@@ -1271,7 +1271,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 
     // success_url include email + token pentru pagina de confirmare
-    const successBase = process.env.STRIPE_SUCCESS_URL || 'https://delta-air.ro/rezervare-confirmata';
+    const successBase = process.env.STRIPE_SUCCESS_URL || 'https://www.delta-air.ro/rezervare-confirmata';
     const successUrl  = `${successBase}?email=${encodeURIComponent(customerEmail || '')}${token ? `&token=${token}` : ''}`;
 
     const session = await stripe.checkout.sessions.create({
@@ -1297,7 +1297,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         confirmed_at:   meta.confirmedAt,
       },
       success_url: successUrl,
-      cancel_url:  process.env.STRIPE_CANCEL_URL || 'https://delta-air.ro/rezervari',
+      cancel_url:  process.env.STRIPE_CANCEL_URL || 'https://www.delta-air.ro/rezervari',
     });
     res.json({ url: session.url });
   } catch (err) {
