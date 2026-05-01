@@ -57,6 +57,15 @@ async function initDB() {
       created_at TIMESTAMPTZ  DEFAULT NOW()
     )
   `);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS invoices (
+      id          SERIAL PRIMARY KEY,
+      year        INT          NOT NULL,
+      booking_token VARCHAR(100),
+      client_name VARCHAR(200),
+      created_at  TIMESTAMPTZ  DEFAULT NOW()
+    )
+  `);
   console.log('✅ DB bookings table gata');
 }
 
@@ -1053,6 +1062,257 @@ function generateContractPDF(meta) {
     doc.end();
   });
 }
+
+/* ──────────────────────────────────────────────
+   generateInvoicePDF(meta, invoiceNum) → Promise<Buffer>
+────────────────────────────────────────────── */
+const fs = require('fs');
+const path = require('path');
+let INVOICE_LOGO_BUFFER = null;
+try {
+  INVOICE_LOGO_BUFFER = fs.readFileSync(path.join(__dirname, 'invoice-logo.png'));
+  console.log('✅ Logo factură încărcat:', INVOICE_LOGO_BUFFER.length, 'bytes');
+} catch (e) { console.warn('⚠️ Logo factură indisponibil:', e.message); }
+
+async function nextInvoiceNumber() {
+  if (!db) throw new Error('DB indisponibil');
+  const year = new Date().getFullYear();
+  const r = await db.query(
+    'INSERT INTO invoices (year) VALUES ($1) RETURNING id', [year]
+  );
+  return { year, num: r.rows[0].id };
+}
+
+async function saveInvoiceMeta(invoiceId, token, clientName) {
+  if (!db) return;
+  await db.query(
+    'UPDATE invoices SET booking_token=$1, client_name=$2 WHERE id=$3',
+    [token, clientName, invoiceId]
+  );
+}
+
+function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
+  return new Promise((resolve, reject) => {
+    try {
+      const TVA = 0.21;
+      const totalCuTVA = parseFloat(meta.total) || 0;
+      const totalFaraTVA = +(totalCuTVA / (1 + TVA)).toFixed(2);
+      const tvaAmount = +(totalCuTVA - totalFaraTVA).toFixed(2);
+
+      const invoiceNo = `DAS-${invoiceYear}-${String(invoiceNum).padStart(4, '0')}`;
+      const today = new Date().toLocaleDateString('ro-RO', { timeZone: 'Europe/Bucharest' });
+      const isFirma = !!(meta.firma && meta.cui);
+      const clientName = isFirma ? meta.firma : (meta.name || '—');
+
+      const doc = new PDFDocument({ size: 'A4', margin: 0, bufferPages: true });
+      const chunks = [];
+      doc.on('data', c => chunks.push(c));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      const W = 595.28, H = 841.89;
+      const M = 50; // margin
+      const navy = '#0f1e3d', gold = '#c9a84c', gray = '#4a5568', lgray = '#a0aec0';
+      const fBold = 'Helvetica-Bold', fReg = 'Helvetica';
+
+      // ── Fundal alb ──
+      doc.rect(0, 0, W, H).fill('#ffffff');
+
+      // ── Watermark logo (60% din pagină, centrat, transparență) ──
+      if (INVOICE_LOGO_BUFFER) {
+        const logoW = W * 0.60;
+        const logoH = logoW * (2500 / 3000); // aspect ratio 3000x2500
+        const logoX = (W - logoW) / 2;
+        const logoY = (H - logoH) / 2;
+
+        // Aplică transparență prin ExtGState în PDF
+        const gsRef = doc.ref({ Type: 'ExtGState', ca: 0.07, CA: 0.07 });
+        gsRef.end();
+        if (!doc.page.resources.data.ExtGState) doc.page.resources.data.ExtGState = {};
+        doc.page.resources.data.ExtGState.GSWatermark = gsRef;
+        doc.save();
+        doc.addContent('/GSWatermark gs');
+        doc.image(INVOICE_LOGO_BUFFER, logoX, logoY, { width: logoW, height: logoH });
+        doc.restore();
+      }
+
+      // ── Header ──
+      doc.rect(0, 0, W, 90).fill(navy);
+      doc.fillColor('#ffffff').fontSize(22).font(fBold)
+         .text('FACTURĂ FISCALĂ', M, 28);
+      doc.fillColor(gold).fontSize(11).font(fBold)
+         .text(`Seria DAS · Nr. ${invoiceNo}`, M, 54);
+      doc.fillColor('rgba(255,255,255,0.7)').fontSize(9).font(fReg)
+         .text(`Data emiterii: ${today}`, M, 70);
+
+      // Nr factură mare dreapta
+      doc.fillColor('rgba(255,255,255,0.12)').fontSize(60).font(fBold)
+         .text(invoiceNo, 0, 15, { align: 'right', width: W - M });
+
+      let y = 110;
+
+      // ── Furnizor / Cumpărător ──
+      const col1 = M, col2 = W / 2 + 10, colW = W / 2 - M - 10;
+
+      // Furnizor
+      doc.fillColor(navy).fontSize(8).font(fBold)
+         .text('FURNIZOR', col1, y);
+      y += 14;
+      doc.fillColor(gray).fontSize(9).font(fBold)
+         .text('DELTA AIR SHUTTLE S.R.L.', col1, y, { width: colW });
+      y += 13;
+      doc.fillColor(gray).fontSize(8).font(fReg)
+         .text('CUI: RO53035921', col1, y, { width: colW });
+      y += 11;
+      doc.text('Reg. Com.: J08/0000/2024', col1, y, { width: colW });
+      y += 11;
+      doc.text('Str. Exemplu nr. 1, Brașov, România', col1, y, { width: colW });
+      y += 11;
+      doc.text('Tel: +40 761 617 606', col1, y, { width: colW });
+      y += 11;
+      doc.text('Email: office@delta-air.ro', col1, y, { width: colW });
+
+      // Cumpărător
+      let y2 = 110;
+      doc.fillColor(navy).fontSize(8).font(fBold)
+         .text('CUMPĂRĂTOR', col2, y2);
+      y2 += 14;
+      doc.fillColor(gray).fontSize(9).font(fBold)
+         .text(ro(clientName), col2, y2, { width: colW });
+      y2 += 13;
+      doc.fillColor(gray).fontSize(8).font(fReg);
+      if (isFirma) {
+        doc.text(`CUI: ${meta.cui || '—'}`, col2, y2, { width: colW }); y2 += 11;
+        if (meta.adresa) { doc.text(ro(meta.adresa), col2, y2, { width: colW }); y2 += 11; }
+      } else {
+        doc.text(`Persoană fizică`, col2, y2, { width: colW }); y2 += 11;
+      }
+      if (meta.phone) { doc.text(`Tel: ${meta.phone}`, col2, y2, { width: colW }); y2 += 11; }
+      if (meta.email) { doc.text(`Email: ${meta.email}`, col2, y2, { width: colW }); }
+
+      // Separator
+      y = Math.max(y, y2) + 20;
+      doc.moveTo(M, y).lineTo(W - M, y).strokeColor(navy).lineWidth(1).stroke();
+      y += 14;
+
+      // ── Tabel servicii ──
+      const tH = 24;
+      // Header tabel
+      doc.rect(M, y, W - 2 * M, tH).fill(navy);
+      const cols = [
+        { label: 'Descriere serviciu',    x: M + 6,       w: 220 },
+        { label: 'Data',                  x: M + 230,     w: 70  },
+        { label: 'U.M.',                  x: M + 304,     w: 30  },
+        { label: 'Cant.',                 x: M + 338,     w: 30  },
+        { label: 'Preț (fără TVA)',       x: M + 372,     w: 70  },
+        { label: 'TVA 21%',              x: M + 446,     w: 50  },
+        { label: 'Total',                 x: M + 498,     w: 45  },
+      ];
+      cols.forEach(c => {
+        doc.fillColor('#ffffff').fontSize(7.5).font(fBold)
+           .text(c.label, c.x, y + 8, { width: c.w, align: 'left' });
+      });
+      y += tH;
+
+      // Rând serviciu
+      const pax = parseInt(meta.adults || 1) + parseInt(meta.children || 0);
+      const serviceDesc = `Transfer aeroport ${ro(meta.dirLabel || '—')} · ${ro(meta.trLabel || '—')}`;
+      const unitFara = +(totalFaraTVA).toFixed(2);
+      const unitTVA  = +(tvaAmount).toFixed(2);
+
+      doc.rect(M, y, W - 2 * M, tH).fill('#f7f9fc');
+      doc.fillColor(gray).fontSize(8).font(fReg);
+      doc.text(ro(serviceDesc),              M + 6,   y + 8, { width: 220 });
+      doc.text(meta.date || '—',             M + 230, y + 8, { width: 70  });
+      doc.text('buc',                        M + 304, y + 8, { width: 30  });
+      doc.text('1',                          M + 338, y + 8, { width: 30  });
+      doc.text(`${unitFara.toFixed(2)} RON`, M + 372, y + 8, { width: 70  });
+      doc.text(`${unitTVA.toFixed(2)} RON`,  M + 446, y + 8, { width: 50  });
+      doc.text(`${totalCuTVA.toFixed(2)} RON`, M + 498, y + 8, { width: 45 });
+      y += tH;
+
+      // Linie sub tabel
+      doc.moveTo(M, y).lineTo(W - M, y).strokeColor('#d0d7e8').lineWidth(0.5).stroke();
+      y += 16;
+
+      // ── Sumar TVA ──
+      const sumX = W - M - 200;
+      const sumW = 200;
+      const row = (label, value, bold = false) => {
+        doc.fillColor(bold ? navy : gray).fontSize(bold ? 10 : 9)
+           .font(bold ? fBold : fReg)
+           .text(label, sumX, y, { width: 120 })
+           .text(value, sumX + 120, y, { width: 80, align: 'right' });
+        y += bold ? 16 : 14;
+      };
+      row('Total fără TVA:', `${totalFaraTVA.toFixed(2)} RON`);
+      row('TVA 21%:', `${tvaAmount.toFixed(2)} RON`);
+      doc.moveTo(sumX, y).lineTo(W - M, y).strokeColor(navy).lineWidth(0.8).stroke();
+      y += 6;
+      row('TOTAL DE PLATĂ:', `${totalCuTVA.toFixed(2)} RON`, true);
+      y += 10;
+
+      // ── Detalii cursă ──
+      doc.moveTo(M, y).lineTo(W - M, y).strokeColor('#d0d7e8').lineWidth(0.5).stroke();
+      y += 12;
+      doc.fillColor(navy).fontSize(8).font(fBold).text('DETALII CURSĂ', M, y); y += 12;
+      const detail = (k, v) => {
+        doc.fillColor(lgray).fontSize(8).font(fBold).text(`${k}:`, M, y, { width: 130 });
+        doc.fillColor(gray).fontSize(8).font(fReg).text(ro(v || '—'), M + 135, y, { width: 300 });
+        y += 12;
+      };
+      detail('Rută',          meta.dirLabel);
+      detail('Tip transfer',  meta.trLabel);
+      detail('Data călătoriei', meta.date);
+      detail('Ora plecare',   meta.depTime);
+      if (meta.arrTime) detail('Ora sosire estimată', meta.arrTime);
+      detail('Pasageri adulți', String(meta.adults || 1));
+      if (parseInt(meta.children) > 0) detail('Copii', String(meta.children));
+      if (parseInt(meta.bags) > 0) detail('Bagaje suplimentare', String(meta.bags));
+      if (meta.pickup) detail('Punct îmbarcare', meta.pickup);
+
+      // ── Footer ──
+      const footY = H - 60;
+      doc.rect(0, footY, W, 60).fill(navy);
+      doc.fillColor('rgba(255,255,255,0.5)').fontSize(7.5).font(fReg)
+         .text('Factura este emisă electronic și este valabilă fără semnătură și ștampilă conform art. 319 Cod Fiscal.', M, footY + 10, { width: W - 2 * M, align: 'center' });
+      doc.fillColor(gold).fontSize(8).font(fBold)
+         .text('DELTA AIR SHUTTLE S.R.L. · CUI RO53035921 · office@delta-air.ro · +40 761 617 606', M, footY + 26, { width: W - 2 * M, align: 'center' });
+      doc.fillColor('rgba(255,255,255,0.4)').fontSize(7).font(fReg)
+         .text('www.delta-air.ro', M, footY + 42, { width: W - 2 * M, align: 'center' });
+
+      doc.end();
+    } catch (e) { reject(e); }
+  });
+}
+
+/* ──────────────────────────────────────────────
+   GET /api/invoice?token=X
+   Generează și descarcă factura fiscală PDF
+────────────────────────────────────────────── */
+app.get('/api/invoice', async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).json({ error: 'Token lipsă.' });
+
+  try {
+    const meta = contractStore.get(token)?.meta || await getPendingPayment(token);
+    if (!meta) return res.status(404).json({ error: 'Rezervarea nu a fost găsită sau a expirat.' });
+
+    const { year, num } = await nextInvoiceNumber();
+    await saveInvoiceMeta(num, token, meta.firma || meta.name || '—');
+
+    const pdfBuffer = await generateInvoicePDF(meta, num, year);
+    const invoiceNo = `DAS-${year}-${String(num).padStart(4, '0')}`;
+    const fileName = `factura-${invoiceNo}-delta-air.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error('❌ invoice error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* ──────────────────────────────────────────────
    POST /api/reserve-cash
