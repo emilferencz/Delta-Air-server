@@ -1073,7 +1073,8 @@ app.post('/api/reserve-cash', async (req, res) => {
 
     // Salvează în store cu token unic (TTL 2 ore)
     const token = crypto.randomBytes(16).toString('hex');
-    contractStore.set(token, { buffer: pdfBuffer, fileName, createdAt: Date.now() });
+    contractStore.set(token, { buffer: pdfBuffer, fileName, meta, createdAt: Date.now() });
+    try { await savePendingPayment(token, meta); } catch (_) {}
 
     const hasEmail = process.env.EMAIL_USER && process.env.EMAIL_PASS;
     if (hasEmail) {
@@ -1173,10 +1174,25 @@ app.post('/api/netopia-initiate', async (req, res) => {
 /* ──────────────────────────────────────────────
    GET /api/download-contract?token=xxx
 ────────────────────────────────────────────── */
-app.get('/api/download-contract', (req, res) => {
+app.get('/api/download-contract', async (req, res) => {
   const { token } = req.query;
-  const entry = contractStore.get(token);
-  if (!entry) return res.status(404).json({ error: 'Contractul nu mai este disponibil sau a expirat.' });
+  if (!token) return res.status(400).json({ error: 'Token lipsă.' });
+
+  let entry = contractStore.get(token);
+
+  // Dacă nu e în memorie (ex: după redeploy), regenerează din DB
+  if (!entry) {
+    const meta = await getPendingPayment(token).catch(() => null);
+    if (!meta) return res.status(404).json({ error: 'Contractul nu mai este disponibil sau a expirat.' });
+    try {
+      const buffer = await generateContractPDF(meta);
+      const fileName = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
+      entry = { buffer, fileName };
+    } catch (e) {
+      return res.status(500).json({ error: 'Eroare la generarea contractului.' });
+    }
+  }
+
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', `attachment; filename="${entry.fileName}"`);
   res.send(entry.buffer);
@@ -1277,6 +1293,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
       token = crypto.randomBytes(16).toString('hex');
       // Stochează PDF + meta complet (pentru email în webhook, fără limitele Stripe metadata)
       contractStore.set(token, { buffer: pdfBuffer, fileName, meta, createdAt: Date.now() });
+      try { await savePendingPayment(token, meta); } catch (_) {}
       console.log(`📄 PDF card generat, token: ${token.slice(0,8)}...`);
     } catch (pdfErr) {
       console.warn('⚠️ PDF pre-checkout failed (continua fara):', pdfErr.message);
