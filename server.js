@@ -1019,8 +1019,20 @@ function generateContractPDF(meta) {
     doc.fillColor(navy).fontSize(9).font(fBold).text('BENEFICIAR', col2, sigY);
     doc.fillColor(gray).fontSize(8).font(fReg)
        .text(`${rName}\nData: ${today}, ora ${nowTime}`, col2, sigY+14, {width: colW});
+
+    // Inserează semnătura electronică dacă există
+    if (meta.signatureDataUrl && meta.signatureDataUrl.startsWith('data:image/png;base64,')) {
+      try {
+        const sigBuffer = Buffer.from(meta.signatureDataUrl.replace('data:image/png;base64,', ''), 'base64');
+        doc.image(sigBuffer, col2, sigY+32, { width: 160, height: 30, fit: [160, 30] });
+      } catch (_) {}
+    }
+
     doc.moveTo(col2, sigY+62).lineTo(col2+160, sigY+62).strokeColor(navy).lineWidth(0.5).stroke();
-    doc.fillColor(lgray).fontSize(7).font(fReg).text('Semnatura beneficiar', col2, sigY+65);
+    const sigLabel = meta.signedAt
+      ? `Semnat electronic: ${new Date(meta.signedAt).toLocaleString('ro-RO', {timeZone:'Europe/Bucharest'})}`
+      : 'Semnatura beneficiar';
+    doc.fillColor(lgray).fontSize(7).font(fReg).text(sigLabel, col2, sigY+65, {width: colW});
 
     /* ══════════════════════════════════════════
        INFORMATII CONTACT URGENTA
