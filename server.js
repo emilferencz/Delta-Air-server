@@ -1119,7 +1119,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
       apiKey:       process.env.NETOPIA_API_KEY,
       posSignature: process.env.NETOPIA_SIGNATURE,
       notifyUrl:    `https://delta-air-server-production.up.railway.app/api/netopia-notify?token=${token}`,
-      redirectUrl:  `https://www.delta-air.ro/rezervare-confirmata?netopia=pending&email=${encodeURIComponent(customerEmail)}`,
+      redirectUrl:  `https://www.delta-air.ro/rezervare-confirmata?netopia=pending&token=${token}&email=${encodeURIComponent(customerEmail)}`,
       sandbox:      isSandbox,
     });
 
@@ -1302,6 +1302,56 @@ app.post('/api/create-checkout-session', async (req, res) => {
     res.json({ url: session.url });
   } catch (err) {
     console.error('Stripe Checkout error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ──────────────────────────────────────────────
+   GET /api/netopia-confirm?token=X
+   Apelat de pagina de confirmare după redirect Netopia.
+   Trimite email + înregistrează rezervarea (fallback față de IPN).
+────────────────────────────────────────────── */
+app.get('/api/netopia-confirm', async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).json({ error: 'Token lipsă.' });
+
+  try {
+    let meta = contractStore.get(`netopia-${token}`)?.meta || await getPendingPayment(token);
+    if (!meta) return res.status(404).json({ error: 'Rezervare negăsită sau expirată.' });
+
+    const customerEmail = meta.email;
+    if (!customerEmail) return res.status(400).json({ error: 'Email lipsă în rezervare.' });
+
+    try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (netopia-confirm):', dbErr.message); }
+
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      let attachment = null;
+      try {
+        const pdfBuffer = await generateContractPDF(meta);
+        const fileName  = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
+        attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
+      } catch (pdfErr) { console.warn('⚠️ PDF netopia-confirm failed:', pdfErr.message); }
+
+      const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      try {
+        await transporter.sendMail({
+          from,
+          to:  customerEmail,
+          bcc: OFFICE_EMAIL,
+          subject: `✈ Confirmare rezervare Delta Air Shuttle — ${meta.date || ''} ${meta.dirLabel || ''}`,
+          html: buildConfirmationEmail({ ...meta, payMethod: 'card' }),
+          attachments: attachment ? [attachment] : [],
+        });
+        console.log(`📧 Email netopia-confirm → ${customerEmail}`);
+      } catch (mailErr) { console.error('❌ Email netopia-confirm:', mailErr.message); }
+    }
+
+    contractStore.delete(`netopia-${token}`);
+    try { await deletePendingPayment(token); } catch (_) {}
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('❌ netopia-confirm error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
