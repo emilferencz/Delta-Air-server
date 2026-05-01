@@ -1095,14 +1095,14 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
   return new Promise((resolve, reject) => {
     try {
       const TVA = 0.21;
-      const totalCuTVA = parseFloat(meta.total) || 0;
+      const totalCuTVA  = parseFloat(meta.total) || 0;
       const totalFaraTVA = +(totalCuTVA / (1 + TVA)).toFixed(2);
-      const tvaAmount = +(totalCuTVA - totalFaraTVA).toFixed(2);
+      const tvaAmount    = +(totalCuTVA - totalFaraTVA).toFixed(2);
 
       const invoiceNo = `DAS-${invoiceYear}-${String(invoiceNum).padStart(4, '0')}`;
       const today = new Date().toLocaleDateString('ro-RO', { timeZone: 'Europe/Bucharest' });
       const isFirma = !!(meta.firma && meta.cui);
-      const clientName = isFirma ? meta.firma : (meta.name || '—');
+      const clientName = isFirma ? meta.firma : (meta.name || '-');
 
       const doc = new PDFDocument({ size: 'A4', margin: 0, bufferPages: true });
       const chunks = [];
@@ -1111,22 +1111,20 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       doc.on('error', reject);
 
       const W = 595.28, H = 841.89;
-      const M = 50; // margin
-      const navy = '#0f1e3d', gold = '#c9a84c', gray = '#4a5568', lgray = '#a0aec0';
+      const M = 50;
+      const navy = '#0f1e3d', gold = '#c9a84c', gray = '#4a5568', lgray = '#718096', light = '#f7f9fc';
       const fBold = 'Helvetica-Bold', fReg = 'Helvetica';
 
       // ── Fundal alb ──
       doc.rect(0, 0, W, H).fill('#ffffff');
 
-      // ── Watermark logo (60% din pagină, centrat, transparență) ──
+      // ── Watermark logo — 60% pagina, centrat, opacitate 0.0875 (25% mai vizibil) ──
       if (INVOICE_LOGO_BUFFER) {
         const logoW = W * 0.60;
-        const logoH = logoW * (2500 / 3000); // aspect ratio 3000x2500
+        const logoH = logoW * (2500 / 3000);
         const logoX = (W - logoW) / 2;
         const logoY = (H - logoH) / 2;
-
-        // Aplică transparență prin ExtGState în PDF
-        const gsRef = doc.ref({ Type: 'ExtGState', ca: 0.07, CA: 0.07 });
+        const gsRef = doc.ref({ Type: 'ExtGState', ca: 0.0875, CA: 0.0875 });
         gsRef.end();
         if (!doc.page.resources.data.ExtGState) doc.page.resources.data.ExtGState = {};
         doc.page.resources.data.ExtGState.GSWatermark = gsRef;
@@ -1137,149 +1135,196 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       }
 
       // ── Header ──
-      doc.rect(0, 0, W, 90).fill(navy);
-      doc.fillColor('#ffffff').fontSize(22).font(fBold)
-         .text('FACTURĂ FISCALĂ', M, 28);
-      doc.fillColor(gold).fontSize(11).font(fBold)
-         .text(`Seria DAS · Nr. ${invoiceNo}`, M, 54);
-      doc.fillColor('rgba(255,255,255,0.7)').fontSize(9).font(fReg)
-         .text(`Data emiterii: ${today}`, M, 70);
+      const headerH = 95;
+      doc.rect(0, 0, W, headerH).fill(navy);
 
-      // Nr factură mare dreapta
-      doc.fillColor('rgba(255,255,255,0.12)').fontSize(60).font(fBold)
-         .text(invoiceNo, 0, 15, { align: 'right', width: W - M });
+      // Titlu stanga
+      doc.fillColor('#ffffff').fontSize(24).font(fBold)
+         .text('FACTURA FISCALA', M, 18);
+      doc.fillColor(gold).fontSize(10.5).font(fBold)
+         .text(`Seria DAS - Nr. ${invoiceNo}`, M, 48);
+      doc.fillColor('rgba(255,255,255,0.65)').fontSize(8.5).font(fReg)
+         .text(`Data emiterii: ${today}`, M, 64);
+      doc.fillColor('rgba(255,255,255,0.45)').fontSize(7.5).font(fReg)
+         .text(`Scadenta: ${today} (factura de servicii prestate)`, M, 78);
 
-      let y = 110;
+      // Nr factură dreapta — dimensiune controlată, fără overlap
+      doc.fillColor('rgba(255,255,255,0.18)').fontSize(28).font(fBold)
+         .text(invoiceNo, 0, 34, { align: 'right', width: W - M });
 
-      // ── Furnizor / Cumpărător ──
-      const col1 = M, col2 = W / 2 + 10, colW = W / 2 - M - 10;
+      let y = headerH + 14;
 
-      // Furnizor
-      doc.fillColor(navy).fontSize(8).font(fBold)
-         .text('FURNIZOR', col1, y);
-      y += 14;
+      // ── Furnizor / Cumparator ──
+      const col1 = M, col2 = W / 2 + 8, colW = W / 2 - M - 8;
+
+      const sectionLabel = (txt, x, yy) => {
+        doc.rect(x, yy, colW, 14).fill('#e8edf5');
+        doc.fillColor(navy).fontSize(7.5).font(fBold).text(txt, x + 6, yy + 3, { width: colW });
+        return yy + 18;
+      };
+
+      // FURNIZOR
+      let yF = sectionLabel('FURNIZOR', col1, y);
       doc.fillColor(gray).fontSize(9).font(fBold)
-         .text('DELTA AIR SHUTTLE S.R.L.', col1, y, { width: colW });
-      y += 13;
-      doc.fillColor(gray).fontSize(8).font(fReg)
-         .text('CUI: RO53035921', col1, y, { width: colW });
-      y += 11;
-      doc.text('Reg. Com.: J08/0000/2024', col1, y, { width: colW });
-      y += 11;
-      doc.text('Str. Exemplu nr. 1, Brașov, România', col1, y, { width: colW });
-      y += 11;
-      doc.text('Tel: +40 761 617 606', col1, y, { width: colW });
-      y += 11;
-      doc.text('Email: office@delta-air.ro', col1, y, { width: colW });
+         .text('DELTA AIR SHUTTLE S.R.L.', col1, yF, { width: colW }); yF += 13;
+      doc.fillColor(gray).fontSize(8).font(fReg);
+      doc.text('CUI: RO53035921', col1, yF, { width: colW }); yF += 11;
+      doc.text('Reg. Com.: J08/000/2024', col1, yF, { width: colW }); yF += 11;
+      doc.text('Sediu: Brasov, Romania', col1, yF, { width: colW }); yF += 11;
+      doc.text('IBAN: RO** **** **** **** **** ****', col1, yF, { width: colW }); yF += 11;
+      doc.text('Banca: Transilvania / BCR', col1, yF, { width: colW }); yF += 11;
+      doc.text('Tel: +40 761 617 606', col1, yF, { width: colW }); yF += 11;
+      doc.text('Email: office@delta-air.ro', col1, yF, { width: colW });
 
-      // Cumpărător
-      let y2 = 110;
-      doc.fillColor(navy).fontSize(8).font(fBold)
-         .text('CUMPĂRĂTOR', col2, y2);
-      y2 += 14;
+      // CUMPARATOR
+      let yC = sectionLabel('CUMPARATOR', col2, y);
       doc.fillColor(gray).fontSize(9).font(fBold)
-         .text(ro(clientName), col2, y2, { width: colW });
-      y2 += 13;
+         .text(ro(clientName), col2, yC, { width: colW }); yC += 13;
       doc.fillColor(gray).fontSize(8).font(fReg);
       if (isFirma) {
-        doc.text(`CUI: ${meta.cui || '—'}`, col2, y2, { width: colW }); y2 += 11;
-        if (meta.adresa) { doc.text(ro(meta.adresa), col2, y2, { width: colW }); y2 += 11; }
+        doc.text(`CUI: ${meta.cui || '-'}`, col2, yC, { width: colW }); yC += 11;
+        if (meta.adresa) { doc.text(ro(meta.adresa), col2, yC, { width: colW }); yC += 11; }
       } else {
-        doc.text(`Persoană fizică`, col2, y2, { width: colW }); y2 += 11;
+        doc.text('Persoana fizica', col2, yC, { width: colW }); yC += 11;
       }
-      if (meta.phone) { doc.text(`Tel: ${meta.phone}`, col2, y2, { width: colW }); y2 += 11; }
-      if (meta.email) { doc.text(`Email: ${meta.email}`, col2, y2, { width: colW }); }
+      if (meta.name && isFirma) { doc.text(`Contact: ${ro(meta.name)}`, col2, yC, { width: colW }); yC += 11; }
+      if (meta.phone) { doc.text(`Tel: ${meta.phone}`, col2, yC, { width: colW }); yC += 11; }
+      if (meta.email) { doc.text(`Email: ${meta.email}`, col2, yC, { width: colW }); yC += 11; }
+      const payMethodLabel = { cash: 'Numerar la imbarcare', card: 'Card online (Stripe)', netopia: 'Card online (Netopia)' }[meta.payMethod] || (meta.payMethod || '-');
+      doc.text(`Mod plata: ${payMethodLabel}`, col2, yC, { width: colW });
 
       // Separator
-      y = Math.max(y, y2) + 20;
+      y = Math.max(yF, yC) + 18;
       doc.moveTo(M, y).lineTo(W - M, y).strokeColor(navy).lineWidth(1).stroke();
       y += 14;
 
       // ── Tabel servicii ──
-      const tH = 24;
-      // Header tabel
+      const tH = 26;
       doc.rect(M, y, W - 2 * M, tH).fill(navy);
       const cols = [
-        { label: 'Descriere serviciu',    x: M + 6,       w: 220 },
-        { label: 'Data',                  x: M + 230,     w: 70  },
-        { label: 'U.M.',                  x: M + 304,     w: 30  },
-        { label: 'Cant.',                 x: M + 338,     w: 30  },
-        { label: 'Preț (fără TVA)',       x: M + 372,     w: 70  },
-        { label: 'TVA 21%',              x: M + 446,     w: 50  },
-        { label: 'Total',                 x: M + 498,     w: 45  },
+        { label: 'Descriere serviciu',  x: M + 6,   w: 198 },
+        { label: 'Data cursa',          x: M + 208, w: 62  },
+        { label: 'U.M.',                x: M + 274, w: 28  },
+        { label: 'Cant.',               x: M + 306, w: 26  },
+        { label: 'Pret fara TVA',       x: M + 336, w: 64  },
+        { label: 'TVA 21%',             x: M + 404, w: 54  },
+        { label: 'Total RON',           x: M + 462, w: 73  },
       ];
-      cols.forEach(c => {
+      cols.forEach(c =>
         doc.fillColor('#ffffff').fontSize(7.5).font(fBold)
-           .text(c.label, c.x, y + 8, { width: c.w, align: 'left' });
-      });
+           .text(c.label, c.x, y + 9, { width: c.w })
+      );
       y += tH;
 
-      // Rând serviciu
-      const pax = parseInt(meta.adults || 1) + parseInt(meta.children || 0);
-      const serviceDesc = `Transfer aeroport ${ro(meta.dirLabel || '—')} · ${ro(meta.trLabel || '—')}`;
-      const unitFara = +(totalFaraTVA).toFixed(2);
-      const unitTVA  = +(tvaAmount).toFixed(2);
-
-      doc.rect(M, y, W - 2 * M, tH).fill('#f7f9fc');
+      const serviceDesc = `Transfer aeroport ${ro(meta.dirLabel || '-')} - ${ro(meta.trLabel || '-')}`;
+      const rowH = serviceDesc.length > 55 ? 32 : 22;
+      doc.rect(M, y, W - 2 * M, rowH).fill(light);
       doc.fillColor(gray).fontSize(8).font(fReg);
-      doc.text(ro(serviceDesc),              M + 6,   y + 8, { width: 220 });
-      doc.text(meta.date || '—',             M + 230, y + 8, { width: 70  });
-      doc.text('buc',                        M + 304, y + 8, { width: 30  });
-      doc.text('1',                          M + 338, y + 8, { width: 30  });
-      doc.text(`${unitFara.toFixed(2)} RON`, M + 372, y + 8, { width: 70  });
-      doc.text(`${unitTVA.toFixed(2)} RON`,  M + 446, y + 8, { width: 50  });
-      doc.text(`${totalCuTVA.toFixed(2)} RON`, M + 498, y + 8, { width: 45 });
-      y += tH;
+      doc.text(ro(serviceDesc),                     M + 6,   y + (rowH - 16) / 2, { width: 198 });
+      doc.text(meta.date || '-',                    M + 208, y + (rowH - 8) / 2,  { width: 62  });
+      doc.text('buc',                               M + 274, y + (rowH - 8) / 2,  { width: 28  });
+      doc.text('1',                                 M + 306, y + (rowH - 8) / 2,  { width: 26  });
+      doc.text(`${totalFaraTVA.toFixed(2)} RON`,   M + 336, y + (rowH - 8) / 2,  { width: 64  });
+      doc.text(`${tvaAmount.toFixed(2)} RON`,       M + 404, y + (rowH - 8) / 2,  { width: 54  });
+      doc.fillColor(navy).font(fBold)
+         .text(`${totalCuTVA.toFixed(2)} RON`,      M + 462, y + (rowH - 8) / 2,  { width: 73  });
+      y += rowH;
 
-      // Linie sub tabel
       doc.moveTo(M, y).lineTo(W - M, y).strokeColor('#d0d7e8').lineWidth(0.5).stroke();
-      y += 16;
+      y += 14;
 
       // ── Sumar TVA ──
-      const sumX = W - M - 200;
-      const sumW = 200;
-      const row = (label, value, bold = false) => {
-        doc.fillColor(bold ? navy : gray).fontSize(bold ? 10 : 9)
+      const sumX = W - M - 210;
+      const row = (lbl, val, bold = false) => {
+        doc.fillColor(bold ? navy : gray).fontSize(bold ? 10 : 8.5)
            .font(bold ? fBold : fReg)
-           .text(label, sumX, y, { width: 120 })
-           .text(value, sumX + 120, y, { width: 80, align: 'right' });
-        y += bold ? 16 : 14;
+           .text(lbl, sumX, y, { width: 130 })
+           .text(val,  sumX + 130, y, { width: 80, align: 'right' });
+        y += bold ? 17 : 13;
       };
-      row('Total fără TVA:', `${totalFaraTVA.toFixed(2)} RON`);
+      row('Total fara TVA:', `${totalFaraTVA.toFixed(2)} RON`);
       row('TVA 21%:', `${tvaAmount.toFixed(2)} RON`);
-      doc.moveTo(sumX, y).lineTo(W - M, y).strokeColor(navy).lineWidth(0.8).stroke();
-      y += 6;
-      row('TOTAL DE PLATĂ:', `${totalCuTVA.toFixed(2)} RON`, true);
-      y += 10;
-
-      // ── Detalii cursă ──
-      doc.moveTo(M, y).lineTo(W - M, y).strokeColor('#d0d7e8').lineWidth(0.5).stroke();
+      doc.moveTo(sumX, y).lineTo(W - M, y).strokeColor(navy).lineWidth(0.7).stroke();
+      y += 5;
+      row('TOTAL DE PLATA:', `${totalCuTVA.toFixed(2)} RON`, true);
       y += 12;
-      doc.fillColor(navy).fontSize(8).font(fBold).text('DETALII CURSĂ', M, y); y += 12;
-      const detail = (k, v) => {
-        doc.fillColor(lgray).fontSize(8).font(fBold).text(`${k}:`, M, y, { width: 130 });
-        doc.fillColor(gray).fontSize(8).font(fReg).text(ro(v || '—'), M + 135, y, { width: 300 });
-        y += 12;
+
+      // ── Detalii cursa — doua coloane ──
+      doc.moveTo(M, y).lineTo(W - M, y).strokeColor('#d0d7e8').lineWidth(0.5).stroke();
+      y += 10;
+      doc.rect(M, y, W - 2 * M, 14).fill('#e8edf5');
+      doc.fillColor(navy).fontSize(7.5).font(fBold)
+         .text('DETALII CURSA', M + 6, y + 3); y += 18;
+
+      const d1x = M, d2x = W / 2 + 8, dLW = 110, dVW = colW - dLW - 4;
+      let yd1 = y, yd2 = y;
+
+      const det = (col, k, v) => {
+        const x = col === 1 ? d1x : d2x;
+        let yd = col === 1 ? yd1 : yd2;
+        doc.fillColor(lgray).fontSize(7.8).font(fBold).text(`${k}:`, x, yd, { width: dLW });
+        doc.fillColor(gray).fontSize(7.8).font(fReg).text(ro(String(v || '-')), x + dLW + 4, yd, { width: dVW });
+        if (col === 1) yd1 += 12; else yd2 += 12;
       };
-      detail('Rută',          meta.dirLabel);
-      detail('Tip transfer',  meta.trLabel);
-      detail('Data călătoriei', meta.date);
-      detail('Ora plecare',   meta.depTime);
-      if (meta.arrTime) detail('Ora sosire estimată', meta.arrTime);
-      detail('Pasageri adulți', String(meta.adults || 1));
-      if (parseInt(meta.children) > 0) detail('Copii', String(meta.children));
-      if (parseInt(meta.bags) > 0) detail('Bagaje suplimentare', String(meta.bags));
-      if (meta.pickup) detail('Punct îmbarcare', meta.pickup);
+
+      // Coloana stanga
+      det(1, 'Ruta',                ro(meta.dirLabel));
+      det(1, 'Tip transfer',        ro(meta.trLabel));
+      det(1, 'Aeroport',            ro(meta.aptLabel));
+      det(1, 'Data calatoriei',     meta.date);
+      det(1, 'Ora plecare',         meta.depTime);
+      if (meta.arrTime) det(1, 'Ora sosire est.', meta.arrTime);
+      det(1, 'Punct imbarcare',     ro(meta.pickup));
+
+      // Coloana dreapta
+      det(2, 'Pasageri adulti',     String(meta.adults || 1));
+      if (parseInt(meta.children) > 0) det(2, 'Copii (sub 12 ani)', String(meta.children));
+      const totalPax = parseInt(meta.adults || 1) + parseInt(meta.children || 0);
+      det(2, 'Total pasageri',      String(totalPax));
+      if (parseInt(meta.bags) > 0) det(2, 'Bagaje supli.', String(meta.bags));
+      det(2, 'Mod plata',           payMethodLabel);
+      if (meta.confirmedAt) {
+        const confDate = new Date(meta.confirmedAt).toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' });
+        det(2, 'Data confirmare', confDate);
+      }
+      if (meta.signedAt) {
+        const sigDate = new Date(meta.signedAt).toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' });
+        det(2, 'Semnat electronic', sigDate);
+      }
+
+      y = Math.max(yd1, yd2) + 8;
+
+      // Nume pasageri
+      if (Array.isArray(meta.paxNames) && meta.paxNames.length > 0) {
+        doc.fillColor(lgray).fontSize(7.8).font(fBold).text('Nume pasageri:', M, y, { width: dLW });
+        doc.fillColor(gray).fontSize(7.8).font(fReg)
+           .text(meta.paxNames.map(p => ro(p)).join(', '), M + dLW + 4, y, { width: W - 2 * M - dLW - 4 });
+        y += 14;
+      }
+
+      // Observatii
+      if (meta.obs && meta.obs.trim()) {
+        doc.fillColor(lgray).fontSize(7.8).font(fBold).text('Observatii:', M, y, { width: dLW });
+        doc.fillColor(gray).fontSize(7.8).font(fReg)
+           .text(ro(meta.obs.trim()), M + dLW + 4, y, { width: W - 2 * M - dLW - 4 });
+        y += 14;
+      }
+
+      y += 8;
+      // Nota legala
+      doc.rect(M, y, W - 2 * M, 22).fill('#fff8e8');
+      doc.fillColor('#7a5c00').fontSize(7.5).font(fReg)
+         .text('Factura emisa electronic, valabila fara semnatura si stampila conform art. 319 alin. (29) Cod Fiscal (L. 227/2015). TVA colectat conform regimului normal de taxare.', M + 8, y + 6, { width: W - 2 * M - 16 });
 
       // ── Footer ──
-      const footY = H - 60;
-      doc.rect(0, footY, W, 60).fill(navy);
-      doc.fillColor('rgba(255,255,255,0.5)').fontSize(7.5).font(fReg)
-         .text('Factura este emisă electronic și este valabilă fără semnătură și ștampilă conform art. 319 Cod Fiscal.', M, footY + 10, { width: W - 2 * M, align: 'center' });
+      const footY = H - 52;
+      doc.rect(0, footY, W, 52).fill(navy);
       doc.fillColor(gold).fontSize(8).font(fBold)
-         .text('DELTA AIR SHUTTLE S.R.L. · CUI RO53035921 · office@delta-air.ro · +40 761 617 606', M, footY + 26, { width: W - 2 * M, align: 'center' });
-      doc.fillColor('rgba(255,255,255,0.4)').fontSize(7).font(fReg)
-         .text('www.delta-air.ro', M, footY + 42, { width: W - 2 * M, align: 'center' });
+         .text('DELTA AIR SHUTTLE S.R.L.  -  CUI RO53035921  -  office@delta-air.ro  -  +40 761 617 606', M, footY + 10, { width: W - 2 * M, align: 'center' });
+      doc.fillColor('rgba(255,255,255,0.5)').fontSize(7.5).font(fReg)
+         .text('Brasov, Romania  |  www.delta-air.ro', M, footY + 26, { width: W - 2 * M, align: 'center' });
+      doc.fillColor('rgba(255,255,255,0.3)').fontSize(6.5).font(fReg)
+         .text(`Factura nr. ${invoiceNo} - emisa pe data de ${today}`, M, footY + 40, { width: W - 2 * M, align: 'center' });
 
       doc.end();
     } catch (e) { reject(e); }
