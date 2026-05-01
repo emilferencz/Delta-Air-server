@@ -378,7 +378,8 @@ app.post('/api/stripe-webhook',
         }
 
         const from        = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
-        const attachments = attachment ? [attachment] : [];
+        const invoiceAtt  = await buildInvoiceAttachment(meta, contractToken);
+        const attachments = [attachment, invoiceAtt].filter(Boolean);
 
         const internalTo = OFFICE_EMAIL;
 
@@ -493,6 +494,7 @@ app.post('/api/netopia-notify',
           } catch (pdfErr) { console.warn('⚠️ PDF netopia notify failed:', pdfErr.message); }
 
           const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+          const invoiceAtt = await buildInvoiceAttachment(meta, token);
           try {
             await transporter.sendMail({
               from,
@@ -500,7 +502,7 @@ app.post('/api/netopia-notify',
               bcc: OFFICE_EMAIL,
               subject: `✈ Confirmare rezervare Delta Air Shuttle — ${meta.date || ''} ${meta.dirLabel || ''}`,
               html: buildConfirmationEmail({ ...meta, payMethod: 'card' }),
-              attachments: attachment ? [attachment] : [],
+              attachments: [attachment, invoiceAtt].filter(Boolean),
             });
             console.log(`📧 Email client (netopia) → ${customerEmail}`);
           } catch (mailErr) { console.error('❌ Email netopia:', mailErr.message); }
@@ -1091,6 +1093,23 @@ async function saveInvoiceMeta(invoiceId, token, clientName) {
   );
 }
 
+async function buildInvoiceAttachment(meta, token) {
+  try {
+    const { year, num } = await nextInvoiceNumber();
+    await saveInvoiceMeta(num, token || null, meta.firma || meta.name || '-');
+    const invoiceNo = `DAS-${year}-${String(num).padStart(4, '0')}`;
+    const pdfBuffer = await generateInvoicePDF(meta, num, year);
+    return {
+      filename: `factura-${invoiceNo}-delta-air.pdf`,
+      content:  pdfBuffer,
+      contentType: 'application/pdf',
+    };
+  } catch (e) {
+    console.warn('⚠️ Factura nu s-a putut genera:', e.message);
+    return null;
+  }
+}
+
 function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
   return new Promise((resolve, reject) => {
     try {
@@ -1388,6 +1407,7 @@ app.post('/api/reserve-cash', async (req, res) => {
       const attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
 
       // Email → client (+ BCC office ca copie garantată)
+      const invoiceAtt = await buildInvoiceAttachment(meta, token);
       try {
         await transporter.sendMail({
           from,
@@ -1395,7 +1415,7 @@ app.post('/api/reserve-cash', async (req, res) => {
           bcc: internalTo,
           subject: `✈ Rezervare confirmată – ${meta.date || ''} ${meta.dirLabel || ''} (plată la îmbarcare)`,
           html: buildCashConfirmationEmail(meta),
-          attachments: [attachment],
+          attachments: [attachment, invoiceAtt].filter(Boolean),
         });
         console.log(`📧 Email client (cash) → ${customerEmail} | BCC → ${internalTo}`);
       } catch (e) { console.error('❌ Email client (cash):', e.message); }
@@ -1667,6 +1687,7 @@ app.get('/api/netopia-confirm', async (req, res) => {
       } catch (pdfErr) { console.warn('⚠️ PDF netopia-confirm failed:', pdfErr.message); }
 
       const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      const invoiceAtt = await buildInvoiceAttachment(meta, token);
       try {
         await transporter.sendMail({
           from,
@@ -1674,7 +1695,7 @@ app.get('/api/netopia-confirm', async (req, res) => {
           bcc: OFFICE_EMAIL,
           subject: `✈ Confirmare rezervare Delta Air Shuttle — ${meta.date || ''} ${meta.dirLabel || ''}`,
           html: buildConfirmationEmail({ ...meta, payMethod: 'card' }),
-          attachments: attachment ? [attachment] : [],
+          attachments: [attachment, invoiceAtt].filter(Boolean),
         });
         console.log(`📧 Email netopia-confirm → ${customerEmail}`);
       } catch (mailErr) { console.error('❌ Email netopia-confirm:', mailErr.message); }
