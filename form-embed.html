@@ -53,9 +53,16 @@
 .das-soon{position:absolute;inset:0;background:rgba(255,255,255,.88);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:700;color:var(--d-gr);text-transform:uppercase;letter-spacing:1px;border-radius:calc(var(--d-rs) - 2px)}
 
 /* ── TRIP INFO BANNER ── */
-.das-info{display:flex;align-items:center;gap:10px;background:rgba(26,47,94,.06);border:1.5px solid rgba(26,47,94,.14);border-radius:var(--d-rs);padding:12px 16px;font-size:.82rem;color:var(--d-navy);margin-top:12px}
+.das-info{display:flex;align-items:center;gap:10px;background:rgba(26,47,94,.06);border:1.5px solid rgba(26,47,94,.14);border-radius:var(--d-rs);padding:12px 16px;font-size:.82rem;color:var(--d-navy);margin-top:12px;flex-wrap:wrap}
 .das-info strong{font-weight:700}
 .das-info-ico{font-size:1.1rem;flex-shrink:0}
+.das-info-txt{flex:1}
+.das-seats{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-left:auto;flex-shrink:0}
+.das-seats.green {background:#dcfce7;color:#166534;border:1.5px solid #86efac}
+.das-seats.yellow{background:#fef9c3;color:#854d0e;border:1.5px solid #fde047}
+.das-seats.orange{background:#ffedd5;color:#9a3412;border:1.5px solid #fdba74}
+.das-seats.red   {background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5}
+.das-seats.gray  {background:#f1f5f9;color:#64748b;border:1.5px solid #cbd5e1}
 
 /* ── FORM ROW / GROUP ── */
 .das-row{display:grid;gap:12px;margin-bottom:12px}
@@ -240,7 +247,8 @@
     <!-- Banner info cursă dinamică -->
     <div class="das-info" id="das-trip-info">
       <span class="das-info-ico">🕐</span>
-      <span id="das-trip-info-txt">—</span>
+      <span class="das-info-txt" id="das-trip-info-txt">—</span>
+      <span class="das-seats gray" id="das-seats-badge">— locuri</span>
     </div>
   </div>
 
@@ -619,6 +627,71 @@ function dasUpdate() {
 
   /* ── Câmpuri pasageri ── */
   dasUpdatePaxNames();
+
+  /* ── Badge locuri disponibile ── */
+  dasUpdateSeatsBadge();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DISPONIBILITATE LOCURI
+   ══════════════════════════════════════════════════════════════ */
+let _availCache = null, _availKey = '';
+
+function dasUpdateSeatsBadge() {
+  const badge = g('das-seats-badge');
+  if (!badge) return;
+  const date = gv('das-date');
+  const dir  = gr('das_dir');
+  const trip = gv('das-trip');
+
+  if (!date || !dir || !trip) {
+    badge.textContent = '— locuri';
+    badge.className = 'das-seats gray';
+    return;
+  }
+
+  const cacheKey = `${date}|${dir}`;
+  if (_availKey === cacheKey && _availCache) {
+    dasRenderSeatsBadge(badge, _availCache, trip);
+  } else {
+    badge.textContent = '…';
+    badge.className = 'das-seats gray';
+    const url = `https://delta-air-server-production.up.railway.app/api/availability?date=${date}&direction=${dir}`;
+    fetch(url).then(r => r.json()).then(data => {
+      _availCache = data;
+      _availKey   = cacheKey;
+      dasRenderSeatsBadge(badge, data, trip);
+    }).catch(() => {
+      badge.textContent = '— locuri';
+      badge.className = 'das-seats gray';
+    });
+  }
+}
+
+function dasRenderSeatsBadge(badge, data, trip) {
+  const info = data?.[trip];
+  if (!info || info.disponibile == null) {
+    badge.textContent = '— locuri';
+    badge.className = 'das-seats gray';
+    return;
+  }
+  const n = info.disponibile;
+  if (n === 0) {
+    badge.textContent = '✗ Complet ocupat';
+    badge.className = 'das-seats red';
+  } else if (n === 1) {
+    badge.textContent = '⚠ 1 loc rămas';
+    badge.className = 'das-seats red';
+  } else if (n <= 3) {
+    badge.textContent = `⚠ ${n} locuri rămase`;
+    badge.className = 'das-seats orange';
+  } else if (n <= 5) {
+    badge.textContent = `${n} locuri disponibile`;
+    badge.className = 'das-seats yellow';
+  } else {
+    badge.textContent = `${n} locuri disponibile`;
+    badge.className = 'das-seats green';
+  }
 }
 
 /* ══════════════════════════════════════════════════════════════
