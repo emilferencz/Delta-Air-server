@@ -929,6 +929,7 @@ async function dasCheckout() {
     }
 
     const { url } = await res.json();
+    dasSaveState();
     window.location.href = url;   /* redirect la pagina Stripe Checkout */
 
   } catch (e) {
@@ -1314,11 +1315,90 @@ function dasToast(msg) {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   SALVARE / RESTAURARE STARE FORMULAR (pentru "Înapoi" din Stripe)
+   ══════════════════════════════════════════════════════════════ */
+function dasSaveState() {
+  const state = {
+    dir:          gr('das_dir'),
+    tr:           gr('das_tr'),
+    buyer:        _buyer,
+    apt:          gv('das-apt'),
+    trip:         gv('das-trip'),
+    pickup:       gv('das-pickup'),
+    date:         gv('das-date'),
+    adults:       gv('das-adults'),
+    children:     gv('das-children'),
+    bags:         gv('das-bags'),
+    name:         g('das-name').value,
+    phone:        g('das-phone').value,
+    email:        g('das-email').value,
+    flight:       g('das-flight').value,
+    firm:         g('das-firm').value,
+    cui:          g('das-cui').value,
+    regcom:       g('das-regcom').value,
+    sediu:        g('das-sediu').value,
+    contactName:  g('das-contact-name').value,
+    contactPhone: g('das-contact-phone').value,
+    contactEmail: g('das-contact-email').value,
+    scFlight:     g('das-sc-flight').value,
+    notes:        g('das-notes').value,
+    paxNames:     [...document.querySelectorAll('#das-pax-names input')].map(i => i.value),
+  };
+  sessionStorage.setItem('das_form_state', JSON.stringify(state));
+}
+
+function dasRestoreState() {
+  const raw = sessionStorage.getItem('das_form_state');
+  if (!raw) return false;
+  sessionStorage.removeItem('das_form_state');
+  try {
+    const s  = JSON.parse(raw);
+    const sr = (name, val) => { const r = document.querySelector(`input[name="${name}"][value="${val}"]`); if (r) r.checked = true; };
+    const sv = (id, val)   => { const el = g(id); if (el && val != null) el.value = val; };
+
+    if (s.dir)   sr('das_dir', s.dir);
+    if (s.tr)    sr('das_tr',  s.tr);
+    if (s.buyer) dasBuyer(s.buyer);
+    sv('das-apt',           s.apt);
+    sv('das-trip',          s.trip);
+    sv('das-pickup',        s.pickup);
+    sv('das-date',          s.date);
+    sv('das-adults',        s.adults);
+    sv('das-children',      s.children);
+    sv('das-bags',          s.bags);
+    sv('das-name',          s.name);
+    sv('das-phone',         s.phone);
+    sv('das-email',         s.email);
+    sv('das-flight',        s.flight);
+    sv('das-firm',          s.firm);
+    sv('das-cui',           s.cui);
+    sv('das-regcom',        s.regcom);
+    sv('das-sediu',         s.sediu);
+    sv('das-contact-name',  s.contactName);
+    sv('das-contact-phone', s.contactPhone);
+    sv('das-contact-email', s.contactEmail);
+    sv('das-sc-flight',     s.scFlight);
+    sv('das-notes',         s.notes);
+
+    dasUpdate();
+
+    if (s.paxNames?.length) {
+      setTimeout(() => {
+        document.querySelectorAll('#das-pax-names input').forEach((inp, i) => {
+          if (s.paxNames[i]) inp.value = s.paxNames[i];
+        });
+      }, 50);
+    }
+    return true;
+  } catch (_) { return false; }
+}
+
+/* ══════════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════════ */
 (function dasInit() {
   const today = new Date().toISOString().split('T')[0];
   g('das-date').min = today;
-  dasUpdate();
+  if (!dasRestoreState()) dasUpdate();
 })();
 </script>
