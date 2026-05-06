@@ -984,11 +984,13 @@ function calcPrice(){
   let total = 0;
 
   if(transfer === 'economy'){
-    const adultCost = adults * 120;
-    const childCost = children * 75;
+    const ecoAdult = apt === 'baneasa' ? 140 : 120;
+    const ecoChild = apt === 'baneasa' ? 85 : 75;
+    const adultCost = adults * ecoAdult;
+    const childCost = children * ecoChild;
     total += adultCost + childCost;
-    lines.push({l:`${adults} ${t('price_adult')} × 120 lei`, v:`${adultCost} lei`});
-    if(children > 0) lines.push({l:`${children} ${t('price_child')} × 75 lei`, v:`${childCost} lei`});
+    lines.push({l:`${adults} ${t('price_adult')} × ${ecoAdult} lei`, v:`${adultCost} lei`});
+    if(children > 0) lines.push({l:`${children} ${t('price_child')} × ${ecoChild} lei`, v:`${childCost} lei`});
   } else if(transfer === 'privat'){
     const base = apt === 'baneasa' ? 850 : 800;
     total += base;

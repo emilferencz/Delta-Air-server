@@ -580,7 +580,8 @@ function dasCalcPrice() {
   let lines = [], total = 0;
 
   /* Economy: 140 lei/adult pentru Băneasa, 120 lei/adult pentru Otopeni */
-  const ecoRate = apt === 'baneasa' ? 140 : 120;
+  const ecoRate  = apt === 'baneasa' ? 140 : 120;
+  const childRate = apt === 'baneasa' ? 85 : 75;
 
   /* Actualizează etichetele de preț de pe butoane */
   const ecoEl  = g('das-eco-price');
@@ -589,10 +590,10 @@ function dasCalcPrice() {
   if (privEl) privEl.textContent = apt === 'baneasa' ? '850 lei / cursă' : '800 lei / cursă';
 
   if (tr === 'economy') {
-    const ac = adults * ecoRate, cc = children * 75;
+    const ac = adults * ecoRate, cc = children * childRate;
     total += ac + cc;
     lines.push({ l: `${adults} adult(ți) × ${ecoRate} lei`, v: `${ac} lei` });
-    if (children > 0) lines.push({ l: `${children} copil(ii) × 75 lei`, v: `${cc} lei` });
+    if (children > 0) lines.push({ l: `${children} copil(ii) × ${childRate} lei`, v: `${cc} lei` });
   } else if (tr === 'privat') {
     const base = apt === 'baneasa' ? 850 : 800;
     total += base;

@@ -374,10 +374,11 @@ function calcPrice(){
   const totalEl = document.getElementById('totalPrice');
   let lines=[], total=0;
   if(transfer==='economy'){
-    const ac=adults*120, cc=children*75;
+    const ecoAdult=apt==='baneasa'?140:120, ecoChild=apt==='baneasa'?85:75;
+    const ac=adults*ecoAdult, cc=children*ecoChild;
     total+=ac+cc;
-    lines.push({l:`${adults} adult(s) × 120 lei`,v:`${ac} lei`});
-    if(children>0) lines.push({l:`${children} child(ren) × 75 lei`,v:`${cc} lei`});
+    lines.push({l:`${adults} adult(s) × ${ecoAdult} lei`,v:`${ac} lei`});
+    if(children>0) lines.push({l:`${children} child(ren) × ${ecoChild} lei`,v:`${cc} lei`});
   } else if(transfer==='privat'){
     const base=apt==='baneasa'?850:800;
     total+=base;
