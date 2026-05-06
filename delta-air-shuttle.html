@@ -175,6 +175,15 @@ section{padding:76px 20px}
 .ptl-l{font-size:.95rem;font-weight:700}
 .ptl-v{font-size:1.5rem;font-weight:800;color:var(--gold)}
 .pnote{font-size:.68rem;opacity:.55;margin-top:6px}
+.pl.discount{color:#86efac}
+.voucher-row{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18)}
+.voucher-wrap{display:flex;gap:8px}
+.voucher-wrap input{flex:1;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:6px;padding:8px 12px;color:#fff;font-size:.82rem;outline:none}
+.voucher-wrap input::placeholder{opacity:.5}
+.voucher-wrap input:focus{border-color:var(--gold)}
+.voucher-btn{background:var(--gold);color:var(--navy);border:none;border-radius:6px;padding:8px 14px;font-size:.8rem;font-weight:700;cursor:pointer}
+.voucher-msg{font-size:.75rem;margin-top:6px;min-height:16px}
+.voucher-msg.ok{color:#86efac}.voucher-msg.err{color:#fca5a5}
 .form-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .wa-sub{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;display:none}
 .wa-sub .btn{font-size:.78rem;padding:10px 8px}
@@ -680,6 +689,13 @@ footer a{color:var(--gold)}
             <span class="ptl-l" data-i18n="total">TOTAL</span>
             <span class="ptl-v" id="totalPrice">— lei</span>
           </div>
+          <div class="voucher-row">
+            <div class="voucher-wrap">
+              <input type="text" id="f-voucher" placeholder="Cod voucher" maxlength="20" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+              <button type="button" class="voucher-btn" onclick="applyVoucher()">Aplică</button>
+            </div>
+            <div class="voucher-msg" id="f-voucher-msg"></div>
+          </div>
           <div class="pnote" data-i18n="price_note">* Prețul final poate varia în funcție de opțiunile specifice.</div>
         </div>
 
@@ -1007,8 +1023,22 @@ function calcPrice(){
     lines.push({l:`${bags} ${t('price_bag')} × 20 lei`, v:`${bagCost} lei`});
   }
 
-  linesEl.innerHTML = lines.map(({l,v})=>`<div class="pl"><span>${l}</span><span>${v}</span></div>`).join('');
+  if(_sVoucherDiscount > 0 && total > 0){ const d=Math.min(_sVoucherDiscount,total); lines.push({l:`Voucher ${_sVoucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
+  linesEl.innerHTML = lines.map(({l,v,disc})=>`<div class="pl${disc?' discount':''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent = `${total} lei`;
+}
+
+let _sVoucherCode='', _sVoucherDiscount=0;
+async function applyVoucher(){
+  const inp=document.getElementById('f-voucher'), msg=document.getElementById('f-voucher-msg');
+  const code=inp.value.trim().toUpperCase();
+  if(!code||_sVoucherCode===code) return;
+  try {
+    const res=await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const data=await res.json();
+    if(data.valid){ _sVoucherCode=code; _sVoucherDiscount=data.discount; msg.textContent=`✓ ${data.label} aplicat (-${data.discount} lei)`; msg.className='voucher-msg ok'; inp.disabled=true; calcPrice(); }
+    else{ _sVoucherCode=''; _sVoucherDiscount=0; msg.textContent='✗ Cod voucher invalid.'; msg.className='voucher-msg err'; }
+  } catch(_){ msg.textContent='✗ Eroare validare.'; msg.className='voucher-msg err'; }
 }
 
 // ── FORM VALIDATION ──

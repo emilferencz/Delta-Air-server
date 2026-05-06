@@ -85,6 +85,17 @@
 .das-ptl-l{font-size:.9rem;font-weight:700}
 .das-ptl-v{font-size:1.45rem;font-weight:800;color:var(--d-gold)}
 .das-pnote{font-size:.64rem;opacity:.5;margin-top:5px}
+.das-pl.discount{color:#86efac}
+.das-voucher-row{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18)}
+.das-voucher-wrap{display:flex;gap:8px;align-items:center}
+.das-voucher-wrap input{flex:1;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:6px;padding:8px 12px;color:#fff;font-size:.82rem;outline:none}
+.das-voucher-wrap input::placeholder{opacity:.5}
+.das-voucher-wrap input:focus{border-color:var(--d-gold)}
+.das-voucher-btn{background:var(--d-gold);color:var(--d-navy);border:none;border-radius:6px;padding:8px 14px;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.das-voucher-btn:hover{opacity:.88}
+.das-voucher-msg{font-size:.75rem;margin-top:6px;min-height:16px}
+.das-voucher-msg.ok{color:#86efac}
+.das-voucher-msg.err{color:#fca5a5}
 
 /* ── PAYMENT ── */
 .das-pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
@@ -404,6 +415,13 @@
       <span class="das-ptl-l">TOTAL</span>
       <span class="das-ptl-v" id="das-total">— lei</span>
     </div>
+    <div class="das-voucher-row">
+      <div class="das-voucher-wrap">
+        <input type="text" id="das-voucher-input" placeholder="Cod voucher" maxlength="20" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+        <button type="button" class="das-voucher-btn" onclick="dasApplyVoucher()">Aplică</button>
+      </div>
+      <div class="das-voucher-msg" id="das-voucher-msg"></div>
+    </div>
     <div class="das-pnote">* Prețul final poate varia în funcție de opțiunile specifice.</div>
   </div>
 
@@ -507,6 +525,43 @@ const gv = id => g(id)?.value || '';
 const gr = name => document.querySelector(`input[name=${name}]:checked`)?.value || '';
 
 /* ══════════════════════════════════════════════════════════════
+   VOUCHER
+   ══════════════════════════════════════════════════════════════ */
+let _voucherCode = '', _voucherDiscount = 0;
+
+async function dasApplyVoucher() {
+  const input   = g('das-voucher-input');
+  const msgEl   = g('das-voucher-msg');
+  const code    = input.value.trim().toUpperCase();
+  if (!code) return;
+
+  if (_voucherCode === code) return; /* deja aplicat */
+
+  try {
+    const res  = await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (data.valid) {
+      _voucherCode     = code;
+      _voucherDiscount = data.discount;
+      msgEl.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
+      msgEl.className   = 'das-voucher-msg ok';
+      input.disabled    = true;
+      dasCalcPrice();
+    } else {
+      _voucherCode = ''; _voucherDiscount = 0;
+      msgEl.textContent = '✗ Cod voucher invalid.';
+      msgEl.className   = 'das-voucher-msg err';
+    }
+  } catch (_) {
+    msgEl.textContent = '✗ Eroare la validare. Încearcă din nou.';
+    msgEl.className   = 'das-voucher-msg err';
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
    UPDATE PRINCIPAL — se apelează la orice schimbare
    ══════════════════════════════════════════════════════════════ */
 function dasUpdate() {
@@ -607,8 +662,13 @@ function dasCalcPrice() {
     const bc = bags * 20; total += bc;
     lines.push({ l: `${bags} bagaj extra × 20 lei`, v: `${bc} lei` });
   }
-  linesEl.innerHTML = lines.map(({ l, v }) =>
-    `<div class="das-pl"><span>${l}</span><span>${v}</span></div>`).join('');
+  if (_voucherDiscount > 0 && total > 0) {
+    const disc = Math.min(_voucherDiscount, total);
+    lines.push({ l: `Voucher ${_voucherCode}`, v: `-${disc} lei`, discount: true });
+    total = Math.max(0, total - disc);
+  }
+  linesEl.innerHTML = lines.map(({ l, v, discount }) =>
+    `<div class="das-pl${discount ? ' discount' : ''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent = `${total} lei`;
   return total;
 }
@@ -875,7 +935,7 @@ async function dasCheckout() {
     if (children > 0) lineItems.push({
       name: `Transfer ${trLabels.economy} – Copil (0–12 ani)`,
       description: `${dirLabel} · ${tripLabel} · ${date}`,
-      amount: 75 * 100,
+      amount: (apt === 'baneasa' ? 85 : 75) * 100,
       quantity: children,
     });
   } else if (tr === 'privat') {
@@ -920,7 +980,7 @@ async function dasCheckout() {
     const res = await fetch(DAS_CONFIG.stripe.checkoutEndpoint, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ lineItems, meta, customerEmail }),
+      body:    JSON.stringify({ lineItems, meta, customerEmail, voucherCode: _voucherCode || undefined }),
     });
 
     if (!res.ok) {
@@ -1342,7 +1402,9 @@ function dasSaveState() {
     contactEmail: g('das-contact-email').value,
     scFlight:     g('das-sc-flight').value,
     notes:        g('das-notes').value,
-    paxNames:     [...document.querySelectorAll('#das-pax-names input')].map(i => i.value),
+    paxNames:        [...document.querySelectorAll('#das-pax-names input')].map(i => i.value),
+    voucherCode:     _voucherCode,
+    voucherDiscount: _voucherDiscount,
   };
   sessionStorage.setItem('das_form_state', JSON.stringify(state));
 }
@@ -1379,6 +1441,15 @@ function dasRestoreState() {
     sv('das-contact-email', s.contactEmail);
     sv('das-sc-flight',     s.scFlight);
     sv('das-notes',         s.notes);
+
+    if (s.voucherCode && s.voucherDiscount) {
+      _voucherCode     = s.voucherCode;
+      _voucherDiscount = s.voucherDiscount;
+      const inp = g('das-voucher-input');
+      if (inp) { inp.value = s.voucherCode; inp.disabled = true; }
+      const msg = g('das-voucher-msg');
+      if (msg) { msg.textContent = `✓ Voucher ${s.voucherCode} aplicat (-${s.voucherDiscount} lei)`; msg.className = 'das-voucher-msg ok'; }
+    }
 
     dasUpdate();
 

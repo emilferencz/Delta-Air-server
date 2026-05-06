@@ -31,6 +31,11 @@ const TRIP_TIMES = {
   retur: { c1: '07:00', c2: '19:30' }
 };
 
+/* ── Vouchere de reducere ── */
+const VOUCHERS = {
+  'DELTA200': { discount: 200, label: 'Voucher reducere DELTA200', stripeCouponId: 'DELTA200' },
+};
+
 async function initDB() {
   if (!db) { console.warn('⚠️  DATABASE_URL lipsă — disponibilitate dezactivată'); return; }
   await db.query(`
@@ -187,6 +192,7 @@ function buildConfirmationEmail(meta) {
     adults = 1, children = 0, bags = 0,
     total = '—', pickupLabel, obs,
     firma, cui,
+    voucherCode, voucherDiscount,
   } = meta;
 
   const isFirma = !!(firma && cui);
@@ -260,6 +266,11 @@ function buildConfirmationEmail(meta) {
       ${isFirma ? `<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} (${cui})</span></div>` : ''}
     </div>
 
+    ${voucherCode ? `
+    <div class="detail-box" style="margin-bottom:12px">
+      <div class="detail-row"><span class="detail-label">Preț inițial</span><span class="detail-value">${parseFloat(total) + parseFloat(voucherDiscount || 0)} lei</span></div>
+      <div class="detail-row"><span class="detail-label" style="color:#276749">Voucher ${voucherCode}</span><span class="detail-value" style="color:#276749">-${voucherDiscount} lei</span></div>
+    </div>` : ''}
     <div class="total-box">
       <span class="total-label">Total achitat</span>
       <span class="total-value">${total} lei</span>
@@ -301,6 +312,19 @@ async function sendConfirmationEmail(customerEmail, meta) {
     console.error('❌ Eroare trimitere email:', err.message);
   }
 }
+
+/* ──────────────────────────────────────────────
+   POST /api/validate-voucher
+────────────────────────────────────────────── */
+app.post('/api/validate-voucher', express.json(), (req, res) => {
+  const code = (req.body?.code || '').trim().toUpperCase();
+  const voucher = VOUCHERS[code];
+  if (voucher) {
+    res.json({ valid: true, discount: voucher.discount, label: voucher.label });
+  } else {
+    res.json({ valid: false });
+  }
+});
 
 /* ──────────────────────────────────────────────
    IMPORTANT: webhook-ul Stripe TREBUIE să primească
@@ -583,6 +607,7 @@ function buildCashConfirmationEmail(meta) {
     adults=1, children=0, bags=0,
     total='—', pickupLabel, obs,
     firma, cui, paxNames=[],
+    voucherCode: voucherCodeC, voucherDiscount: voucherDiscountC,
   } = meta;
   const isFirma = !!(firma && cui);
   const paxList = paxNames.length ? paxNames.map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('') : '';
@@ -625,7 +650,7 @@ function buildCashConfirmationEmail(meta) {
   <div class="body">
     <div class="cash-badge">
       <div class="icon">💵</div>
-      <p>Ai optat pentru plata în numerar la îmbarcare. Pregătește suma de <strong>${total} lei</strong> pentru șofer.</p>
+      <p>Ai optat pentru plata în numerar la îmbarcare. Pregătește suma de <strong>${total} lei</strong> pentru șofer.${voucherCodeC ? ` (include reducere voucher ${voucherCodeC}: -${voucherDiscountC} lei)` : ''}</p>
     </div>
     <div class="section-title">Detalii cursă</div>
     <div class="detail-box">
@@ -648,6 +673,11 @@ function buildCashConfirmationEmail(meta) {
       <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
       ${isFirma?`<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} (${cui})</span></div>`:''}
     </div>
+    ${voucherCodeC ? `
+    <div class="detail-box" style="margin-bottom:12px">
+      <div class="detail-row"><span class="detail-label">Preț inițial</span><span class="detail-value">${parseFloat(total) + parseFloat(voucherDiscountC || 0)} lei</span></div>
+      <div class="detail-row"><span class="detail-label" style="color:#276749">Voucher ${voucherCodeC}</span><span class="detail-value" style="color:#276749">-${voucherDiscountC} lei</span></div>
+    </div>` : ''}
     <div class="total-box">
       <span class="total-label">Total de achitat la îmbarcare</span>
       <span class="total-value">${total} lei</span>
@@ -910,6 +940,14 @@ function generateContractPDF(meta) {
     ══════════════════════════════════════════ */
     section('Pret si plata');
 
+    /* Rând voucher dacă există */
+    if (meta.voucherCode && meta.voucherDiscount) {
+      const vDisc = parseFloat(meta.voucherDiscount) || 0;
+      const origTotal = parseFloat(total) + vDisc;
+      twoCol('Pret initial', `${origTotal} RON`, false);
+      twoCol(`Voucher ${meta.voucherCode}`, `-${vDisc} RON`, false);
+    }
+
     // Bloc total — bara navy cu pret centrat vertical
     const barH = 40;
     const barY = doc.y + 4;
@@ -1114,9 +1152,11 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
   return new Promise((resolve, reject) => {
     try {
       const TVA = 0.21;
-      const totalCuTVA  = parseFloat(meta.total) || 0;
-      const totalFaraTVA = +(totalCuTVA / (1 + TVA)).toFixed(2);
-      const tvaAmount    = +(totalCuTVA - totalFaraTVA).toFixed(2);
+      const totalCuTVA    = parseFloat(meta.total) || 0;
+      const voucherDisc   = parseFloat(meta.voucherDiscount) || 0;
+      const pretInitial   = voucherDisc > 0 ? +(totalCuTVA + voucherDisc).toFixed(2) : 0;
+      const totalFaraTVA  = +(totalCuTVA / (1 + TVA)).toFixed(2);
+      const tvaAmount     = +(totalCuTVA - totalFaraTVA).toFixed(2);
 
       const invoiceNo = `DAS-${invoiceYear}-${String(invoiceNum).padStart(4, '0')}`;
       const today = new Date().toLocaleDateString('ro-RO', { timeZone: 'Europe/Bucharest' });
@@ -1261,6 +1301,10 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
            .text(val,  sumX + 130, y, { width: 80, align: 'right' });
         y += bold ? 17 : 13;
       };
+      if (voucherDisc > 0) {
+        row('Pret initial:', `${pretInitial.toFixed(2)} RON`);
+        row(`Voucher ${meta.voucherCode}:`, `-${voucherDisc.toFixed(2)} RON`);
+      }
       row('Total fara TVA:', `${totalFaraTVA.toFixed(2)} RON`);
       row('TVA 21%:', `${tvaAmount.toFixed(2)} RON`);
       doc.moveTo(sumX, y).lineTo(W - M, y).strokeColor(navy).lineWidth(0.7).stroke();
@@ -1600,9 +1644,20 @@ app.get('/api/test-internal-email', async (req, res) => {
 ────────────────────────────────────────────── */
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { lineItems = [], meta = {}, customerEmail } = req.body;
+    const { lineItems = [], meta = {}, customerEmail, voucherCode } = req.body;
     if (!lineItems.length) {
       return res.status(400).json({ error: 'Nu există produse în coș.' });
+    }
+
+    /* Validare și aplicare voucher */
+    let discounts = [];
+    if (voucherCode) {
+      const vc = VOUCHERS[(voucherCode || '').toUpperCase()];
+      if (vc) {
+        discounts = [{ coupon: vc.stripeCouponId }];
+        meta.voucherCode     = voucherCode.toUpperCase();
+        meta.voucherDiscount = vc.discount;
+      }
     }
 
     // Setează timestamp confirmare dacă nu vine de la client
@@ -1644,6 +1699,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
         quantity: item.quantity,
       })),
       ...(customerEmail ? { customer_email: customerEmail } : {}),
+      ...(discounts.length ? { discounts } : {}),
       metadata: {
         sursa:          'Delta Air Shuttle Booking Form',
         rezervare_info: JSON.stringify(meta).substring(0, 490),
