@@ -556,7 +556,7 @@ async function dasApplyVoucher() {
       _voucherDiscount = data.discount;
       msgEl.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
       msgEl.className   = 'das-voucher-msg ok';
-      input.disabled    = true;
+      input.disabled    = true; input.value = '';
       dasCalcPrice();
     } else {
       _voucherCode = ''; _voucherDiscount = 0;
