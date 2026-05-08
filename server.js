@@ -561,8 +561,7 @@ app.post('/api/netopia-notify',
 
         if (token) contractStore.delete(`netopia-${token}`);
         if (orderIDFromBody) contractStore.delete(`netopia-order-${orderIDFromBody}`);
-        try { if (token) await deletePendingPayment(token); } catch (_) {}
-        try { if (orderIDFromBody) await deletePendingPayment(orderIDFromBody); } catch (_) {}
+        // Nu ștergem pending_payments — documentele rămân disponibile pentru descărcare (2 ore)
       }
 
       res.json({ errorCode: 0 });
@@ -1815,7 +1814,7 @@ app.get('/api/netopia-confirm', async (req, res) => {
     }
 
     contractStore.delete(`netopia-${token}`);
-    try { await deletePendingPayment(token); } catch (_) {}
+    // Nu ștergem pending_payments — documentele rămân disponibile pentru descărcare (2 ore)
 
     res.json({ ok: true });
   } catch (err) {
