@@ -193,9 +193,11 @@ function buildConfirmationEmail(meta) {
     total = '—', pickupLabel, obs,
     firma, cui,
     voucherCode, voucherDiscount,
+    returnTrip = null,
   } = meta;
 
   const isFirma = !!(firma && cui);
+  const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
 
   return `<!DOCTYPE html>
 <html lang="ro">
@@ -249,7 +251,7 @@ function buildConfirmationEmail(meta) {
       <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
       <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
       <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${date}</span></div>
+      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${fmtD(date)}</span></div>
       <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
       <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
       ${pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>` : ''}
@@ -257,6 +259,17 @@ function buildConfirmationEmail(meta) {
       ${bags > 0 ? `<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags} bagaj${bags > 1 ? 'e' : ''}</span></div>` : ''}
       ${obs ? `<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>` : ''}
     </div>
+
+    ${returnTrip ? `
+    <div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Direcție retur</span><span class="detail-value">${returnTrip.dirLabel||'—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Data retur</span><span class="detail-value">${fmtD(returnTrip.date)}</span></div>
+      ${returnTrip.depTime ? `<div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${returnTrip.depTime}</span></div>` : ''}
+      ${returnTrip.arrTime ? `<div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${returnTrip.arrTime}</span></div>` : ''}
+      ${returnTrip.pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${returnTrip.pickupLabel}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Reducere retur</span><span class="detail-value" style="color:#276749;font-weight:700">−20% aplicat</span></div>
+    </div>` : ''}
 
     <div class="section-title">Date de contact</div>
     <div class="detail-box">
@@ -272,7 +285,7 @@ function buildConfirmationEmail(meta) {
       <div class="detail-row"><span class="detail-label" style="color:#276749">Voucher ${voucherCode}</span><span class="detail-value" style="color:#276749">-${voucherDiscount} lei</span></div>
     </div>` : ''}
     <div class="total-box">
-      <span class="total-label">Total achitat</span>
+      <span class="total-label">Total achitat${returnTrip ? ' (tur + retur)' : ''}</span>
       <span class="total-value">${total} lei</span>
     </div>
 
@@ -608,7 +621,9 @@ function buildCashConfirmationEmail(meta) {
     total='—', pickupLabel, obs,
     firma, cui, paxNames=[],
     voucherCode: voucherCodeC, voucherDiscount: voucherDiscountC,
+    returnTrip = null,
   } = meta;
+  const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
   const isFirma = !!(firma && cui);
   const paxList = paxNames.length ? paxNames.map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('') : '';
 
@@ -657,7 +672,7 @@ function buildCashConfirmationEmail(meta) {
       <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
       <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
       <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${date}</span></div>
+      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${fmtD(date)}</span></div>
       <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
       <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
       ${pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>` : ''}
@@ -666,6 +681,16 @@ function buildCashConfirmationEmail(meta) {
       ${paxList}
       ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
     </div>
+    ${returnTrip ? `
+    <div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Direcție retur</span><span class="detail-value">${returnTrip.dirLabel||'—'}</span></div>
+      <div class="detail-row"><span class="detail-label">Data retur</span><span class="detail-value">${fmtD(returnTrip.date)}</span></div>
+      ${returnTrip.depTime ? `<div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${returnTrip.depTime}</span></div>` : ''}
+      ${returnTrip.arrTime ? `<div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${returnTrip.arrTime}</span></div>` : ''}
+      ${returnTrip.pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${returnTrip.pickupLabel}</span></div>` : ''}
+      <div class="detail-row"><span class="detail-label">Reducere retur</span><span class="detail-value" style="color:#276749;font-weight:700">−20% aplicat</span></div>
+    </div>` : ''}
     <div class="section-title">Date de contact</div>
     <div class="detail-box">
       <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
@@ -679,7 +704,7 @@ function buildCashConfirmationEmail(meta) {
       <div class="detail-row"><span class="detail-label" style="color:#276749">Voucher ${voucherCodeC}</span><span class="detail-value" style="color:#276749">-${voucherDiscountC} lei</span></div>
     </div>` : ''}
     <div class="total-box">
-      <span class="total-label">Total de achitat la îmbarcare</span>
+      <span class="total-label">Total de achitat la îmbarcare${returnTrip ? ' (tur + retur)' : ''}</span>
       <span class="total-value">${total} lei</span>
     </div>
     <div class="section-title">Ce urmează</div>
@@ -784,13 +809,15 @@ function generateContractPDF(meta) {
       adults=1, children=0, bags=0,
       total='—', pickupLabel='', obs='',
       firma='', cui='', paxNames=[],
+      returnTrip = null,
     } = meta;
+    const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
 
     // Aplică ro() pe toate câmpurile variabile
     const rDirLabel    = ro(dirLabel);
     const rTrLabel     = ro(trLabel);
     const rAptLabel    = ro(aptLabel);
-    const rDate        = ro(date);
+    const rDate        = ro(fmtD(date));
     const rDepTime     = ro(depTime);
     const rArrTime     = ro(arrTime);
     const rName        = ro(name);
@@ -934,6 +961,20 @@ function generateContractPDF(meta) {
     if (bags > 0) twoCol(`Bagaje extra (${bags})`, '20 RON / bagaj', false);
     if (rPaxNames.length) rPaxNames.forEach((n,i) => twoCol(`Pasager ${i+1}`, n, false));
     if (rObs) twoCol('Observatii', rObs, false);
+
+    /* ══════════════════════════════════════════
+       CURSA RETUR (dacă există)
+    ══════════════════════════════════════════ */
+    if (returnTrip) {
+      section('Cursa retur (inclusa · reducere -20%)');
+      const rrt = returnTrip;
+      twoCol('Ruta retur', ro(rrt.dirLabel||'—'), true);
+      twoCol('Data retur', ro(fmtD(rrt.date)), true);
+      if (rrt.depTime) twoCol('Ora plecare retur', ro(rrt.depTime), true);
+      if (rrt.arrTime) twoCol('Sosire estimata', ro(rrt.arrTime), false);
+      if (rrt.pickupLabel) twoCol('Punct imbarcare retur', ro(rrt.pickupLabel), false);
+      twoCol('Reducere retur', '-20% aplicat', false);
+    }
 
     /* ══════════════════════════════════════════
        PRET SI PLATA
