@@ -153,7 +153,7 @@ if(params.get('netopia')==='pending'){
   if(title) title.textContent='Rezervare confirmată';
   if(sub) sub.textContent='Plata prin card a fost procesată. Vei primi în câteva momente un email de confirmare cu contractul atașat.';
   if(ref) ref.innerHTML='💳 Plată prin card procesată · Verifică emailul<br><span id="confirm-email">—</span>';
-  document.getElementById('contract-download-wrap').style.display='none';
+  // downloads-wrap e ascuns implicit — nu trebuie ascuns manual
 
   const netopiaToken=params.get('token');
   if(netopiaToken){

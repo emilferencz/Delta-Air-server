@@ -412,10 +412,16 @@ app.post('/api/stripe-webhook',
       if (contractToken && contractStore.has(contractToken)) {
         meta = contractStore.get(contractToken).meta || {};
       } else {
-        // Fallback: parsează din metadata Stripe (poate fi trunchiat)
-        try { meta = JSON.parse(session.metadata?.rezervare_info || '{}'); } catch (_) {}
-        const confirmedAt = session.metadata?.confirmed_at;
-        if (confirmedAt) meta.confirmedAt = confirmedAt;
+        // Fallback 1: DB (funcționează și după restart server)
+        if (contractToken) {
+          try { meta = (await getPendingPayment(contractToken)) || {}; } catch (_) {}
+        }
+        // Fallback 2: metadata Stripe (poate fi trunchiat la 500 chars)
+        if (!meta || !meta.name) {
+          try { meta = JSON.parse(session.metadata?.rezervare_info || '{}'); } catch (_) {}
+          const confirmedAt = session.metadata?.confirmed_at;
+          if (confirmedAt) meta.confirmedAt = confirmedAt;
+        }
       }
       meta.payMethod = 'card';
 
