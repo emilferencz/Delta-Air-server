@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin — Delta Air Shuttle</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--navy:#1a2f5e;--navy2:#0f1e3d;--gold:#c9a84c;--gray:#6b7280;--off:#f4f6fb;--sh:0 4px 24px rgba(26,47,94,.12)}
+    body{font-family:'Poppins',sans-serif;background:var(--off);color:#222;min-height:100vh}
+
+    /* LOGIN */
+    #login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+    .lcard{background:#fff;border-radius:20px;padding:48px 40px;max-width:380px;width:100%;box-shadow:var(--sh);text-align:center}
+    .lcard img{height:60px;margin-bottom:20px}
+    .lcard h1{font-size:1.2rem;font-weight:800;color:var(--navy);margin-bottom:5px}
+    .lcard p{font-size:.8rem;color:var(--gray);margin-bottom:28px}
+    .lfield{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px 16px;font-size:.92rem;font-family:inherit;margin-bottom:13px;outline:none;transition:border .2s}
+    .lfield:focus{border-color:var(--navy)}
+    .lbtn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:13px;font-size:.95rem;font-weight:700;font-family:inherit;cursor:pointer}
+    .lbtn:hover{background:#243d75}
+    .lerr{color:#dc2626;font-size:.8rem;margin-top:10px;min-height:20px}
+
+    /* DASHBOARD */
+    #dash-wrap{display:none}
+    .adm-hdr{background:var(--navy2);padding:13px 28px;display:flex;align-items:center;gap:14px}
+    .adm-hdr img{height:34px}
+    .adm-hdr .title{color:rgba(255,255,255,.6);font-size:.78rem;flex:1}
+    .adm-logout{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:.78rem;font-family:inherit;cursor:pointer;font-weight:600}
+    .adm-logout:hover{background:rgba(255,255,255,.2)}
+    .adm-body{max-width:980px;margin:0 auto;padding:24px 18px}
+
+    /* Stats */
+    .stats{display:flex;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+    .stt{background:#fff;border-radius:12px;padding:14px 20px;box-shadow:var(--sh);flex:1;min-width:110px}
+    .stt .v{font-size:1.7rem;font-weight:800;color:var(--navy);line-height:1}
+    .stt .l{font-size:.68rem;color:var(--gray);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+    /* Calendar nav */
+    .cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+    .cal-nav h2{flex:1;text-align:center;font-size:1.1rem;font-weight:700;color:var(--navy);text-transform:capitalize}
+    .ico-btn{background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;width:36px;height:36px;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ico-btn:hover{border-color:var(--navy);color:var(--navy)}
+    .today-btn{background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;padding:0 14px;height:36px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--navy);flex-shrink:0}
+    .today-btn:hover{border-color:var(--navy)}
+
+    /* Calendar */
+    .cal{background:#fff;border-radius:16px;box-shadow:var(--sh);overflow:hidden}
+    .cal-head{display:grid;grid-template-columns:repeat(7,1fr);background:var(--navy2)}
+    .cal-hc{padding:10px 4px;text-align:center;color:rgba(255,255,255,.65);font-size:.7rem;font-weight:600;letter-spacing:.5px}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+    .cal-cell{min-height:86px;border-right:1px solid #f0f2f8;border-bottom:1px solid #f0f2f8;padding:7px 6px;position:relative;transition:background .15s}
+    .cal-cell.has-b{cursor:pointer}
+    .cal-cell.has-b:hover{background:#f0f4ff}
+    .cal-cell.empty{background:#fafbfc}
+    .cal-cell.today{background:#eff6ff}
+    .dn{font-size:.78rem;font-weight:600;color:var(--navy);margin-bottom:4px;display:inline-block}
+    .cal-cell.today .dn{background:var(--navy);color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.72rem}
+    .cal-cell.empty .dn{color:#d1d5db}
+    .pills{display:flex;flex-direction:column;gap:2px}
+    .pill{font-size:.6rem;font-weight:700;padding:2px 5px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .pill.tur{background:#dbeafe;color:#1e3a8a}
+    .pill.retur{background:#fef3c7;color:#92400e}
+    .pill.cancelled{background:#f3f4f6;color:#9ca3af;text-decoration:line-through}
+    .pill.more{background:#f3f4f6;color:var(--gray)}
+
+    .legend{display:flex;gap:14px;margin-top:14px;font-size:.73rem;color:var(--gray);flex-wrap:wrap}
+    .leg-i{display:flex;align-items:center;gap:5px}
+    .leg-d{width:11px;height:11px;border-radius:3px}
+
+    /* MODAL backdrop */
+    .mbk{display:none;position:fixed;inset:0;background:rgba(10,20,60,.6);z-index:1000;align-items:flex-end;justify-content:center}
+    .mbk.open{display:flex}
+    @media(min-width:620px){.mbk{align-items:center}}
+    .mbox{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;display:flex;flex-direction:column}
+    @media(min-width:620px){.mbox{border-radius:20px}}
+    .mhdr{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 12px;border-bottom:1px solid #f0f2f8;flex-shrink:0}
+    .mhdr h3{font-size:.97rem;font-weight:700;color:var(--navy)}
+    .mclose{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--gray);padding:4px 8px;border-radius:6px;line-height:1}
+    .mclose:hover{background:#f3f4f6}
+    .mbody{padding:16px 22px;flex:1;overflow-y:auto}
+
+    /* Booking cards in day modal */
+    .bkc{border:1.5px solid #e5e7eb;border-radius:12px;padding:13px 15px;margin-bottom:11px}
+    .bkc.cancelled{opacity:.55}
+    .bkc-h{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+    .bk-time{font-size:.9rem;font-weight:800;color:var(--navy)}
+    .badge{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px}
+    .badge.tur{background:#dbeafe;color:#1e3a8a}
+    .badge.retur{background:#fef3c7;color:#92400e}
+    .badge.eco{background:#f0fdf4;color:#166534}
+    .badge.priv{background:#f5f3ff;color:#5b21b6}
+    .badge.canc{background:#fee2e2;color:#dc2626}
+    .badge.ret-trip{background:#f0f4ff;color:#4338ca;font-style:italic}
+    .bk-info{font-size:.82rem;color:#374151;line-height:1.9}
+    .bk-info strong{color:var(--navy);font-weight:700}
+    .bk-acts{display:flex;gap:8px;margin-top:10px}
+    .btn-e{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-e:hover{background:#243d75}
+    .btn-c{background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-c:hover{background:#fecaca}
+    .btn-restore{background:#f0fdf4;color:#166534;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .no-bk{text-align:center;padding:36px 0;color:var(--gray);font-size:.86rem}
+
+    /* Edit modal form */
+    .egroup{margin-bottom:15px}
+    .elabel{display:block;font-size:.74rem;font-weight:600;color:var(--gray);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+    .einput{width:100%;border:1.5px solid #e5e7eb;border-radius:9px;padding:9px 12px;font-size:.87rem;font-family:inherit;outline:none;transition:border .2s}
+    .einput:focus{border-color:var(--navy)}
+    .erow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .esep{border:none;border-top:1.5px solid #f0f2f8;margin:16px 0}
+    .esec-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);margin-bottom:12px}
+    .e-actions{display:flex;gap:10px;margin-top:20px}
+    .btn-save{flex:1;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-save:hover{background:#243d75}
+    .btn-disc{flex:1;background:#f3f4f6;color:var(--gray);border:none;border-radius:10px;padding:12px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit}
+    .btn-disc:hover{background:#e5e7eb}
+    .save-msg{font-size:.78rem;margin-top:8px;text-align:center}
+  </style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-wrap">
+  <div class="lcard">
+    <img src="/img/logo-p3.png" alt="Delta Air Shuttle">
+    <h1>Dashboard Admin</h1>
+    <p>Delta Air Shuttle · Acces restricționat</p>
+    <form id="login-form" onsubmit="doLogin(event)">
+      <input class="lfield" id="adm-user" type="text" placeholder="Utilizator" autocomplete="username" required>
+      <input class="lfield" id="adm-pass" type="password" placeholder="Parolă" autocomplete="current-password" required>
+      <button class="lbtn" type="submit" id="login-btn">Intră în dashboard</button>
+    </form>
+    <p class="lerr" id="login-err"></p>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dash-wrap">
+  <div class="adm-hdr">
+    <img src="/img/logo-p3.png" alt="Delta Air Shuttle">
+    <span class="title">Dashboard Rezervări</span>
+    <button class="adm-logout" onclick="doLogout()">⎋ Ieși</button>
+  </div>
+  <div class="adm-body">
+
+    <!-- Stats -->
+    <div class="stats" id="stats-bar">
+      <div class="stt"><div class="v" id="st-total">—</div><div class="l">Rezervări</div></div>
+      <div class="stt"><div class="v" id="st-tur">—</div><div class="l">Tur</div></div>
+      <div class="stt"><div class="v" id="st-retur">—</div><div class="l">Retur</div></div>
+      <div class="stt"><div class="v" id="st-pax">—</div><div class="l">Pasageri</div></div>
+      <div class="stt"><div class="v" id="st-priv">—</div><div class="l">Privat</div></div>
+    </div>
+
+    <!-- Calendar nav -->
+    <div class="cal-nav">
+      <button class="ico-btn" onclick="moveMonth(-1)">&#8592;</button>
+      <h2 id="cal-title">—</h2>
+      <button class="ico-btn" onclick="moveMonth(1)">&#8594;</button>
+      <button class="today-btn" onclick="goToday()">Azi</button>
+    </div>
+
+    <!-- Calendar -->
+    <div class="cal">
+      <div class="cal-head">
+        <div class="cal-hc">LU</div><div class="cal-hc">MA</div><div class="cal-hc">MI</div>
+        <div class="cal-hc">JO</div><div class="cal-hc">VI</div><div class="cal-hc">SÂ</div>
+        <div class="cal-hc">DU</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-i"><div class="leg-d" style="background:#dbeafe"></div> Tur</div>
+      <div class="leg-i"><div class="leg-d" style="background:#fef3c7"></div> Retur</div>
+      <div class="leg-i"><div class="leg-d" style="background:#f3f4f6"></div> Anulat</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: ZIUA ══ -->
+<div class="mbk" id="day-modal">
+  <div class="mbox">
+    <div class="mhdr">
+      <h3 id="day-modal-title">—</h3>
+      <button class="mclose" onclick="closeModal('day-modal')">✕</button>
+    </div>
+    <div class="mbody" id="day-modal-body"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: EDITARE ══ -->
+<div class="mbk" id="edit-modal">
+  <div class="mbox">
+    <div class="mhdr">
+      <h3 id="edit-modal-title">Editare rezervare</h3>
+      <button class="mclose" onclick="closeModal('edit-modal')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="esec-title">Detalii cursă</div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Dată</label><input class="einput" type="date" id="e-date"></div>
+        <div class="egroup"><label class="elabel">Ora plecare</label><input class="einput" type="text" id="e-time" placeholder="ex: 01:30"></div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Direcție</label>
+          <select class="einput" id="e-dir">
+            <option value="tur">Brașov → Aeroport (tur)</option>
+            <option value="retur">Aeroport → Brașov (retur)</option>
+          </select>
+        </div>
+        <div class="egroup"><label class="elabel">Tip transfer</label>
+          <select class="einput" id="e-tr">
+            <option value="economy">Economy</option>
+            <option value="privat">Privat</option>
+          </select>
+        </div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Pasageri</label><input class="einput" type="number" id="e-pax" min="1" max="7"></div>
+        <div class="egroup"><label class="elabel">Status</label>
+          <select class="einput" id="e-status">
+            <option value="confirmed">Confirmat</option>
+            <option value="pending">În așteptare</option>
+            <option value="cancelled">Anulat</option>
+          </select>
+        </div>
+      </div>
+      <hr class="esep">
+      <div class="esec-title">Date client</div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Nume</label><input class="einput" type="text" id="e-name"></div>
+        <div class="egroup"><label class="elabel">Telefon</label><input class="einput" type="text" id="e-phone"></div>
+      </div>
+      <div class="egroup"><label class="elabel">Email</label><input class="einput" type="email" id="e-email"></div>
+      <div class="egroup"><label class="elabel">Observații</label><textarea class="einput" id="e-obs" rows="2" style="resize:vertical"></textarea></div>
+      <div class="e-actions">
+        <button class="btn-disc" onclick="closeModal('edit-modal')">Renunță</button>
+        <button class="btn-save" onclick="saveBooking()">💾 Salvează</button>
+      </div>
+      <p class="save-msg" id="save-msg"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+const SERVER = 'https://delta-air-server-production.up.railway.app';
+const TOK_KEY = 'das_admin_tok';
+let _tok = localStorage.getItem(TOK_KEY) || '';
+let _year = new Date().getFullYear();
+let _month = new Date().getMonth(); // 0-indexed
+let _bookings = [];
+let _editId = null;
+let _currentDayStr = null;
+
+const MONTHS = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
+const TODAY = new Date().toISOString().slice(0,10);
+
+// ── AUTH ──────────────────────────────────────────────
+async function doLogin(e) {
+  e.preventDefault();
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Se verifică...';
+  document.getElementById('login-err').textContent = '';
+  try {
+    const r = await fetch(`${SERVER}/api/admin/login`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ user: document.getElementById('adm-user').value, pass: document.getElementById('adm-pass').value })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('login-err').textContent = d.error || 'Eroare.'; btn.disabled=false; btn.textContent='Intră în dashboard'; return; }
+    _tok = d.token;
+    localStorage.setItem(TOK_KEY, _tok);
+    showDash();
+  } catch(err) {
+    document.getElementById('login-err').textContent = 'Serverul nu răspunde.';
+    btn.disabled=false; btn.textContent='Intră în dashboard';
+  }
+}
+function doLogout() {
+  localStorage.removeItem(TOK_KEY); _tok='';
+  document.getElementById('dash-wrap').style.display='none';
+  document.getElementById('login-wrap').style.display='flex';
+}
+function showDash() {
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('dash-wrap').style.display='block';
+  loadMonth();
+}
+function authHdrs() { return { 'Authorization':'Bearer '+_tok }; }
+
+// ── CALENDAR ─────────────────────────────────────────
+async function loadMonth() {
+  const from = `${_year}-${String(_month+1).padStart(2,'0')}-01`;
+  const lastDay = new Date(_year, _month+1, 0).getDate();
+  const to = `${_year}-${String(_month+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  document.getElementById('cal-title').textContent = `${MONTHS[_month]} ${_year}`;
+  document.getElementById('cal-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:.85rem">Se încarcă...</div>';
+  try {
+    const r = await fetch(`${SERVER}/api/admin/bookings?from=${from}&to=${to}`, { headers: authHdrs() });
+    if (r.status === 401) { doLogout(); return; }
+    _bookings = await r.json();
+    renderCalendar();
+    renderStats();
+  } catch(e) {
+    document.getElementById('cal-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#dc2626">Eroare la încărcare.</div>';
+  }
+}
+
+function moveMonth(d) { _month += d; if(_month<0){_month=11;_year--;} if(_month>11){_month=0;_year++;} loadMonth(); }
+function goToday() { _year=new Date().getFullYear(); _month=new Date().getMonth(); loadMonth(); }
+
+function renderCalendar() {
+  const grid = document.getElementById('cal-grid');
+  const firstWD = (new Date(_year, _month, 1).getDay()+6) % 7; // Mo=0
+  const days = new Date(_year, _month+1, 0).getDate();
+  const totalCells = Math.ceil((firstWD + days) / 7) * 7;
+
+  // Group bookings by date
+  const byDate = {};
+  _bookings.forEach(b => {
+    const d = b.trip_date.slice(0,10);
+    if (!byDate[d]) byDate[d] = [];
+    byDate[d].push(b);
+  });
+
+  let html = '';
+  for (let i = 0; i < totalCells; i++) {
+    const dayNum = i - firstWD + 1;
+    if (dayNum < 1 || dayNum > days) {
+      html += '<div class="cal-cell empty"><span class="dn">&nbsp;</span></div>';
+      continue;
+    }
+    const dateStr = `${_year}-${String(_month+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+    const dayBks = byDate[dateStr] || [];
+    const active = dayBks.filter(b => b.status !== 'cancelled');
+    const isToday = dateStr === TODAY;
+    const hasBks = dayBks.length > 0;
+    html += `<div class="cal-cell${hasBks?' has-b':''}${isToday?' today':''}" onclick="${hasBks?`openDay('${dateStr}')`:''}" title="${hasBks?dayBks.length+' rezervare(i)':''}">`;
+    html += `<span class="dn">${dayNum}</span>`;
+    if (dayBks.length) {
+      html += '<div class="pills">';
+      const show = dayBks.slice(0, 3);
+      show.forEach(b => {
+        const cls = b.status==='cancelled'?'cancelled':b.direction;
+        const lbl = b.trip_time + ' ' + (b.direction==='tur'?'↑':'↓') + ' ' + (b.meta?.name || b.booking_ref || '');
+        html += `<div class="pill ${cls}" title="${esc(b.meta?.name||b.booking_ref||'')} · ${b.passengers}pax">${esc(lbl)}</div>`;
+      });
+      if (dayBks.length > 3) html += `<div class="pill more">+${dayBks.length-3} mai multe</div>`;
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function renderStats() {
+  const active = _bookings.filter(b => b.status !== 'cancelled');
+  document.getElementById('st-total').textContent = active.length;
+  document.getElementById('st-tur').textContent = active.filter(b=>b.direction==='tur').length;
+  document.getElementById('st-retur').textContent = active.filter(b=>b.direction==='retur').length;
+  document.getElementById('st-pax').textContent = active.reduce((s,b)=>s+parseInt(b.passengers||0),0);
+  document.getElementById('st-priv').textContent = active.filter(b=>b.transfer_type==='privat').length;
+}
+
+// ── DAY MODAL ────────────────────────────────────────
+function openDay(dateStr) {
+  _currentDayStr = dateStr;
+  const [y,m,d] = dateStr.split('-');
+  const dtObj = new Date(+y, +m-1, +d);
+  const dayNames = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  document.getElementById('day-modal-title').textContent = `${dayNames[dtObj.getDay()]}, ${+d} ${MONTHS[+m-1]} ${y}`;
+  const dayBks = _bookings.filter(b => b.trip_date.slice(0,10) === dateStr);
+  if (!dayBks.length) { document.getElementById('day-modal-body').innerHTML = '<div class="no-bk">Nicio rezervare în această zi.</div>'; openModal('day-modal'); return; }
+
+  const sorted = [...dayBks].sort((a,b) => a.trip_time.localeCompare(b.trip_time));
+  let html = '';
+  sorted.forEach(b => {
+    const meta = b.meta || {};
+    const cancelled = b.status === 'cancelled';
+    const isRet = meta._isReturnTrip;
+    html += `<div class="bkc${cancelled?' cancelled':''}">`;
+    html += `<div class="bkc-h">
+      <span class="bk-time">${b.trip_time}</span>
+      <span class="badge ${b.direction}">${b.direction === 'tur' ? '↑ Tur' : '↓ Retur'}</span>
+      <span class="badge ${b.transfer_type==='privat'?'priv':'eco'}">${b.transfer_type==='privat'?'Privat':'Economy'}</span>
+      ${isRet?'<span class="badge ret-trip">Rezervare retur</span>':''}
+      ${cancelled?'<span class="badge canc">Anulat</span>':''}
+    </div>`;
+    html += `<div class="bk-info">
+      <strong>${esc(meta.name || b.booking_ref || '—')}</strong><br>
+      ${meta.phone?`📞 ${esc(meta.phone)}<br>`:''}
+      ${meta.email?`✉ ${esc(meta.email)}<br>`:''}
+      👥 ${b.passengers} pasager${b.passengers==1?'':'i'} &nbsp;·&nbsp; ${b.transfer_type==='privat'?'Transfer privat':'Economy'}
+      ${meta.obs?`<br>📝 ${esc(meta.obs)}`:''}
+    </div>`;
+    html += `<div class="bk-acts">
+      <button class="btn-e" onclick="openEdit(${b.id})">✏ Modifică</button>
+      ${cancelled
+        ? `<button class="btn-restore" onclick="setStatus(${b.id},'confirmed')">↩ Reactivează</button>`
+        : `<button class="btn-c" onclick="cancelBk(${b.id})">✕ Anulează</button>`
+      }
+    </div>`;
+    html += '</div>';
+  });
+  document.getElementById('day-modal-body').innerHTML = html;
+  openModal('day-modal');
+}
+
+// ── EDIT MODAL ───────────────────────────────────────
+function openEdit(id) {
+  const b = _bookings.find(x => x.id === id);
+  if (!b) return;
+  _editId = id;
+  const meta = b.meta || {};
+  const [y,m,d] = b.trip_date.slice(0,10).split('-');
+  document.getElementById('edit-modal-title').textContent = `Rezervare #${id}`;
+  document.getElementById('e-date').value = `${y}-${m}-${d}`;
+  document.getElementById('e-time').value = b.trip_time || '';
+  document.getElementById('e-dir').value = b.direction || 'tur';
+  document.getElementById('e-tr').value = b.transfer_type || 'economy';
+  document.getElementById('e-pax').value = b.passengers || 1;
+  document.getElementById('e-status').value = b.status || 'confirmed';
+  document.getElementById('e-name').value = meta.name || b.booking_ref || '';
+  document.getElementById('e-phone').value = meta.phone || '';
+  document.getElementById('e-email').value = meta.email || '';
+  document.getElementById('e-obs').value = meta.obs || '';
+  document.getElementById('save-msg').textContent = '';
+  openModal('edit-modal');
+}
+
+async function saveBooking() {
+  const btn = document.querySelector('#edit-modal .btn-save');
+  btn.disabled = true; btn.textContent = 'Se salvează...';
+  const b = _bookings.find(x => x.id === _editId);
+  const meta = { ...(b?.meta||{}),
+    name:  document.getElementById('e-name').value.trim(),
+    phone: document.getElementById('e-phone').value.trim(),
+    email: document.getElementById('e-email').value.trim(),
+    obs:   document.getElementById('e-obs').value.trim(),
+  };
+  const body = {
+    trip_date:     document.getElementById('e-date').value,
+    trip_time:     document.getElementById('e-time').value.trim(),
+    direction:     document.getElementById('e-dir').value,
+    transfer_type: document.getElementById('e-tr').value,
+    passengers:    document.getElementById('e-pax').value,
+    status:        document.getElementById('e-status').value,
+    booking_ref:   meta.name,
+    meta,
+  };
+  try {
+    const r = await fetch(`${SERVER}/api/admin/booking/${_editId}`, {
+      method:'PUT', headers:{...authHdrs(),'Content-Type':'application/json'}, body: JSON.stringify(body)
+    });
+    if (r.status===401) { doLogout(); return; }
+    if (!r.ok) { const d=await r.json(); document.getElementById('save-msg').textContent='Eroare: '+(d.error||'necunoscut'); btn.disabled=false; btn.textContent='💾 Salvează'; return; }
+    document.getElementById('save-msg').style.color='#166534';
+    document.getElementById('save-msg').textContent = '✓ Salvat cu succes!';
+    await loadMonth();
+    if (_currentDayStr) openDay(_currentDayStr);
+    setTimeout(() => closeModal('edit-modal'), 900);
+  } catch(e) {
+    document.getElementById('save-msg').style.color='#dc2626';
+    document.getElementById('save-msg').textContent = 'Eroare de rețea.';
+  }
+  btn.disabled=false; btn.textContent='💾 Salvează';
+}
+
+async function cancelBk(id) {
+  if (!confirm('Marchezi rezervarea ca ANULATĂ. Continui?')) return;
+  await setStatus(id, 'cancelled');
+}
+async function setStatus(id, status) {
+  const r = await fetch(`${SERVER}/api/admin/booking/${id}`, {
+    method: status==='cancelled'?'DELETE':'PUT',
+    headers: { ...authHdrs(), 'Content-Type':'application/json' },
+    body: status!=='cancelled' ? JSON.stringify({ ..._bookings.find(x=>x.id===id), status, booking_ref: (_bookings.find(x=>x.id===id)?.meta?.name||'') }) : undefined
+  });
+  if (r.status===401) { doLogout(); return; }
+  await loadMonth();
+  if (_currentDayStr) openDay(_currentDayStr);
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); if(!document.querySelector('.mbk.open')) document.body.style.overflow=''; }
+document.querySelectorAll('.mbk').forEach(el => el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); }));
+
+// ── UTILS ─────────────────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── INIT ──────────────────────────────────────────────
+if (_tok) {
+  showDash();
+} else {
+  document.getElementById('login-wrap').style.display='flex';
+}
+</script>
+</body>
+</html>

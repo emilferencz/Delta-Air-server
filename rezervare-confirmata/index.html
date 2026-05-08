@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/img/favicon.jpg">
+  <meta property="og:image" content="https://delta-air.ro/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://delta-air.ro/img/og-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rezervare Confirmată – Delta Air Shuttle</title>
+  <meta name="description" content="Rezervarea ta la Delta Air Shuttle a fost confirmată. Verifică emailul pentru detalii și contract PDF.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/pages.css">
+  <style>
+    body { background: var(--off); min-height: 100vh; display: flex; flex-direction: column; }
+    .confirm-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 120px 24px 80px; }
+    .confirm-card { background: #fff; border-radius: 24px; padding: 56px 48px; box-shadow: var(--sh); max-width: 560px; width: 100%; text-align: center; }
+    .confirm-icon { font-size: 4rem; margin-bottom: 24px; animation: pop .5s cubic-bezier(.175,.885,.32,1.275); }
+    @keyframes pop { from{transform:scale(0)} to{transform:scale(1)} }
+    .confirm-title { font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
+    .confirm-sub { color: var(--gray); line-height: 1.8; margin-bottom: 32px; }
+    .confirm-steps { text-align: left; background: var(--off); border-radius: 14px; padding: 24px 28px; margin-bottom: 32px; }
+    .confirm-step { display: flex; gap: 14px; margin-bottom: 18px; align-items: flex-start; }
+    .confirm-step:last-child { margin-bottom: 0; }
+    .confirm-step-num { width: 28px; height: 28px; background: var(--gold); color: var(--navy2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+    .confirm-step-text h4 { font-size: .88rem; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .confirm-step-text p { font-size: .82rem; color: var(--gray); line-height: 1.6; }
+    .booking-ref { background: rgba(26,47,94,.06); border: 1.5px dashed rgba(26,47,94,.2); border-radius: 10px; padding: 14px 20px; font-size:.82rem; color:var(--gray); margin-bottom:20px; }
+    .booking-ref span { font-size:1rem; font-weight:700; color:var(--navy); display:block; margin-top:4px; }
+    .bsum-wrap { background: rgba(26,47,94,.04); border: 1.5px solid rgba(26,47,94,.12); border-radius: 14px; padding: 18px 20px; margin-bottom: 24px; text-align: left; }
+    .bsum-hdr { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; color:var(--navy); padding-bottom:8px; border-bottom:2px solid rgba(26,47,94,.12); margin-bottom:8px; }
+    .bsum-row { display:flex; justify-content:space-between; align-items:baseline; padding:4px 0; font-size:.82rem; border-bottom:1px solid rgba(26,47,94,.06); }
+    .bsum-label { color:var(--gray); }
+    .bsum-val { font-weight:600; color:var(--navy); text-align:right; padding-left:12px; max-width:65%; }
+    .bsum-total { display:flex; justify-content:space-between; align-items:center; font-size:.98rem; font-weight:800; color:var(--navy); border-top:2px solid rgba(26,47,94,.15); padding-top:12px; margin-top:10px; }
+    .btn-download { display:inline-flex; align-items:center; gap:8px; background:#1a2f5e; color:#fff; border:none; border-radius:12px; padding:14px 28px; font-size:.95rem; font-weight:700; cursor:pointer; text-decoration:none; transition:background .2s; }
+    .btn-download:hover { background:#243d75; }
+    @media(max-width:600px){ .confirm-card{padding:36px 24px;} }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-logo"><a href="/"><img src="../img/logo-p3.png" alt="Delta Air Shuttle"></a></div>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="/">Acasă</a></li>
+    <li><a href="/rezervari">Rezervări</a></li>
+    <li><a href="/lista-de-preturi">Prețuri</a></li>
+    <li><a href="/contact">Contact</a></li>
+    <li><a href="/rezervari" class="nav-cta">Rezervă din nou ✈</a></li>
+  </ul>
+  <div class="nav-burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="confirm-wrap">
+  <div class="confirm-card">
+    <div class="confirm-icon">✅</div>
+    <h1 class="confirm-title">Rezervare confirmată!</h1>
+    <p class="confirm-sub" id="confirm-sub">Vei primi în câteva minute un email de confirmare cu toate detaliile rezervării.</p>
+
+    <div class="booking-ref" id="confirm-ref">
+      Verifică emailul pentru confirmare
+      <span id="confirm-email">—</span>
+    </div>
+
+    <div id="booking-summary-wrap" style="display:none">
+      <div class="bsum-wrap" id="booking-summary-inner"></div>
+    </div>
+
+    <div class="confirm-steps">
+      <div class="confirm-step">
+        <div class="confirm-step-num">1</div>
+        <div class="confirm-step-text">
+          <h4>Verifică emailul</h4>
+          <p>Ai primit confirmarea rezervării și contractul PDF semnat digital.</p>
+        </div>
+      </div>
+      <div class="confirm-step">
+        <div class="confirm-step-num">2</div>
+        <div class="confirm-step-text">
+          <h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4>
+          <p>Șoferul pleacă la ora fixă. Punctualitatea este cheia unui zbor reușit.</p>
+        </div>
+      </div>
+      <div class="confirm-step">
+        <div class="confirm-step-num">3</div>
+        <div class="confirm-step-text">
+          <h4>Călătorește fără griji</h4>
+          <p>Șoferul se ocupă de tot. Tu te relaxezi și prinzi zborul la timp.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="downloads-wrap" style="display:none;margin-bottom:24px;text-align:center">
+      <a id="contract-download-btn" href="#" class="btn-download" target="_blank">
+        📄 Descarcă contractul PDF
+      </a>
+      <div style="margin-top:10px">
+        <a id="invoice-download-btn" href="#" target="_blank"
+          style="display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border:1.5px solid #c9a84c;border-radius:10px;color:#0f1e3d;font-weight:700;font-size:.92rem;text-decoration:none;background:#fffbf0">
+          🧾 Descarcă factură fiscală (PDF)
+        </a>
+      </div>
+      <p style="font-size:.75rem;color:var(--gray);margin-top:10px">Documentele au fost trimise și pe email. Disponibile 2 ore.</p>
+    </div>
+
+    <div class="btn-group" style="justify-content:center;flex-direction:column;gap:12px">
+      <a href="/" class="btn-primary">🏠 Înapoi acasă</a>
+      <a href="/rezervari" class="btn-outline">✈ Rezervă o nouă cursă</a>
+    </div>
+
+    <p style="margin-top:24px;font-size:.8rem;color:var(--gray)">
+      Ai întrebări? Contactează-ne pe <a href="https://wa.me/40761617606" style="color:var(--navy);font-weight:600">WhatsApp</a> sau sună la <a href="tel:+40761617606" style="color:var(--navy);font-weight:600">+40 761 617 606</a>
+    </p>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none;padding-top:0;justify-content:center">
+      <span>© 2025 Delta Air Shuttle · <a href="/contact" style="color:rgba(255,255,255,.4)">Contact</a> · <a href="/termeni-si-conditii-gdpr" style="color:rgba(255,255,255,.4)">GDPR</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){document.getElementById('nav-links').classList.toggle('open');}
+const SERVER = 'https://delta-air-server-production.up.railway.app';
+const params=new URLSearchParams(window.location.search);
+
+// Marchează că rezervarea e finalizată — dacă user apasă Back, /rezervari afișează mesaj
+sessionStorage.setItem('das_booking_done','1');
+
+// Mesaj specific plată la îmbarcare
+if(params.get('cash')==='1'){
+  const sub=document.getElementById('confirm-sub');
+  const ref=document.getElementById('confirm-ref');
+  if(sub) sub.textContent='Rezervarea ta este înregistrată. Vei primi un email cu contractul atașat. Pregătește suma în numerar pentru șofer.';
+  if(ref) ref.innerHTML='💵 Plătești numerar la îmbarcare · Verifică emailul<br><span id="confirm-email">—</span>';
+}
+
+// Plată Netopia — trimite email de confirmare prin backend
+if(params.get('netopia')==='pending'){
+  const icon=document.querySelector('.confirm-icon');
+  const title=document.querySelector('.confirm-title');
+  const sub=document.getElementById('confirm-sub');
+  const ref=document.getElementById('confirm-ref');
+  if(icon) icon.textContent='✅';
+  if(title) title.textContent='Rezervare confirmată';
+  if(sub) sub.textContent='Plata prin card a fost procesată. Vei primi în câteva momente un email de confirmare cu contractul atașat.';
+  if(ref) ref.innerHTML='💳 Plată prin card procesată · Verifică emailul<br><span id="confirm-email">—</span>';
+  document.getElementById('contract-download-wrap').style.display='none';
+
+  const netopiaToken=params.get('token');
+  if(netopiaToken){
+    fetch(`${SERVER}/api/netopia-confirm?token=${encodeURIComponent(netopiaToken)}`)
+      .then(r=>r.json())
+      .then(data=>{ if(data.ok) console.log('✅ Email confirmare Netopia trimis'); })
+      .catch(e=>console.warn('⚠️ netopia-confirm:', e.message));
+  }
+}
+
+// Butoane descărcare documente — afișate dacă există token
+const token=params.get('token');
+if(token){
+  const wrap=document.getElementById('downloads-wrap');
+  const contractBtn=document.getElementById('contract-download-btn');
+  const invoiceBtn=document.getElementById('invoice-download-btn');
+  if(contractBtn) contractBtn.href=`${SERVER}/api/download-contract?token=${encodeURIComponent(token)}`;
+  if(invoiceBtn)  invoiceBtn.href=`${SERVER}/api/invoice?token=${encodeURIComponent(token)}`;
+  if(wrap) wrap.style.display='block';
+}
+
+const email=params.get('email');
+if(email) document.getElementById('confirm-email').textContent=email;
+
+// Booking summary from sessionStorage
+(function(){
+  var raw=sessionStorage.getItem('das_booking_summary');
+  if(!raw) return;
+  try{
+    var b=JSON.parse(raw);
+    sessionStorage.removeItem('das_booking_summary');
+    var esc=function(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');};
+    var fd=function(s){return(s&&s.length===10)?s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4):(s||'');};
+    var ROW=function(l,v){return'<div class="bsum-row"><span class="bsum-label">'+esc(l)+'</span><span class="bsum-val">'+esc(v)+'</span></div>';};
+    var html='';
+    // Main trip
+    html+='<div class="bsum-hdr">✈ '+esc(b.dirLabel)+'</div>';
+    html+=ROW('Data',fd(b.date));
+    html+=ROW('Cursa',b.trip==='c1'?'Cursa 1':'Cursa 2');
+    if(b.depTime) html+=ROW('Plecare',b.depTime+(b.pickupLabel?' · '+b.pickupLabel:''));
+    if(b.arrTime) html+=ROW('Sosire',b.arrTime+(b.dir==='tur'?' · '+esc(b.aptLabel):' · Brașov'));
+    html+=ROW('Transfer',b.trLabel);
+    var pax=b.adults+' adult'+(b.adults>1?'ți':'')+(b.children>0?', '+b.children+' copil'+(b.children>1?'i':''):'');
+    html+=ROW('Pasageri',pax);
+    if(b.bags>0) html+=ROW('Bagaje extra',b.bags+' buc.');
+    if(b.paxNames&&b.paxNames.length) html+=ROW('Nume pasageri',b.paxNames.join(', '));
+    // Return trip
+    if(b.returnTrip){
+      var r=b.returnTrip;
+      html+='<div class="bsum-hdr" style="margin-top:14px;padding-top:10px;border-top:1.5px solid rgba(26,47,94,.1)">↩ '+esc(r.dirLabel)+' · −20%</div>';
+      html+=ROW('Data retur',fd(r.date));
+      html+=ROW('Cursa',r.trip==='c1'?'Cursa 1':'Cursa 2');
+      if(r.depTime) html+=ROW('Plecare',r.depTime+(r.pickupLabel?' · '+esc(r.pickupLabel):''));
+      if(r.arrTime) html+=ROW('Sosire',r.arrTime+(r.dir==='tur'?' · '+esc(r.aptLabel):' · Brașov'));
+    }
+    // Total
+    html+='<div class="bsum-total"><span>Total plătit</span><span>'+esc(String(b.total))+' lei</span></div>';
+    document.getElementById('booking-summary-inner').innerHTML=html;
+    document.getElementById('booking-summary-wrap').style.display='block';
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

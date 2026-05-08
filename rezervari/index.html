@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/img/favicon.jpg">
+  <meta property="og:image" content="https://delta-air.ro/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://delta-air.ro/img/og-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rezervare Transfer Aeroport Brașov – Delta Air Shuttle</title>
+  <meta name="description" content="Rezervă online transferul tău de la Brașov la Otopeni sau Băneasa. Economy 120 lei/adult, Privat 800 lei/cursă. Plată securizată prin Stripe. Confirmare imediată.">
+  <meta name="keywords" content="rezervare transfer aeroport Brasov, shuttle Brasov Otopeni rezervare, transport aeroport Brasov online, microbuz Brasov Henri Coanda">
+  <link rel="canonical" href="https://delta-air.ro/rezervari">
+  <meta property="og:title" content="Rezervare Transfer Aeroport Brașov – Delta Air Shuttle">
+  <meta property="og:description" content="Rezervă online transferul Brașov–Otopeni sau Băneasa. Economy 120 lei/adult. Plată securizată Stripe.">
+  <meta property="og:url" content="https://delta-air.ro/rezervari">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://delta-air.ro/img/henri-coanda.png">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Transfer Aeroport Brașov – Rezervare Online",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Delta Air Shuttle",
+      "url": "https://delta-air.ro",
+      "telephone": "+40-761-617-606",
+      "address": { "@type": "PostalAddress", "addressLocality": "Brașov", "addressCountry": "RO" }
+    },
+    "areaServed": ["Brașov", "București", "Otopeni", "Băneasa"],
+    "serviceType": "Airport Transfer",
+    "offers": [
+      { "@type": "Offer", "name": "Economy Otopeni", "price": "120", "priceCurrency": "RON" },
+      { "@type": "Offer", "name": "Economy Băneasa", "price": "140", "priceCurrency": "RON" },
+      { "@type": "Offer", "name": "Transfer Privat Otopeni", "price": "800", "priceCurrency": "RON" }
+    ]
+  }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/pages.css">
+  <style>
+    /* ── BOOKING FORM STYLES ── */
+    .booking-wrap { max-width: 820px; margin: 0 auto; padding: 64px 24px 80px; }
+    .booking-intro { text-align: center; margin-bottom: 40px; }
+    .booking-intro h2 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+    .booking-intro p { color: var(--gray); font-size: .95rem; }
+
+    .step-header { display: flex; align-items: center; gap: 10px; font-size: .68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px; color: var(--navy); margin-bottom: 18px;
+      padding-bottom: 10px; border-bottom: 2px solid rgba(26,47,94,.1); }
+    .step-num { width: 24px; height: 24px; background: var(--navy); color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; flex-shrink: 0; }
+
+    .form-section { background: #fff; border-radius: 20px; padding: 32px; box-shadow: var(--sh); margin-bottom: 20px; }
+    @media (max-width: 480px) { .form-section { padding: 20px; } }
+
+    /* Radio cards */
+    .radio-grid { display: grid; gap: 10px; }
+    .radio-grid-2 { grid-template-columns: 1fr 1fr; }
+    .radio-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 860px) { .radio-grid-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .radio-grid-4 { grid-template-columns: 1fr 1fr; } .radio-grid-2 { grid-template-columns: 1fr 1fr; } }
+    .radio-option input[type=radio] { display: none; }
+    .radio-label {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 16px 10px; border: 2px solid rgba(26,47,94,.15); border-radius: 12px;
+      cursor: pointer; text-align: center; transition: all .2s; position: relative;
+    }
+    .radio-option input:checked + .radio-label { border-color: var(--navy); background: rgba(26,47,94,.05); }
+    .radio-label:hover { border-color: var(--navy3); }
+    .radio-icon { font-size: 1.6rem; }
+    .radio-title { font-size: .82rem; font-weight: 700; color: var(--navy); }
+    .radio-sub   { font-size: .68rem; color: var(--gray); }
+    .radio-price { font-size: .75rem; color: var(--gold); font-weight: 600; }
+    .coming-soon { position: absolute; inset: 0; background: rgba(255,255,255,.88);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .62rem; font-weight: 700; color: var(--gray); text-transform: uppercase;
+      letter-spacing: 1px; border-radius: 10px; }
+
+    /* Trip info banner */
+    .trip-info { display: flex; align-items: center; gap: 12px; background: rgba(26,47,94,.06);
+      border: 1.5px solid rgba(26,47,94,.14); border-radius: 10px; padding: 13px 18px;
+      font-size: .84rem; color: var(--navy); margin-top: 14px; }
+
+    /* Availability grid */
+    .avail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .date-avail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: end; }
+    .avail-card { border: 1.5px solid rgba(26,47,94,.15); border-radius: 10px; padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between; background: #fff; min-height: 44px; }
+    .avail-card.full { background: rgba(220,53,69,.04); border-color: rgba(220,53,69,.3); }
+    @media (max-width: 600px) {
+      .date-avail-grid { grid-template-columns: 1fr; }
+      .avail-card { margin-top: 0; }
+    }
+    .avail-time { font-size: .85rem; font-weight: 700; color: var(--navy); }
+    .avail-badge { font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+    .avail-badge.ok { background: rgba(56,161,105,.12); color: #38a169; }
+    .avail-badge.low { background: rgba(201,168,76,.15); color: #b7860b; }
+    .avail-badge.full { background: rgba(220,53,69,.1); color: #c0392b; }
+    .avail-warn { display: none; margin-top: 8px; padding: 10px 14px; border-radius: 10px;
+      background: rgba(220,53,69,.07); border: 1.5px solid rgba(220,53,69,.25);
+      color: #c0392b; font-size: .8rem; font-weight: 600; }
+    .avail-warn.avail-ok { background: rgba(39,174,96,.08); border-color: rgba(39,174,96,.3); color: #1e8449; }
+
+    /* Field groups */
+    .field-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .field-group label { font-size: .68rem; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .5px; }
+    .field-group input, .field-group select, .field-group textarea {
+      padding: 11px 14px; border: 1.5px solid rgba(26,47,94,.18); border-radius: 10px;
+      font-size: .9rem; font-family: 'Poppins', sans-serif; color: var(--dark); outline: none; transition: border .2s; }
+    .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+      border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,47,94,.1); }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    @media (max-width: 860px) { .field-row-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .field-row, .field-row-3 { grid-template-columns: 1fr; } }
+    .field-hint { font-size: .67rem; color: var(--gray); margin-top: 3px; }
+
+    /* Buyer type tabs */
+    .buyer-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .buyer-tab { flex: 1; padding: 11px; border: 2px solid rgba(26,47,94,.15); border-radius: 10px;
+      font-size: .85rem; font-weight: 700; color: var(--gray); background: #fff;
+      cursor: pointer; text-align: center; transition: all .2s; font-family: 'Poppins', sans-serif; }
+    .buyer-tab.active { border-color: var(--navy); background: rgba(26,47,94,.05); color: var(--navy); }
+    .company-fields { display: none; }
+    .company-fields.visible { display: block; }
+
+    /* Price box */
+    .price-box { background: linear-gradient(135deg, var(--navy2), var(--navy3));
+      border-radius: 14px; padding: 22px 24px; color: #fff; margin-bottom: 20px; }
+    .price-box-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+      opacity: .7; margin-bottom: 14px; }
+    .price-line { display: flex; justify-content: space-between; font-size: .84rem;
+      padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.1); opacity: .85; }
+    .price-total { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+    .price-total-label { font-size: .82rem; font-weight: 700; opacity: .8; }
+    .price-total-value { font-size: 2rem; font-weight: 900; color: var(--gold2); }
+
+    /* Secure badge */
+    .secure-badges { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .secure-badge { display: flex; align-items: center; gap: 7px; font-size: .75rem; color: var(--gray); }
+    .secure-badge svg { flex-shrink: 0; }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%; padding: 18px; background: var(--gold); color: var(--navy2);
+      font-size: 1rem; font-weight: 700; font-family: 'Poppins', sans-serif;
+      border: none; border-radius: 100px; cursor: pointer;
+      box-shadow: 0 4px 24px rgba(201,168,76,.4); transition: all .25s;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    .submit-btn:hover { background: var(--gold2); transform: translateY(-2px); }
+    .submit-btn:disabled { opacity: .7; transform: none; cursor: not-allowed; }
+    .das-hide { display: none !important; }
+    .pay-method-card {
+      display: block; border: 2px solid rgba(26,47,94,.15); border-radius: 14px;
+      padding: 16px 12px; text-align: center; cursor: pointer; transition: all .2s;
+      background: #fff;
+    }
+    .pay-method-card:hover { border-color: var(--navy); }
+    .pay-method-card.active { border-color: var(--gold); background: rgba(201,168,76,.08); box-shadow: 0 0 0 3px rgba(201,168,76,.2); }
+    @media (max-width: 480px) { .pay-grid-3 { grid-template-columns: 1fr 1fr !important; } }
+
+    /* ── Seats badge ── */
+    .das-seats{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-left:auto;flex-shrink:0}
+    .das-seats.green {background:#dcfce7;color:#166534;border:1.5px solid #86efac}
+    .das-seats.yellow{background:#fef9c3;color:#854d0e;border:1.5px solid #fde047}
+    .das-seats.orange{background:#ffedd5;color:#9a3412;border:1.5px solid #fdba74}
+    .das-seats.red   {background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5}
+    .das-seats.gray  {background:#f1f5f9;color:#64748b;border:1.5px solid #cbd5e1}
+
+    /* ── Voucher ── */
+    .voucher-row{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.18)}
+    .voucher-wrap{display:flex;gap:8px;align-items:center}
+    .voucher-wrap input{flex:1;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:8px;padding:9px 12px;color:#fff;font-size:.84rem;outline:none;font-family:'Poppins',sans-serif}
+    .voucher-wrap input::placeholder{opacity:.5}
+    .voucher-wrap input:focus{border-color:#c9a84c}
+    .voucher-btn{background:#c9a84c;color:#0f1e3d;border:none;border-radius:8px;padding:9px 16px;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif}
+    .voucher-btn:hover{opacity:.88}
+    .voucher-msg{font-size:.75rem;margin-top:6px;min-height:16px}
+    .voucher-msg.ok{color:#86efac}
+    .voucher-msg.err{color:#fca5a5}
+
+    /* ── Semnătură ── */
+    .sig-wrap { margin: 20px 0; }
+    .sig-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--navy); display:block; margin-bottom:8px; }
+    .sig-canvas-wrap { position:relative; border:1.5px solid #d0d7e8; border-radius:10px; background:#f9fafc; overflow:hidden; touch-action:none; }
+    .sig-canvas-wrap canvas { display:block; width:100%; height:130px; cursor:crosshair; }
+    .sig-placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; color:#b0b8cc; font-size:.85rem; }
+    .sig-clear-btn { margin-top:6px; background:none; border:1px solid #d0d7e8; border-radius:6px; padding:4px 12px; font-size:.75rem; color:var(--gray); cursor:pointer; }
+    .sig-clear-btn:hover { background:#f0f4fb; }
+    .sig-agree { display:flex; align-items:flex-start; gap:10px; margin-top:16px; }
+    .sig-agree input[type=checkbox] { width:18px; height:18px; flex-shrink:0; margin-top:2px; accent-color:var(--navy); cursor:pointer; }
+    .sig-agree label { font-size:.82rem; color:#444; cursor:pointer; line-height:1.5; }
+    .sig-agree label a { color:var(--navy); text-decoration:underline; }
+
+    /* ── Custom date input ── */
+    .date-wrap { display:flex; align-items:stretch; }
+    .date-wrap .date-txt-inp { flex:1; border-radius:10px 0 0 10px !important; border-right:none !important; }
+    .date-wrap .date-txt-inp:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,47,94,.1); z-index:1; position:relative; }
+    .date-cal-wrap { position:relative; width:42px; border:1.5px solid rgba(26,47,94,.18); border-radius:0 10px 10px 0; background:#f5f7fc; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; cursor:pointer; }
+    .date-cal-wrap:hover { background:#eef1f9; border-color:var(--navy); }
+    .date-cal-ico { font-size:1rem; pointer-events:none; }
+    .date-native { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; padding:0; border:none; }
+
+    /* ── Return trip toggle ── */
+    .ret-toggle-wrap { cursor:pointer; user-select:none; }
+    .ret-toggle-inner { display:flex; align-items:center; gap:14px; padding:16px; border:2px solid rgba(26,47,94,.15); border-radius:14px; transition:all .2s; }
+    .ret-toggle-inner:hover { border-color:var(--navy); }
+    .ret-toggle-inner.active { border-color:var(--gold); background:rgba(201,168,76,.06); }
+    .ret-sw { width:44px; height:24px; background:#cbd5e1; border-radius:100px; position:relative; transition:background .2s; flex-shrink:0; }
+    .ret-sw::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; background:#fff; border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,.2); transition:transform .2s; }
+    .ret-sw.on { background:var(--gold); }
+    .ret-sw.on::after { transform:translateX(20px); }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Overlay rezervare finalizată (afișat la întoarcere după plată) -->
+<div id="booking-done-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,20,60,.75);z-index:9999;align-items:center;justify-content:center;padding:24px">
+  <div style="background:#fff;border-radius:24px;padding:48px 40px;max-width:460px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:3.5rem;margin-bottom:20px">✅</div>
+    <h2 style="font-family:'Poppins',sans-serif;color:#1a2f5e;font-size:1.6rem;font-weight:800;margin:0 0 12px">Rezervare finalizată!</h2>
+    <p style="color:#6b7280;line-height:1.7;margin:0 0 28px;font-size:.95rem">Plata a fost procesată cu succes. Vei primi un email de confirmare cu contractul și factura atașate.</p>
+    <a href="/" style="display:block;background:#1a2f5e;color:#fff;border-radius:12px;padding:14px 28px;font-weight:700;text-decoration:none;font-family:'Poppins',sans-serif;margin-bottom:12px;font-size:.95rem">🏠 Înapoi acasă</a>
+    <button onclick="document.getElementById('booking-done-overlay').style.display='none'" style="background:none;border:none;color:#9ca3af;font-size:.85rem;cursor:pointer;padding:8px;font-family:'Poppins',sans-serif">Rezervă o nouă cursă</button>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav id="nav">
+  <div class="nav-logo">
+    <a href="/"><img src="../img/logo-p3.png" alt="Delta Air Shuttle – Transfer Aeroport Brașov"></a>
+  </div>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="/">Acasă</a></li>
+    <li><a href="/despre-noi">Despre noi</a></li>
+    <li><a href="/rezervari" class="active">Rezervări</a></li>
+    <li><a href="/lista-de-preturi">Prețuri</a></li>
+    <li><a href="/realizari">Realizări</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/contact">Contact</a></li>
+    <li><a href="/rezervari" class="nav-cta">Rezervă acum ✈</a></li>
+  </ul>
+  <div class="nav-burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<!-- ══ PAGE HERO ══ -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-badge">✈ Rezervare online</div>
+    <h1>Rezervă transferul tău la aeroport</h1>
+    <p>Brașov ↔ Otopeni · Băneasa. Confirmare imediată, plată securizată prin Stripe.</p>
+  </div>
+</div>
+
+<!-- ══ BOOKING FORM ══ -->
+<div class="booking-wrap">
+
+  <div class="booking-intro">
+    <h2>Completează formularul în 2 minute</h2>
+    <p>Selectează ruta, data și pachetul dorit. Afli imediat prețul total și plătești securizat online.</p>
+  </div>
+
+  <!-- STEP 1: Direcție -->
+  <div class="form-section reveal">
+    <div class="step-header"><div class="step-num">1</div> Direcție</div>
+    <div class="radio-grid radio-grid-2">
+      <label class="radio-option">
+        <input type="radio" name="das_dir" value="tur" checked onchange="dasUpdate(); _availData=null; ['c1','c2'].forEach(k=>g('avail-card-'+k)?.classList.add('das-hide')); fetchAvailability()">
+        <span class="radio-label"><span class="radio-icon">✈</span><span class="radio-title">Brașov → Aeroport</span><span class="radio-sub">Tur (plecare din Brașov)</span></span>
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="das_dir" value="retur" onchange="dasUpdate(); _availData=null; ['c1','c2'].forEach(k=>g('avail-card-'+k)?.classList.add('das-hide')); fetchAvailability()">
+        <span class="radio-label"><span class="radio-icon">🏠</span><span class="radio-title">Aeroport → Brașov</span><span class="radio-sub">Retur (sosire în Brașov)</span></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- STEP 2: Tip transfer -->
+  <div class="form-section reveal">
+    <div class="step-header"><div class="step-num">2</div> Tip transfer</div>
+    <div class="radio-grid radio-grid-4">
+      <label class="radio-option">
+        <input type="radio" name="das_tr" value="economy" checked onchange="dasUpdate(); updatePassengerLimits(); dasCheckAvailForTrip()">
+        <span class="radio-label">
+          <span class="radio-icon">🚌</span>
+          <span class="radio-title">Economy</span>
+          <span class="radio-sub">Shuttle partajat</span>
+          <span class="radio-price" id="das-eco-price">120 lei / adult</span>
+        </span>
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="das_tr" value="privat" onchange="dasUpdate(); updatePassengerLimits(); filterPrivatAvailability(); dasCheckAvailForTrip()">
+        <span class="radio-label">
+          <span class="radio-icon">🚐</span>
+          <span class="radio-title">Privat</span>
+          <span class="radio-sub">Vehicul dedicat</span>
+          <span class="radio-price" id="das-priv-price">800 lei / cursă</span>
+        </span>
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="das_tr" value="business" onchange="dasUpdate()" disabled>
+        <span class="radio-label">
+          <span class="radio-icon">💼</span>
+          <span class="radio-title">Business</span>
+          <span class="radio-sub">Confort sporit</span>
+          <span class="coming-soon">În curând</span>
+        </span>
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="das_tr" value="vip" onchange="dasUpdate()" disabled>
+        <span class="radio-label">
+          <span class="radio-icon">⭐</span>
+          <span class="radio-title">VIP</span>
+          <span class="radio-sub">Limuzină / SUV</span>
+          <span class="coming-soon">În curând</span>
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <!-- STEP 3: Detalii cursă -->
+  <div class="form-section reveal">
+    <div class="step-header"><div class="step-num">3</div> Detalii cursă</div>
+
+    <div class="date-avail-grid">
+      <div class="field-group" style="margin-bottom:0">
+        <label>Data c&#259;l&#259;toriei</label>
+        <div class="date-wrap">
+          <input type="text" id="das-date-txt" class="date-txt-inp" placeholder="ZZ-LL-AAAA" maxlength="10" inputmode="numeric" autocomplete="off" oninput="dateTyped(this,'das-date','fetchAvailability')" onblur="dateBlur(this,'das-date')">
+          <div class="date-cal-wrap">
+            <span class="date-cal-ico">&#128197;</span>
+            <input type="date" id="das-date" class="date-native" required onchange="datePicked('das-date','das-date-txt');fetchAvailability()">
+          </div>
+        </div>
+      </div>
+      <div class="avail-card das-hide" id="avail-card-c1" style="height:100%;box-sizing:border-box">
+        <span class="avail-time" id="avail-time-c1">—</span>
+        <span class="avail-badge" id="avail-badge-c1">—</span>
+      </div>
+      <div class="avail-card das-hide" id="avail-card-c2" style="height:100%;box-sizing:border-box">
+        <span class="avail-time" id="avail-time-c2">—</span>
+        <span class="avail-badge" id="avail-badge-c2">—</span>
+      </div>
+    </div>
+    <div class="avail-warn" id="das-avail-warn">⚠ Locuri insuficiente pe cursa selectată.</div>
+
+    <div class="field-row" style="margin-top:14px">
+      <div class="field-group">
+        <label id="das-lbl-apt">Aeroport destinație</label>
+        <select id="das-apt" onchange="dasUpdate()">
+          <option value="otopeni">Otopeni – Henri Coandă (OTP)</option>
+          <option value="baneasa">Băneasa – Aurel Vlaicu (BBU)</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Cursă</label>
+        <select id="das-trip" onchange="dasUpdate(); updatePassengerLimits(); filterPrivatAvailability(); dasCheckAvailForTrip()">
+          <option value="c1">Cursa 1 (noapte/dimineață)</option>
+          <option value="c2">Cursa 2 (după-amiază/seară)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-group" id="das-pickup-row">
+      <label>Punct de îmbarcare în Brașov</label>
+      <select id="das-pickup" onchange="dasUpdate()">
+        <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30</option>
+        <option value="petrom">Petrom Calea București (McDonald's) – 01:35</option>
+        <option value="omv">OMV Dârste (vis-a-vis Ramada) – 01:40</option>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label>Destinație (completat automat)</label>
+      <input type="text" id="das-dest" readonly style="background:var(--off);color:var(--gray)">
+    </div>
+
+    <div class="trip-info">
+      <span style="font-size:1.2rem">🕐</span>
+      <span id="das-trip-info-txt">Selectează opțiunile pentru a vedea orarul.</span>
+      <span class="das-seats gray" id="das-seats-badge">— locuri</span>
+    </div>
+
+    <div class="field-row-3" style="margin-top:4px">
+      <div class="field-group">
+        <label>Adulți <span id="das-adult-price-hint" style="font-weight:400;color:var(--gold);font-size:.72rem;text-transform:none;letter-spacing:0">· 120 lei / adult</span></label>
+        <select id="das-adults" onchange="dasUpdate(); updatePassengerLimits(); dasCheckAvailForTrip()">
+          <option value="1">1 adult</option>
+          <option value="2">2 adulți</option>
+          <option value="3">3 adulți</option>
+          <option value="4">4 adulți</option>
+          <option value="5">5 adulți</option>
+          <option value="6">6 adulți</option>
+          <option value="7">7 adulți</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Copii (sub 12 ani) <span id="das-child-price-hint" style="font-weight:400;color:var(--gold);font-size:.72rem;text-transform:none;letter-spacing:0">· 75 lei / copil</span></label>
+        <select id="das-children" onchange="dasUpdate(); dasCheckAvailForTrip()">
+          <option value="0">0 copii</option>
+          <option value="1">1 copil</option>
+          <option value="2">2 copii</option>
+          <option value="3">3 copii</option>
+          <option value="4">4 copii</option>
+          <option value="5">5 copii</option>
+          <option value="6">6 copii</option>
+          <option value="7">7 copii</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label>Bagaje extra (+20 lei)</label>
+        <select id="das-bags" onchange="dasUpdate()">
+          <option value="0">0 bagaje</option>
+          <option value="1">1 bagaj</option>
+          <option value="2">2 bagaje</option>
+          <option value="3">3 bagaje</option>
+          <option value="4">4 bagaje</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Câmpuri nume pasageri (apare la 2+ pasageri) -->
+    <div id="das-pax-names-blk" class="das-hide">
+      <div class="step-header" style="margin-top:20px"><div class="step-num" style="background:var(--gold);color:var(--navy2)">+</div> Nume pasageri</div>
+      <div id="das-pax-names"></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: Date contact -->
+  <div class="form-section reveal">
+    <div class="step-header"><div class="step-num">4</div> Date de contact</div>
+
+    <div class="buyer-tabs">
+      <button type="button" class="buyer-tab active" id="das-tab-pf" onclick="dasBuyer('pf')">👤 Persoană fizică</button>
+      <button type="button" class="buyer-tab" id="das-tab-sc" onclick="dasBuyer('sc')">🏢 Persoană juridică</button>
+    </div>
+
+    <div id="das-pf-fields">
+      <div class="field-row">
+        <div class="field-group">
+          <label>Nume și prenume *</label>
+          <input type="text" id="das-name" placeholder="Ion Popescu" required>
+        </div>
+        <div class="field-group">
+          <label>Telefon *</label>
+          <input type="tel" id="das-phone" placeholder="+40 7XX XXX XXX" required>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Email *</label>
+        <input type="email" id="das-email" placeholder="email@exemplu.ro" required>
+        <span class="field-hint">Confirmarea rezervării și contractul PDF vor fi trimise pe acest email.</span>
+      </div>
+    </div>
+
+    <div class="company-fields" id="das-sc-fields">
+      <div class="field-row">
+        <div class="field-group">
+          <label>Denumire firmă *</label>
+          <input type="text" id="das-firma" placeholder="SC Exemplu SRL">
+        </div>
+        <div class="field-group">
+          <label>CUI / CIF *</label>
+          <input type="text" id="das-cui" placeholder="RO12345678">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Adresă firmă *</label>
+        <input type="text" id="das-adresa-firma" placeholder="Str. Exemplu nr. 1, Brașov">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Persoană de contact *</label>
+          <input type="text" id="das-contact-name" placeholder="Ion Popescu">
+        </div>
+        <div class="field-group">
+          <label>Telefon *</label>
+          <input type="tel" id="das-phone-sc" placeholder="+40 7XX XXX XXX">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Email *</label>
+        <input type="email" id="das-email-sc" placeholder="office@firma.ro">
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-top:8px">
+      <label>Observații (opțional)</label>
+      <textarea id="das-obs" placeholder="Scaun auto pentru copil, adresă exactă de preluare, alte detalii..." style="min-height:80px"></textarea>
+    </div>
+  </div>
+
+  <!-- STEP 5: Cursă de retur -->
+  <div class="form-section reveal">
+    <div class="step-header"><div class="step-num">5</div> Cursă de retur</div>
+
+    <div class="ret-toggle-wrap" onclick="retToggle()" id="ret-toggle-wrap">
+      <div class="ret-toggle-inner" id="ret-toggle-inner">
+        <span style="font-size:1.6rem">&#8629;</span>
+        <div style="flex:1">
+          <div style="font-size:.9rem;font-weight:700;color:var(--navy)">Adaug&#259; curs&#259; de retur</div>
+          <div style="font-size:.75rem;color:var(--gray);margin-top:2px">Datele de contact se aplic&#259; automat &middot; Rezervi ambele curse deodat&#259;</div>
+        </div>
+        <div class="ret-sw" id="ret-sw"></div>
+      </div>
+    </div>
+
+    <div id="ret-details" class="das-hide" style="margin-top:20px">
+      <div style="background:rgba(26,47,94,.05);border:1.5px solid rgba(26,47,94,.12);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:.82rem;color:var(--navy)">
+        <strong>&#8629; Retur:</strong> <span id="ret-dir-lbl">&#8212;</span> &nbsp;&middot;&nbsp; <span id="ret-tr-lbl">&#8212;</span> &nbsp;&middot;&nbsp; <span id="ret-pax-lbl">&#8212;</span>
+      </div>
+
+      <div class="date-avail-grid">
+        <div class="field-group" style="margin-bottom:0">
+          <label>Data returului</label>
+          <div class="date-wrap">
+            <input type="text" id="ret-date-txt" class="date-txt-inp" placeholder="ZZ-LL-AAAA" maxlength="10" inputmode="numeric" autocomplete="off" oninput="dateTyped(this,'ret-date','retFetchAvail')" onblur="dateBlur(this,'ret-date')">
+            <div class="date-cal-wrap">
+              <span class="date-cal-ico">&#128197;</span>
+              <input type="date" id="ret-date" class="date-native" onchange="datePicked('ret-date','ret-date-txt');retFetchAvail()">
+            </div>
+          </div>
+        </div>
+        <div class="avail-card das-hide" id="ret-ac-c1" style="height:100%;box-sizing:border-box">
+          <span class="avail-time" id="ret-at-c1">&#8212;</span>
+          <span class="avail-badge" id="ret-ab-c1">&#8212;</span>
+        </div>
+        <div class="avail-card das-hide" id="ret-ac-c2" style="height:100%;box-sizing:border-box">
+          <span class="avail-time" id="ret-at-c2">&#8212;</span>
+          <span class="avail-badge" id="ret-ab-c2">&#8212;</span>
+        </div>
+      </div>
+      <div class="avail-warn" id="ret-warn"></div>
+
+      <div class="field-row" style="margin-top:14px">
+        <div class="field-group">
+          <label>Curs&#259; retur</label>
+          <select id="ret-trip" onchange="retUpdate()">
+            <option value="c1">Cursa 1 (noapte/diminea&#539;&#259;)</option>
+            <option value="c2">Cursa 2 (dup&#259;-amiaz&#259;/sear&#259;)</option>
+          </select>
+        </div>
+        <div class="field-group das-hide" id="ret-pickup-row">
+          <label>Punct de &#238;mbarcare Bra&#351;ov</label>
+          <select id="ret-pickup" onchange="retUpdate()">
+            <option value="sala">Sala Sporturilor (B-dul G&#259;rii)</option>
+            <option value="petrom">Petrom Calea Bucure&#351;ti (McDonald's)</option>
+            <option value="omv">OMV D&#226;rste (vis-a-vis Ramada)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="trip-info">
+        <span style="font-size:1.2rem">&#8629;</span>
+        <span id="ret-info-txt">Selecteaz&#259; data returului pentru a vedea orarul.</span>
+        <span class="das-seats gray" id="ret-seats">&#8212; locuri</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6: Sumar plată -->
+  <div class="form-section reveal">
+    <div class="step-header"><div class="step-num">6</div> Sumar și plată</div>
+
+    <div class="price-box">
+      <div class="price-box-title">Detalii preț</div>
+      <div id="das-price-lines"></div>
+      <div class="price-total">
+        <span class="price-total-label">Total de plată</span>
+        <span class="price-total-value" id="das-total">—</span>
+      </div>
+    </div>
+
+    <!-- Cod reducere -->
+    <div style="border:2px dashed rgba(201,168,76,.4);border-radius:14px;padding:18px 20px;margin-bottom:20px;background:rgba(201,168,76,.05)">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:10px">🏷 Ai un cod de reducere?</div>
+      <div class="voucher-wrap" style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="das-voucher-input" placeholder="Introdu codul de reducere" maxlength="20" autocomplete="off" oninput="this.value=this.value.toUpperCase()" style="flex:1;border:1.5px solid rgba(26,47,94,.2);border-radius:8px;padding:10px 14px;font-size:.88rem;font-family:'Poppins',sans-serif;color:var(--dark);outline:none">
+        <button type="button" onclick="dasApplyVoucher()" style="background:var(--gold);color:var(--navy2);border:none;border-radius:8px;padding:10px 18px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif">Aplică</button>
+      </div>
+      <div id="das-voucher-msg" style="font-size:.8rem;margin-top:8px;min-height:18px"></div>
+    </div>
+
+    <!-- Metodă plată -->
+    <div style="margin-bottom:20px">
+      <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);display:block;margin-bottom:10px">Metodă de plată</label>
+      <div class="pay-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <label id="pay-online-lbl" class="pay-method-card active" onclick="dasSetPayMethod('online')">
+          <input type="radio" name="das_pay" value="online" checked style="display:none">
+          <span style="font-size:1.4rem;margin-bottom:6px;display:block">💳</span>
+          <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">Card online</span>
+          <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Plată securizată Stripe</span>
+        </label>
+        <label id="pay-netopia-lbl" class="pay-method-card" onclick="dasSetPayMethod('netopia')">
+          <input type="radio" name="das_pay" value="netopia" style="display:none">
+          <span style="font-size:1.4rem;margin-bottom:6px;display:block">🏦</span>
+          <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">Card / Online</span>
+          <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Plată prin Netopia</span>
+        </label>
+        <label id="pay-cash-lbl" class="pay-method-card" onclick="dasSetPayMethod('cash')">
+          <input type="radio" name="das_pay" value="cash" style="display:none">
+          <span style="font-size:1.4rem;margin-bottom:6px;display:block">💵</span>
+          <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">Plată la îmbarcare</span>
+          <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Numerar la șofer</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="secure-badges">
+      <div class="secure-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38a169" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Plată 100% securizată prin Stripe
+      </div>
+      <div class="secure-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Contract PDF trimis pe email
+      </div>
+      <div class="secure-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2f5e" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.14 11.92 19.79 19.79 0 0 1 1.07 3.29 2 2 0 0 1 3.05 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21 16z"/></svg>
+        Rezervare gratuită, fără comisioane
+      </div>
+    </div>
+
+    <!-- Semnătură electronică -->
+    <div class="sig-wrap">
+      <span class="sig-label">Semnătură electronică</span>
+      <div class="sig-canvas-wrap">
+        <canvas id="sig-canvas"></canvas>
+        <div class="sig-placeholder" id="sig-placeholder">Semnați aici cu mouse-ul sau degetul</div>
+      </div>
+      <button type="button" class="sig-clear-btn" onclick="sigClear()">Șterge semnătura</button>
+      <div class="sig-agree">
+        <input type="checkbox" id="sig-agree-cb">
+        <label for="sig-agree-cb">Am citit și sunt de acord cu <a href="/termeni-si-conditii-gdpr" target="_blank">Termenii și Condițiile</a> și <a href="/termeni-si-conditii-gdpr" target="_blank">Politica GDPR</a>. Confirm că datele introduse sunt corecte și îmi exprim consimțământul prin semnătura de mai sus.</label>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="das-continue-btn" onclick="dasSubmit()">
+      ✈ Confirmă rezervarea
+    </button>
+  </div>
+
+  <!-- FAQ Rezervări -->
+  <div style="margin-top:48px">
+    <h2 style="font-size:1.4rem;font-weight:800;color:var(--navy);margin-bottom:24px;text-align:center">Întrebări frecvente</h2>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Pot plăti în numerar la bord?</button>
+      <div class="faq-a">Da, poți opta pentru plata în numerar direct la șofer. Selectează opțiunea la finalizarea rezervării. Rezervarea online este gratuită și fără comisioane.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Cât timp înainte trebuie să rezerv?</button>
+      <div class="faq-a">Recomandăm rezervarea cu cel puțin 24 ore înainte. Locurile sunt limitate, mai ales în perioada sezonului estival și de sărbători. La transferul privat, poți rezerva cu 2-3 ore înainte.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Ce se întâmplă dacă zborul meu întârzie?</button>
+      <div class="faq-a">La transferul privat, șoferul urmărește statusul zborului în timp real și vă așteaptă fără costuri suplimentare. La transferul Economy (shared), vă rugăm să ne contactați telefonic în cazul întârzierilor.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Unde mă urcă și unde mă coboară?</button>
+      <div class="faq-a">Tur (Brașov → Aeroport): preluare din unul din cele 3 puncte fixe din Brașov (Sala Sporturilor, Petrom Calea București, OMV Dârste). Retur (Aeroport → Brașov): coborâre la Sala Sporturilor, Brașov. La transferul privat, adresa exactă de preluare/coborâre este la cerere.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(this)">Sunt permise bagajele mari / schiurile / bicicletele?</button>
+      <div class="faq-a">Fiecare pasager are dreptul la 1 bagaj de cală + 1 bagaj de mână inclus în tarif. Bagajele extra (schi, bagaje voluminoase) se pot adăuga la rezervare cu 20 lei/bucată. Vă rugăm să menționați în câmpul Observații dacă aveți echipament sportiv voluminos.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CTA ══ -->
+<div class="cta-section">
+  <h2>Ai întrebări? Suntem disponibili 24/7.</h2>
+  <p>Echipa noastră îți răspunde rapid pe WhatsApp sau telefon.</p>
+  <div class="cta-phone">📞 <a href="tel:+40761617606" style="color:inherit;text-decoration:none">+40 761 617 606</a></div>
+  <div class="btn-group" style="justify-content:center">
+    <a href="https://wa.me/40761617606" class="btn-primary">💬 WhatsApp</a>
+    <a href="/contact" class="btn-outline-white">Contactează-ne</a>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="../img/logo-p3.png" alt="Delta Air Shuttle">
+        <p>Transfer premium Brașov–Otopeni–Băneasa. Punctualitate garantată, prețuri fixe.</p>
+      </div>
+      <div class="footer-col"><h4>Servicii</h4><ul>
+        <li><a href="/rezervari">Economy Transfer</a></li>
+        <li><a href="/rezervari">Transfer Privat</a></li>
+        <li><a href="/lista-de-preturi">Listă prețuri</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Rute</h4><ul>
+        <li><a href="/rezervari">Brașov → Otopeni</a></li>
+        <li><a href="/rezervari">Brașov → Băneasa</a></li>
+        <li><a href="/rezervari">Otopeni → Brașov</a></li>
+      </ul></div>
+      <div class="footer-col"><h4>Companie</h4><ul>
+        <li><a href="/despre-noi">Despre noi</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/termeni-si-conditii-gdpr">GDPR &amp; Termeni</a></li>
+      </ul></div>
+    </div>
+    <div class="footer-anpc"><a href="https://anpc.ro/ce-este-sal" target="_blank" rel="noopener"><img src="/img/anpc-sal.png" alt="ANPC - SAL"></a><a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener"><img src="/img/anpc-sol.png" alt="ANPC - SOL"></a></div>
+      <div class="footer-bottom">
+      <span>© 2025 Delta Air Shuttle. Toate drepturile rezervate.</span>
+      <span>Brașov · Otopeni · Băneasa</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const SERVER = 'https://delta-air-server-production.up.railway.app';
+let _voucherCode = '', _voucherDiscount = 0;
+let _retEnabled = false, _retAvail = null;
+const RET_DISC = 0.20;
+const fmtDate = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'');
+
+function datePicked(dateId, txtId) {
+  var v = gv(dateId);
+  if (g(txtId)) g(txtId).value = fmtDate(v);
+}
+
+function dateTyped(el, dateId, cbName) {
+  var raw = el.value.replace(/\D/g,'').slice(0,8);
+  var fmt = raw;
+  if (raw.length > 4) fmt = raw.slice(0,2)+'-'+raw.slice(2,4)+'-'+raw.slice(4);
+  else if (raw.length > 2) fmt = raw.slice(0,2)+'-'+raw.slice(2);
+  if (fmt !== el.value) el.value = fmt;
+  if (fmt.length === 10) {
+    var p = fmt.split('-');
+    var iso = p[2]+'-'+p[1]+'-'+p[0];
+    var d = new Date(iso+'T00:00:00');
+    if (!isNaN(d.getTime()) && p[2].length===4) {
+      if (gv(dateId) !== iso) {
+        g(dateId).value = iso;
+        if (cbName && window[cbName]) window[cbName]();
+      }
+    }
+  } else {
+    if (g(dateId)) g(dateId).value = '';
+  }
+}
+
+function dateBlur(el, dateId) {
+  var iso = gv(dateId);
+  if (iso) el.value = fmtDate(iso);
+  else if (el.value && el.value.length < 10) el.value = '';
+}
+
+const SCH = {
+  tur: {
+    c1: { depart:{sala:'01:30',petrom:'01:35',omv:'01:40'}, arrive:{otopeni:'04:30',baneasa:'05:00'} },
+    c2: { depart:{sala:'14:00',petrom:'14:05',omv:'14:10'}, arrive:{otopeni:'17:00',baneasa:'17:30'} }
+  },
+  retur: {
+    c1: { depart:{otopeni:'07:00',baneasa:'06:30'}, arrive_bv:'10:00' },
+    c2: { depart:{otopeni:'19:30',baneasa:'19:00'}, arrive_bv:'22:30' }
+  }
+};
+const PICKUP_LABELS = { sala:'Sala Sporturilor', petrom:'Petrom Calea București', omv:'OMV Dârste' };
+const APT_LABELS = { otopeni:'Henri Coandă (OTP)', baneasa:'Băneasa (BBU)' };
+
+const g  = id => document.getElementById(id);
+const gv = id => g(id)?.value || '';
+const gr = name => document.querySelector(`input[name=${name}]:checked`)?.value || '';
+
+function dasUpdate() {
+  const dir = gr('das_dir'), apt = gv('das-apt'), trip = gv('das-trip'), pickup = gv('das-pickup');
+  const isTur = dir === 'tur';
+  const sch = SCH[dir]?.[trip];
+
+  g('das-lbl-apt').textContent = isTur ? 'Aeroport destinație' : 'Aeroport plecare';
+  const pickupRow = g('das-pickup-row');
+  if (pickupRow) pickupRow.classList.toggle('das-hide', !isTur);
+
+  // Actualizează orele în select pickup
+  if (isTur && sch) {
+    const dep = sch.depart || {};
+    const sel = g('das-pickup');
+    if (sel) {
+      sel.options[0].text = `Sala Sporturilor (B-dul Gării) – ${dep.sala||''}`;
+      sel.options[1].text = `Petrom Calea București (McDonald's) – ${dep.petrom||''}`;
+      sel.options[2].text = `OMV Dârste (vis-a-vis Ramada) – ${dep.omv||''}`;
+    }
+    const arrTime = sch.arrive?.[apt] || '';
+    if(g('das-dest')) g('das-dest').value = `${APT_LABELS[apt]} · sosire ${arrTime}`;
+  } else if (!isTur && sch) {
+    const arrBV = sch.arrive_bv || '';
+    if(g('das-dest')) g('das-dest').value = `Brașov (Sala Sporturilor) · sosire ${arrBV}`;
+  }
+
+  // Banner orar
+  let info = '';
+  if (isTur && sch) {
+    info = `<strong>Plecare:</strong> ${sch.depart?.[pickup]||''} din ${PICKUP_LABELS[pickup]||''} → <strong>Sosire:</strong> ${sch.arrive?.[apt]||''} la ${APT_LABELS[apt]}`;
+  } else if (!isTur && sch) {
+    info = `<strong>Plecare:</strong> ${sch.depart?.[apt]||''} din ${APT_LABELS[apt]} → <strong>Sosire:</strong> ${sch.arrive_bv||''} la Brașov`;
+  }
+  if(g('das-trip-info-txt')) g('das-trip-info-txt').innerHTML = info || '—';
+
+  dasCalcPrice();
+  dasUpdatePaxNames();
+  dasUpdateSeatsBadge();
+  if (_retEnabled) retSync();
+}
+
+function dasCalcPrice() {
+  const tr = gr('das_tr'), apt = gv('das-apt');
+  const adults = parseInt(gv('das-adults'))||1;
+  const children = parseInt(gv('das-children'))||0;
+  const bags = parseInt(gv('das-bags'))||0;
+  const ecoRate   = apt === 'baneasa' ? 140 : 120;
+  const childRate = apt === 'baneasa' ? 85  : 75;
+  const ecoEl = g('das-eco-price'), privEl = g('das-priv-price');
+  if(ecoEl) ecoEl.textContent = `${ecoRate} lei / adult`;
+  if(privEl) privEl.textContent = apt === 'baneasa' ? '850 lei / cursă' : '800 lei / cursă';
+
+  // Hint preț lângă label Adulți / Copii — vizibil doar la Economy
+  const adultHint = g('das-adult-price-hint'), childHint = g('das-child-price-hint');
+  if(adultHint) adultHint.style.display = tr === 'economy' ? '' : 'none';
+  if(childHint) childHint.style.display = tr === 'economy' ? '' : 'none';
+  if(adultHint && tr === 'economy') adultHint.textContent = `· ${ecoRate} lei / adult`;
+  if(childHint && tr === 'economy') childHint.textContent = `· ${childRate} lei / copil`;
+
+  let lines = [], total = 0;
+  if (tr === 'economy') {
+    const ac = adults*ecoRate, cc = children*childRate;
+    total += ac+cc;
+    lines.push({l:`${adults} adult(ți) × ${ecoRate} lei`, v:`${ac} lei`});
+    if(children>0) lines.push({l:`${children} copil × ${childRate} lei`, v:`${cc} lei`});
+  } else if (tr === 'privat') {
+    const base = apt==='baneasa'?850:800;
+    total += base;
+    lines.push({l:`Transfer privat (${APT_LABELS[apt]})`, v:`${base} lei`});
+  } else {
+    if(g('das-total')) g('das-total').textContent='—';
+    if(g('das-price-lines')) g('das-price-lines').innerHTML='<div style="opacity:.7;font-size:.84rem">Selectează tipul de transfer.</div>';
+    return 0;
+  }
+  if(bags>0){const bc=bags*20;total+=bc;lines.push({l:`${bags} bagaj extra \xd7 20 lei`,v:`${bc} lei`});}
+
+  if(_retEnabled && gv('ret-date')) {
+    const M=1-RET_DISC;
+    lines.push({sep:true, l:'↩ Retur \xb7 ' + fmtDate(gv('ret-date')) + ' \xb7 −20%'});
+    let retFull=0, retDisc=0;
+    if(tr==='economy'){
+      const fac=adults*ecoRate, fcc=children*childRate;
+      const dac=Math.round(fac*M), dcc=Math.round(fcc*M);
+      retFull+=fac+fcc; retDisc+=dac+(children>0?dcc:0);
+      total+=dac+(children>0?dcc:0);
+      lines.push({l:`${adults} adult(ți) \xd7 ${Math.round(ecoRate*M)} lei (retur)`,v:`${dac} lei`});
+      if(children>0) lines.push({l:`${children} copil \xd7 ${Math.round(childRate*M)} lei (retur)`,v:`${dcc} lei`});
+    } else if(tr==='privat'){
+      const fb=apt==='baneasa'?850:800, db=Math.round(fb*M);
+      retFull+=fb; retDisc+=db; total+=db;
+      lines.push({l:`Transfer privat retur (${APT_LABELS[apt]}) −20%`,v:`${db} lei`});
+    }
+    if(bags>0){const fb=bags*20,db=Math.round(fb*M);retFull+=fb;retDisc+=db;total+=db;lines.push({l:`${bags} bagaj extra \xd7 ${Math.round(20*M)} lei (retur)`,v:`${db} lei`});}
+    const saved=retFull-retDisc;
+    if(saved>0) lines.push({l:`Reducere retur -20%`,v:`-${saved} lei`,discount:true});
+  }
+
+  if(_voucherDiscount>0&&total>0){const disc=Math.min(_voucherDiscount,total);lines.push({l:`Voucher ${_voucherCode}`,v:`-${disc} lei`,discount:true});total=Math.max(0,total-disc);}
+  if(g('das-price-lines')) g('das-price-lines').innerHTML=lines.map(function(row){
+    if(row.sep) return '<div style="font-size:.7rem;font-weight:700;opacity:.65;text-transform:uppercase;letter-spacing:1px;padding:8px 0 2px;border-top:1px solid rgba(255,255,255,.18);margin-top:4px">'+row.l+'</div>';
+    var sty=row.discount?' style="color:#86efac"':'';
+    return '<div class="price-line"'+sty+'><span>'+row.l+'</span><span>'+row.v+'</span></div>';
+  }).join('');
+  if(g('das-total')) g('das-total').textContent = `${total} lei`;
+  retUpdateBtn();
+  return total;
+}
+
+function dasUpdatePaxNames() {
+  const adults=parseInt(gv('das-adults'))||1, children=parseInt(gv('das-children'))||0;
+  const total=adults+children, blk=g('das-pax-names-blk'), cont=g('das-pax-names');
+  if(!blk||!cont) return;
+  if(total<=1){blk.classList.add('das-hide');cont.innerHTML='';return;}
+  blk.classList.remove('das-hide');
+  const prev={};
+  cont.querySelectorAll('input[id^="das-pax-"]').forEach(el=>{prev[el.id]=el.value;});
+  let rows='';
+  for(let i=1;i<=total;i++){
+    const lbl=i<=adults?`Adult ${i}`:`Copil ${i-adults}`, pid=`das-pax-${i}`, val=prev[pid]||'';
+    rows+=`<div class="field-group"><label>${lbl} – Nume *</label><input type="text" id="${pid}" value="${val.replace(/"/g,'&quot;')}" placeholder="Nume Prenume" required></div>`;
+  }
+  cont.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">${rows}</div>`;
+}
+
+async function dasApplyVoucher() {
+  const input = g('das-voucher-input'), msgEl = g('das-voucher-msg');
+  const code = input.value.trim().toUpperCase();
+  if (!code) return;
+  if (_voucherCode === code) return;
+  try {
+    const res = await fetch(`${SERVER}/api/validate-voucher`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})
+    });
+    const data = await res.json();
+    if (data.valid) {
+      _voucherCode = code; _voucherDiscount = data.discount;
+      msgEl.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
+      msgEl.style.color = '#16a34a'; msgEl.style.fontWeight = '600';
+      input.disabled = true; input.value = '';
+      dasCalcPrice();
+    } else {
+      _voucherCode = ''; _voucherDiscount = 0;
+      msgEl.textContent = '✗ Cod voucher invalid.';
+      msgEl.style.color = '#dc2626'; msgEl.style.fontWeight = '600';
+    }
+  } catch(_) {
+    msgEl.textContent = '✗ Eroare la validare. Încearcă din nou.';
+    msgEl.style.color = '#dc2626'; msgEl.style.fontWeight = '600';
+  }
+}
+
+function dasUpdateSeatsBadge() {
+  const badge = g('das-seats-badge');
+  if (!badge) return;
+  const trip = gv('das-trip');
+  if (!trip || !_availData) { badge.textContent='— locuri'; badge.className='das-seats gray'; return; }
+  dasRenderSeatsBadge(badge, _availData, trip);
+}
+
+function dasRenderSeatsBadge(badge, data, trip) {
+  const info = data?.[trip];
+  if (!info || info.disponibile == null) { badge.textContent='— locuri'; badge.className='das-seats gray'; return; }
+  const n = info.disponibile;
+  if (n===0)      { badge.textContent='✗ Complet ocupat';        badge.className='das-seats red';    }
+  else if (n===1) { badge.textContent='⚠ 1 loc rămas';           badge.className='das-seats red';    }
+  else if (n<=3)  { badge.textContent=`⚠ ${n} locuri rămase`;    badge.className='das-seats orange'; }
+  else if (n<=5)  { badge.textContent=`${n} locuri disponibile`; badge.className='das-seats yellow'; }
+  else            { badge.textContent=`${n} locuri disponibile`; badge.className='das-seats green';  }
+}
+
+function dasSaveState() {
+  const state = {
+    dir:gr('das_dir'), tr:gr('das_tr'), buyer:_buyer,
+    apt:gv('das-apt'), trip:gv('das-trip'), pickup:gv('das-pickup'),
+    date:gv('das-date'), adults:gv('das-adults'), children:gv('das-children'), bags:gv('das-bags'),
+    name:gv('das-name'), phone:gv('das-phone'), email:gv('das-email'),
+    firma:gv('das-firma'), cui:gv('das-cui'), adresa:gv('das-adresa-firma'),
+    contactName:gv('das-contact-name'), phoneSc:gv('das-phone-sc'), emailSc:gv('das-email-sc'),
+    obs:gv('das-obs'),
+    paxNames:[...document.querySelectorAll('input[id^="das-pax-"]')].map(i=>i.value),
+    voucherCode:_voucherCode, voucherDiscount:_voucherDiscount,
+    retEnabled:_retEnabled, retDate:gv('ret-date'), retTrip:gv('ret-trip'), retPickup:gv('ret-pickup'),
+  };
+  sessionStorage.setItem('das_form_state', JSON.stringify(state));
+}
+
+function dasRestoreState() {
+  const raw = sessionStorage.getItem('das_form_state');
+  if (!raw) return false;
+  sessionStorage.removeItem('das_form_state');
+  try {
+    const s = JSON.parse(raw);
+    const sr = (name,val)=>{ const r=document.querySelector(`input[name="${name}"][value="${val}"]`); if(r) r.checked=true; };
+    const sv = (id,val)=>{ const el=g(id); if(el&&val!=null) el.value=val; };
+    if(s.dir)   sr('das_dir', s.dir);
+    if(s.tr)    sr('das_tr',  s.tr);
+    if(s.buyer) dasBuyer(s.buyer);
+    sv('das-apt',s.apt); sv('das-trip',s.trip); sv('das-pickup',s.pickup);
+    sv('das-date',s.date); sv('das-adults',s.adults); sv('das-children',s.children); sv('das-bags',s.bags);
+    sv('das-name',s.name); sv('das-phone',s.phone); sv('das-email',s.email);
+    sv('das-firma',s.firma); sv('das-cui',s.cui); sv('das-adresa-firma',s.adresa);
+    sv('das-contact-name',s.contactName); sv('das-phone-sc',s.phoneSc); sv('das-email-sc',s.emailSc);
+    sv('das-obs',s.obs);
+    if(s.voucherCode&&s.voucherDiscount) {
+      _voucherCode=s.voucherCode; _voucherDiscount=s.voucherDiscount;
+      const inp=g('das-voucher-input');
+      if(inp){inp.value=s.voucherCode;inp.disabled=true;}
+      const msg=g('das-voucher-msg');
+      if(msg){msg.textContent=`✓ Voucher ${s.voucherCode} aplicat (-${s.voucherDiscount} lei)`;msg.style.color='#16a34a';msg.style.fontWeight='600';}
+    }
+    dasUpdate();
+    datePicked('das-date','das-date-txt');
+    if(s.paxNames?.length) {
+      setTimeout(()=>{ document.querySelectorAll('input[id^="das-pax-"]').forEach((inp,i)=>{if(s.paxNames[i])inp.value=s.paxNames[i];}); }, 50);
+    }
+    if(s.retEnabled && s.retDate) {
+      _retEnabled = true;
+      const det=g('ret-details'), sw=g('ret-sw'), inn=g('ret-toggle-inner');
+      if(det) det.classList.remove('das-hide');
+      if(sw)  sw.classList.add('on');
+      if(inn) inn.classList.add('active');
+      sv('ret-date', s.retDate);
+      if(s.retTrip)   sv('ret-trip',   s.retTrip);
+      if(s.retPickup) sv('ret-pickup', s.retPickup);
+      setTimeout(()=>{ datePicked('ret-date','ret-date-txt'); retFetchAvail(); }, 100);
+    }
+    return true;
+  } catch(_){ return false; }
+}
+
+/* ── Disponibilitate curse ── */
+const API_BASE = 'https://delta-air-server-production.up.railway.app';
+let _availData = null;
+
+async function fetchAvailability() {
+  const date = gv('das-date');
+  const direction = gr('das_dir');
+  if (!date || !direction) return;
+
+  filterExpiredTrips();
+  if(_retEnabled) retSyncMinDate();
+
+  try {
+    const res = await fetch(`${API_BASE}/api/availability?date=${date}&direction=${direction}`);
+    _availData = await res.json();
+    renderAvailability();
+  } catch(e) {
+    _availData = null;
+  }
+}
+
+function renderAvailability() {
+  if (!_availData) return;
+
+  const dir = gr('das_dir');
+  const times = { tur: { c1:'01:30', c2:'14:00' }, retur: { c1:'07:00', c2:'19:30' } };
+
+  ['c1','c2'].forEach(key => {
+    const info = _availData[key];
+    const card  = g(`avail-card-${key}`);
+    const badge = g(`avail-badge-${key}`);
+    const timeEl = g(`avail-time-${key}`);
+    if (!card || !badge || !timeEl) return;
+
+    const time = times[dir]?.[key] || info?.time || '—';
+    timeEl.textContent = time;
+    card.classList.remove('das-hide');
+
+    if (!info) { badge.className='avail-badge'; badge.textContent='—'; return; }
+
+    const { disponibile } = info;
+    card.classList.toggle('full', disponibile === 0);
+
+    if (disponibile === 0) {
+      badge.className = 'avail-badge full'; badge.textContent = 'Complet';
+    } else if (disponibile <= 2) {
+      badge.className = 'avail-badge low'; badge.textContent = `${disponibile} loc${disponibile>1?'uri':''}`;
+    } else {
+      badge.className = 'avail-badge ok'; badge.textContent = `${disponibile} locuri`;
+    }
+  });
+
+  filterExpiredTrips();
+  filterPrivatAvailability();
+  updatePassengerLimits();
+  dasCheckAvailForTrip();
+  dasUpdateSeatsBadge();
+}
+
+function filterPrivatAvailability() {
+  const trip      = gv('das-trip');
+  const avail     = _availData?.[trip]?.disponibile;
+  const privRadio = document.querySelector('input[name="das_tr"][value="privat"]');
+  const privLabel = privRadio?.closest('label');
+  const warn      = g('das-avail-warn');
+  const btn       = g('das-continue-btn');
+
+  if (!privRadio) return;
+
+  if (avail === undefined || avail === null) {
+    privRadio.disabled = false;
+    if (privLabel) { privLabel.style.opacity = ''; privLabel.title = ''; }
+    return;
+  }
+
+  const booked      = 7 - avail;
+  const privBlocked = booked > 1;
+
+  privRadio.disabled = privBlocked;
+  if (privLabel) {
+    privLabel.style.opacity = privBlocked ? '0.42' : '';
+    privLabel.title        = privBlocked ? `Indisponibil în regim privat — ${booked} locuri deja rezervate` : '';
+  }
+
+  if (privBlocked && gr('das_tr') === 'privat') {
+    const ecoRadio = document.querySelector('input[name="das_tr"][value="economy"]');
+    if (ecoRadio) { ecoRadio.checked = true; dasUpdate(); updatePassengerLimits(); }
+    if (warn) {
+      warn.classList.remove('avail-ok');
+      warn.style.display = 'block';
+      warn.textContent   = `⚠ Transferul Privat nu este disponibil pentru această cursă (${booked} loc${booked > 1 ? 'uri' : ''} deja rezervate în grupaj). Puteți rezerva locuri individuale în regim Economy — ${avail} loc${avail > 1 ? 'uri' : ''} disponibil${avail > 1 ? 'e' : ''}.`;
+      if (btn) btn.disabled = false;
+    }
+  }
+}
+
+// Departure times (minutes from midnight) per direction and trip
+const TRIP_CUTOFFS = {
+  tur:   { c1: 1*60+30,  c2: 14*60+0  },   // 01:30 / 14:00
+  retur: { c1: 7*60+0,   c2: 19*60+30 }    // 07:00 / 19:30
+};
+const TRIP_LABELS = {
+  c1: 'Cursa 1 (noapte/dimineață)',
+  c2: 'Cursa 2 (după-amiază/seară)'
+};
+
+function filterExpiredTrips() {
+  const date    = gv('das-date');
+  const dir     = gr('das_dir') || 'tur';
+  const tripSel = g('das-trip');
+  if (!tripSel || !date) return;
+
+  const now     = new Date();
+  const today   = now.toISOString().slice(0, 10);
+  const isToday = date === today;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+
+  let autoSwitch = false;
+
+  ['c1', 'c2'].forEach(key => {
+    const opt    = [...tripSel.options].find(o => o.value === key);
+    const card   = g(`avail-card-${key}`);
+    const badge  = g(`avail-badge-${key}`);
+    const cutoff = TRIP_CUTOFFS[dir]?.[key];
+    const expired = isToday && cutoff !== undefined && nowMins >= cutoff;
+
+    if (opt) {
+      opt.disabled    = expired;
+      opt.textContent = expired ? `${TRIP_LABELS[key]} – indisponibilă` : TRIP_LABELS[key];
+    }
+    if (card)  card.classList.toggle('full', expired || card.classList.contains('full'));
+    if (expired && badge) { badge.className = 'avail-badge full'; badge.textContent = 'Indisponibilă'; }
+
+    if (expired && tripSel.value === key) autoSwitch = true;
+  });
+
+  if (autoSwitch) {
+    const next = [...tripSel.options].find(o => !o.disabled);
+    if (next) { tripSel.value = next.value; tripSel.dispatchEvent(new Event('change')); }
+  }
+}
+
+function updatePassengerLimits() {
+  const trip = gv('das-trip');
+  const tr   = gr('das_tr');
+  const disponibile = (tr === 'privat') ? 7 : (_availData?.[trip]?.disponibile ?? 7);
+  const maxTotal = Math.min(7, disponibile);
+
+  const adultsEl   = g('das-adults');
+  const childrenEl = g('das-children');
+  if (!adultsEl || !childrenEl) return;
+
+  const curAdults   = parseInt(adultsEl.value) || 1;
+  const curChildren = parseInt(childrenEl.value) || 0;
+
+  // Rebuild adults options: 1..maxTotal
+  const newMaxAdults = Math.max(1, maxTotal);
+  adultsEl.innerHTML = '';
+  for (let i = 1; i <= newMaxAdults; i++) {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = i === 1 ? '1 adult' : `${i} adulți`;
+    adultsEl.appendChild(o);
+  }
+  adultsEl.value = Math.min(curAdults, newMaxAdults);
+
+  // Rebuild children options: 0..(maxTotal - adults)
+  const adults = parseInt(adultsEl.value) || 1;
+  const maxChildren = Math.min(7, Math.max(0, maxTotal - adults));
+  childrenEl.innerHTML = '';
+  for (let i = 0; i <= maxChildren; i++) {
+    const o = document.createElement('option');
+    o.value = i;
+    o.textContent = i === 0 ? '0 copii' : i === 1 ? '1 copil' : `${i} copii`;
+    childrenEl.appendChild(o);
+  }
+  childrenEl.value = Math.min(curChildren, maxChildren);
+}
+
+function dasCheckAvailForTrip() {
+  const warn = g('das-avail-warn');
+  const btn  = g('das-continue-btn');
+  if (!warn || !_availData) return;
+
+  const trip     = gv('das-trip');
+  const adults   = parseInt(gv('das-adults')) || 1;
+  const children = parseInt(gv('das-children')) || 0;
+  const selected = adults + children;
+  const avail    = _availData[trip]?.disponibile;
+
+  warn.classList.remove('avail-ok');
+
+  if (avail === undefined || avail === null) {
+    warn.style.display = 'none';
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  if (avail === 0) {
+    warn.style.display = 'block';
+    warn.textContent = '⚠ Cursa selectată este completă. Te rugăm să alegi altă cursă sau dată.';
+    if (btn) btn.disabled = true;
+  } else if (selected > avail) {
+    warn.style.display = 'block';
+    warn.textContent = `⚠ Sunt disponibile doar ${avail} loc${avail > 1 ? 'uri' : ''} pe această cursă. Reduceți numărul de pasageri.`;
+    if (btn) btn.disabled = true;
+  } else if (avail <= 5) {
+    warn.style.display = 'block';
+    warn.classList.add('avail-ok');
+    warn.textContent = `✓ Sunt disponibile ${avail} loc${avail > 1 ? 'uri' : ''} pe această cursă.`;
+    if (btn) btn.disabled = false;
+  } else {
+    warn.style.display = 'none';
+    if (btn) btn.disabled = false;
+  }
+}
+
+let _buyer='pf';
+function dasBuyer(type){
+  _buyer=type;
+  g('das-tab-pf').classList.toggle('active',type==='pf');
+  g('das-tab-sc').classList.toggle('active',type==='sc');
+  if(g('das-pf-fields')) g('das-pf-fields').style.display=type==='pf'?'':'none';
+  if(g('das-sc-fields')) g('das-sc-fields').classList.toggle('visible',type==='sc');
+}
+
+function dasValidate(){
+  const date=gv('das-date');
+  if(!date){alert('Te rugăm să selectezi data călătoriei.');return false;}
+  if(new Date(date)<new Date(new Date().toDateString())){alert('Data selectată este în trecut.');return false;}
+  if(_buyer==='pf'){
+    if(!gv('das-name').trim()){alert('Te rugăm să completezi numele.');return false;}
+    if(!gv('das-phone').trim()){alert('Te rugăm să completezi telefonul.');return false;}
+    if(!gv('das-email').trim()||!gv('das-email').includes('@')){alert('Te rugăm să completezi un email valid.');return false;}
+  } else {
+    if(!gv('das-firma').trim()){alert('Te rugăm să completezi denumirea firmei.');return false;}
+    if(!gv('das-cui').trim()){alert('Te rugăm să completezi CUI-ul.');return false;}
+    if(!gv('das-contact-name').trim()){alert('Te rugăm să completezi persoana de contact.');return false;}
+    if(!gv('das-phone-sc').trim()){alert('Te rugăm să completezi telefonul.');return false;}
+    if(!gv('das-email-sc').trim()||!gv('das-email-sc').includes('@')){alert('Te rugăm să completezi un email valid.');return false;}
+  }
+  if(_retEnabled){
+    if(!gv('ret-date')){alert('Te rugăm să selectezi data returului.');return false;}
+    if(gv('ret-date')<date){alert('Data returului nu poate fi înainte de data turului.');return false;}
+    var retAv=_retAvail&&_retAvail[gv('ret-trip')]?_retAvail[gv('ret-trip')].disponibile:null;
+    var need=(parseInt(gv('das-adults'))||1)+(parseInt(gv('das-children'))||0);
+    if(retAv===0){alert('Cursa de retur selectată este completă. Alege altă cursă sau dată.');return false;}
+    if(retAv!==null&&need>retAv){alert('Pe cursa de retur sunt disponibile doar '+retAv+' locuri. Reduceți numărul de pasageri.');return false;}
+  }
+  return true;
+}
+
+async function dasGoToPayment(){
+  if(!dasValidate()) return;
+  const btn=g('das-continue-btn');
+  btn.disabled=true;
+  btn.innerHTML='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Se pregătește...';
+
+  try {
+    const dir=gr('das_dir'), tr=gr('das_tr'), apt=gv('das-apt'), trip=gv('das-trip'), pickup=gv('das-pickup');
+    const date=gv('das-date'), adults=parseInt(gv('das-adults'))||1, children=parseInt(gv('das-children'))||0, bags=parseInt(gv('das-bags'))||0;
+    const isTur=dir==='tur';
+    const sch=SCH[dir]?.[trip];
+    const ecoRate=apt==='baneasa'?140:120;
+    const childRate=apt==='baneasa'?85:75;
+    let total=0;
+    const aptLabel=APT_LABELS[apt];
+    const dirLabel=isTur?`Brașov → ${aptLabel}`:`${aptLabel} → Brașov`;
+    const trLabel={economy:'Economy (Shared)',privat:'Privat (Dedicat)'}[tr]||tr;
+    let depTime='', arrTime='';
+    if(isTur&&sch){depTime=sch.depart?.[pickup]||'';arrTime=sch.arrive?.[apt]||'';}
+    else if(!isTur&&sch){depTime=sch.depart?.[apt]||'';arrTime=sch.arrive_bv||'';}
+
+    let lineItems=[];
+    if(tr==='economy'){
+      const ac=adults*ecoRate, cc=children*childRate;
+      total+=ac+cc;
+      lineItems.push({name:`Economy ${dirLabel} – ${adults} adult(ți)`,description:`Cursa ${trip==='c1'?'1':'2'}, ${fmtDate(date)}, plecare ${depTime}`,amount:ac*100,quantity:1});
+      if(children>0) lineItems.push({name:`Copii (${children})`,description:'Tarif copil',amount:cc*100,quantity:1});
+    } else if(tr==='privat'){
+      const base=apt==='baneasa'?850:800;
+      total+=base;
+      lineItems.push({name:`Transfer Privat ${dirLabel}`,description:`${fmtDate(date)}, plecare ${depTime}`,amount:base*100,quantity:1});
+    }
+    if(bags>0){const bc=bags*20;total+=bc;lineItems.push({name:`Bagaje extra (${bags})`,description:'20 lei/bagaj',amount:bc*100,quantity:1});}
+
+    const name=_buyer==='pf'?gv('das-name'):gv('das-contact-name');
+    const phone=_buyer==='pf'?gv('das-phone'):gv('das-phone-sc');
+    const email=_buyer==='pf'?gv('das-email'):gv('das-email-sc');
+
+    const bookingData={dir,tr,apt,trip,pickup,date,adults,children,bags,total,dirLabel,trLabel,aptLabel,depTime,arrTime,pickupLabel:isTur?(PICKUP_LABELS[pickup]||pickup):aptLabel,name,phone,email,buyer:_buyer,obs:gv('das-obs'),confirmedAt:new Date().toISOString()};
+    if(_buyer==='sc') Object.assign(bookingData,{firma:gv('das-firma'),cui:gv('das-cui'),adresa:gv('das-adresa-firma')});
+    const paxNames=[];
+    document.querySelectorAll('input[id^="das-pax-"]').forEach(el=>{if(el.value.trim())paxNames.push(el.value.trim());});
+    if(paxNames.length) bookingData.paxNames=paxNames;
+    if(_retEnabled&&gv('ret-date')){
+      var rDir=dir==='tur'?'retur':'tur', rTrip=gv('ret-trip'), rDate=gv('ret-date'), rPickup=gv('ret-pickup');
+      var rSch=SCH[rDir]&&SCH[rDir][rTrip]?SCH[rDir][rTrip]:null;
+      var rDirLabel=rDir==='tur'?'Braşov → '+aptLabel:aptLabel+' → Braşov';
+      var rDep='',rArr='';
+      if(rDir==='tur'&&rSch){rDep=rSch.depart&&rSch.depart[rPickup]?rSch.depart[rPickup]:'';rArr=rSch.arrive&&rSch.arrive[apt]?rSch.arrive[apt]:'';}
+      else if(rSch){rDep=rSch.depart&&rSch.depart[apt]?rSch.depart[apt]:'';rArr=rSch.arrive_bv||'';}
+      bookingData.returnTrip={dir:rDir,tr,apt,trip:rTrip,pickup:rPickup,date:rDate,adults,children,bags,dirLabel:rDirLabel,trLabel,aptLabel,pickupLabel:rDir==='tur'?(PICKUP_LABELS[rPickup]||rPickup):aptLabel,depTime:rDep,arrTime:rArr};
+      var RM=1-RET_DISC;
+      if(tr==='economy'){
+        var rac=Math.round(adults*ecoRate*RM),rcc=Math.round(children*childRate*RM);
+        total+=rac+(children>0?rcc:0);
+        lineItems.push({name:'Economy '+rDirLabel+' – '+adults+' adult(ți) (retur -20%)',description:'Cursa '+(rTrip==='c1'?'1':'2')+', '+fmtDate(rDate)+', plecare '+rDep,amount:rac*100,quantity:1});
+        if(children>0) lineItems.push({name:'Copii retur ('+children+') -20%',description:'Tarif copil retur',amount:rcc*100,quantity:1});
+      } else if(tr==='privat'){
+        var rBase=Math.round((apt==='baneasa'?850:800)*RM);
+        total+=rBase;
+        lineItems.push({name:'Transfer Privat '+rDirLabel+' (retur -20%)',description:fmtDate(rDate)+', plecare '+rDep,amount:rBase*100,quantity:1});
+      }
+      if(bags>0){var rbc=Math.round(bags*20*RM);total+=rbc;lineItems.push({name:'Bagaje extra retur ('+bags+') -20%',description:'16 lei/bagaj',amount:rbc*100,quantity:1});}
+      bookingData.total=total;
+    }
+    if(sigIsEmpty()){alert('Te rugăm să adaugi semnătura electronică înainte de confirmare.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
+    if(!document.getElementById('sig-agree-cb').checked){alert('Te rugăm să bifezi acordul cu Termenii și Condițiile.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
+    if(!sigIsEmpty()) { bookingData.signatureDataUrl=sigDataURL(); bookingData.signedAt=new Date().toISOString(); }
+
+    // Plată online — Stripe sau Netopia
+    const endpoint = _payMethod === 'netopia'
+      ? `${SERVER}/api/netopia-initiate`
+      : `${SERVER}/api/create-checkout-session`;
+    const body = _payMethod === 'netopia'
+      ? JSON.stringify({ meta: bookingData, customerEmail: email })
+      : JSON.stringify({ lineItems, meta: bookingData, customerEmail: email, voucherCode: _voucherCode || undefined });
+
+    const chRes = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body
+    });
+    if(!chRes.ok){
+      const text = await chRes.text();
+      throw new Error(`Eroare server ${chRes.status}: ${text.substring(0,200)}`);
+    }
+    const { url, error } = await chRes.json();
+    if(error) throw new Error(error);
+    if(!url) throw new Error('Nu s-a primit URL-ul de plată. Încearcă din nou.');
+    dasSaveState();
+    var _s=Object.assign({},bookingData);delete _s.signatureDataUrl;sessionStorage.setItem('das_booking_summary',JSON.stringify(_s));
+    window.location.href = url;
+  } catch(err){
+    alert('A apărut o eroare:\n\n' + err.message + '\n\nContactează-ne pe WhatsApp dacă problema persistă.');
+    btn.disabled = false;
+    btn.innerHTML = '✈ Continuă spre plată securizată';
+    retUpdateBtn();
+  }
+}
+
+let _payMethod = 'online';
+function dasSetPayMethod(method) {
+  _payMethod = method;
+  g('pay-online-lbl').classList.toggle('active', method === 'online');
+  g('pay-netopia-lbl').classList.toggle('active', method === 'netopia');
+  g('pay-cash-lbl').classList.toggle('active', method === 'cash');
+  const btn = g('das-continue-btn');
+  if (method === 'cash') btn.innerHTML = '✈ Confirmă rezervarea (plată la îmbarcare)';
+  else btn.innerHTML = '✈ Continuă spre plată securizată';
+  retUpdateBtn();
+}
+
+function dasSubmit() {
+  if (_payMethod === 'cash') { dasPayCash(); } else { dasGoToPayment(); }
+}
+
+async function dasPayCash() {
+  if (!dasValidate()) return;
+  const btn = g('das-continue-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Se trimite rezervarea...';
+
+  try {
+    const dir=gr('das_dir'), tr=gr('das_tr'), apt=gv('das-apt'), trip=gv('das-trip'), pickup=gv('das-pickup');
+    const date=gv('das-date'), adults=parseInt(gv('das-adults'))||1, children=parseInt(gv('das-children'))||0, bags=parseInt(gv('das-bags'))||0;
+    const isTur=dir==='tur';
+    const sch=SCH[dir]?.[trip];
+    const ecoRate=apt==='baneasa'?140:120;
+    const childRate=apt==='baneasa'?85:75;
+    let total=0;
+    const aptLabel=APT_LABELS[apt];
+    const dirLabel=isTur?`Brașov → ${aptLabel}`:`${aptLabel} → Brașov`;
+    const trLabel={economy:'Economy (Shared)',privat:'Privat (Dedicat)'}[tr]||tr;
+    let depTime='', arrTime='';
+    if(isTur&&sch){depTime=sch.depart?.[pickup]||'';arrTime=sch.arrive?.[apt]||'';}
+    else if(!isTur&&sch){depTime=sch.depart?.[apt]||'';arrTime=sch.arrive_bv||'';}
+    if(tr==='economy'){const ac=adults*ecoRate,cc=children*childRate;total+=ac+cc;}
+    else if(tr==='privat'){total+=apt==='baneasa'?850:800;}
+    if(bags>0){total+=bags*20;}
+
+    const name=_buyer==='pf'?gv('das-name'):gv('das-contact-name');
+    const phone=_buyer==='pf'?gv('das-phone'):gv('das-phone-sc');
+    const email=_buyer==='pf'?gv('das-email'):gv('das-email-sc');
+    const bookingData={dir,tr,apt,trip,pickup,date,adults,children,bags,total,dirLabel,trLabel,aptLabel,depTime,arrTime,pickupLabel:isTur?(PICKUP_LABELS[pickup]||pickup):aptLabel,name,phone,email,buyer:_buyer,obs:gv('das-obs'),payMethod:'cash',confirmedAt:new Date().toISOString()};
+    if(_buyer==='sc') Object.assign(bookingData,{firma:gv('das-firma'),cui:gv('das-cui'),adresa:gv('das-adresa-firma')});
+    if(_retEnabled&&gv('ret-date')){
+      var rDir=dir==='tur'?'retur':'tur', rTrip=gv('ret-trip'), rDate=gv('ret-date'), rPickup=gv('ret-pickup');
+      var rSch=SCH[rDir]&&SCH[rDir][rTrip]?SCH[rDir][rTrip]:null;
+      var rAptLabel=APT_LABELS[apt];
+      var rDirLabel=rDir==='tur'?'Braşov → '+rAptLabel:rAptLabel+' → Braşov';
+      var rDep='',rArr='';
+      if(rDir==='tur'&&rSch){rDep=rSch.depart&&rSch.depart[rPickup]?rSch.depart[rPickup]:'';rArr=rSch.arrive&&rSch.arrive[apt]?rSch.arrive[apt]:'';}
+      else if(rSch){rDep=rSch.depart&&rSch.depart[apt]?rSch.depart[apt]:'';rArr=rSch.arrive_bv||'';}
+      var RM=1-RET_DISC;
+      if(tr==='economy'){total+=Math.round(adults*ecoRate*RM)+Math.round(children*childRate*RM);}
+      else if(tr==='privat'){total+=Math.round((apt==='baneasa'?850:800)*RM);}
+      if(bags>0){total+=Math.round(bags*20*RM);}
+      bookingData.returnTrip={dir:rDir,tr,apt,trip:rTrip,pickup:rPickup,date:rDate,adults,children,bags,dirLabel:rDirLabel,trLabel,aptLabel:rAptLabel,pickupLabel:rDir==='tur'?(PICKUP_LABELS[rPickup]||rPickup):rAptLabel,depTime:rDep,arrTime:rArr};
+      bookingData.total=total;
+    }
+
+    // Colectează numele pasagerilor
+    const paxNames=[];
+    document.querySelectorAll('input[id^="das-pax-"]').forEach(el=>{if(el.value.trim())paxNames.push(el.value.trim());});
+    if(paxNames.length) bookingData.paxNames=paxNames;
+    if(sigIsEmpty()){alert('Te rugăm să adaugi semnătura electronică înainte de confirmare.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
+    if(!document.getElementById('sig-agree-cb').checked){alert('Te rugăm să bifezi acordul cu Termenii și Condițiile.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
+    bookingData.signatureDataUrl=sigDataURL(); bookingData.signedAt=new Date().toISOString();
+
+    const res = await fetch(`${SERVER}/api/reserve-cash`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ meta: bookingData, customerEmail: email })
+    });
+    if (!res.ok) { const t=await res.text(); throw new Error(`Eroare server ${res.status}: ${t.substring(0,200)}`); }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const token = data.token || '';
+    var _s=Object.assign({},bookingData);delete _s.signatureDataUrl;sessionStorage.setItem('das_booking_summary',JSON.stringify(_s));
+    window.location.href = `/rezervare-confirmata?email=${encodeURIComponent(email)}&cash=1${token?`&token=${token}`:''}`;
+  } catch(err) {
+    alert('A apărut o eroare:\n\n' + err.message + '\n\nContactează-ne pe WhatsApp dacă problema persistă.');
+    btn.disabled = false;
+    btn.innerHTML = '✈ Confirmă rezervarea (plată la îmbarcare)';
+    retUpdateBtn();
+  }
+}
+
+function toggleFaq(btn){
+  btn.closest('.faq-item').classList.toggle('open');
+}
+
+window.addEventListener("scroll",function(){document.getElementById("nav").classList.toggle("scrolled",window.scrollY>40);});
+function toggleMenu(){
+  document.getElementById('nav-links').classList.toggle('open');
+}
+
+// Reveal animations
+document.querySelectorAll('.reveal').forEach(el=>{
+  new IntersectionObserver(([e])=>{if(e.isIntersecting)el.classList.add('visible');},{threshold:0.1}).observe(el);
+});
+setTimeout(()=>{document.querySelectorAll('.reveal:not(.visible)').forEach(el=>el.classList.add('visible'));},600);
+
+// Set min date to today
+const dateInput=g('das-date');
+if(dateInput) dateInput.min=new Date().toISOString().split('T')[0];
+
+// Pre-select package from URL param
+const _trParam = new URLSearchParams(window.location.search).get('pachet');
+if(_trParam){const _radio=document.querySelector(`input[name="das_tr"][value="${_trParam}"]`);if(_radio&&!_radio.disabled){_radio.checked=true;dasUpdate();updatePassengerLimits();}}
+
+// Afișează overlay dacă utilizatorul revine după o plată finalizată
+if(sessionStorage.getItem('das_booking_done')==='1'){
+  sessionStorage.removeItem('das_booking_done');
+  const ov=document.getElementById('booking-done-overlay');
+  if(ov) ov.style.display='flex';
+}
+
+// Init — restaurează starea dacă utilizatorul s-a întors din Stripe
+if(!dasRestoreState()) dasUpdate();
+
+/* ── Return trip ── */
+function retCalcSavings() {
+  if(!_retEnabled||!gv('ret-date')) return 0;
+  var tr=gr('das_tr'),apt=gv('das-apt');
+  var adults=parseInt(gv('das-adults'))||1,children=parseInt(gv('das-children'))||0,bags=parseInt(gv('das-bags'))||0;
+  var ecoRate=apt==='baneasa'?140:120,childRate=apt==='baneasa'?85:75;
+  var full=0;
+  if(tr==='economy') full=adults*ecoRate+children*childRate;
+  else if(tr==='privat') full=apt==='baneasa'?850:800;
+  full+=bags*20;
+  return Math.round(full*RET_DISC);
+}
+
+function retUpdateBtn() {
+  var btn=g('das-continue-btn');
+  if(!btn||btn.querySelector('svg')) return;
+  var old=btn.querySelector('.ret-save-tag');
+  if(old) old.remove();
+  var s=retCalcSavings();
+  if(s>0){
+    var tag=document.createElement('span');
+    tag.className='ret-save-tag';
+    tag.style.cssText='font-size:.73rem;background:rgba(15,30,61,.18);border-radius:20px;padding:3px 11px;margin-left:8px;font-weight:700;vertical-align:middle;white-space:nowrap';
+    tag.textContent='🏷 −'+s+' lei';
+    btn.appendChild(tag);
+  }
+}
+
+function retDir() { return gr('das_dir')==='tur'?'retur':'tur'; }
+
+function retToggle() {
+  _retEnabled = !_retEnabled;
+  var det=g('ret-details'), sw=g('ret-sw'), inn=g('ret-toggle-inner');
+  if(det) det.classList.toggle('das-hide',!_retEnabled);
+  if(sw) sw.classList.toggle('on',_retEnabled);
+  if(inn) inn.classList.toggle('active',_retEnabled);
+  if(_retEnabled) retSync();
+  dasCalcPrice();
+}
+
+function retSync() {
+  var rd=retDir(), apt=gv('das-apt'), tr=gr('das_tr');
+  var adults=parseInt(gv('das-adults'))||1, children=parseInt(gv('das-children'))||0;
+  var rdl=rd==='tur'?'Braşov → '+APT_LABELS[apt]:APT_LABELS[apt]+' → Braşov';
+  var trl={economy:'Economy',privat:'Privat'}[tr]||tr;
+  var pxl=adults+(children>0?' adult(ți) + '+children+' copil':' adult(ți)');
+  if(g('ret-dir-lbl')) g('ret-dir-lbl').textContent=rdl;
+  if(g('ret-tr-lbl'))  g('ret-tr-lbl').textContent=trl;
+  if(g('ret-pax-lbl')) g('ret-pax-lbl').textContent=pxl;
+  var pr=g('ret-pickup-row');
+  if(pr) pr.classList.toggle('das-hide',rd!=='tur');
+  retSyncMinDate();
+  retUpdate();
+}
+
+function retSyncMinDate() {
+  var md=gv('das-date'), ri=g('ret-date');
+  if(!ri||!md) return;
+  ri.min=md;
+  if(ri.value&&ri.value<md){
+    ri.value='';
+    if(g('ret-date-txt')) g('ret-date-txt').value='';
+    _retAvail=null;
+    ['c1','c2'].forEach(function(k){var c=g('ret-ac-'+k);if(c)c.classList.add('das-hide');});
+  }
+}
+
+function retUpdate() {
+  if(!_retEnabled) return;
+  var rd=retDir(), apt=gv('das-apt'), rTrip=gv('ret-trip'), rPickup=gv('ret-pickup');
+  var sch=SCH[rd]&&SCH[rd][rTrip]?SCH[rd][rTrip]:null;
+  if(rd==='tur'&&sch&&sch.depart){
+    var sel=g('ret-pickup');
+    if(sel){
+      sel.options[0].text='Sala Sporturilor (B-dul Gării) – '+(sch.depart.sala||'');
+      sel.options[1].text='Petrom Calea Bucureşti (McDonald\'s) – '+(sch.depart.petrom||'');
+      sel.options[2].text='OMV Dârste (vis-a-vis Ramada) – '+(sch.depart.omv||'');
+    }
+  }
+  var info='';
+  if(rd==='tur'&&sch)
+    info='<strong>Plecare:</strong> '+(sch.depart&&sch.depart[rPickup]?sch.depart[rPickup]:'')+' din '+(PICKUP_LABELS[rPickup]||'')+' → <strong>Sosire:</strong> '+(sch.arrive&&sch.arrive[apt]?sch.arrive[apt]:'')+' la '+APT_LABELS[apt];
+  else if(sch)
+    info='<strong>Plecare:</strong> '+(sch.depart&&sch.depart[apt]?sch.depart[apt]:'')+' din '+APT_LABELS[apt]+' → <strong>Sosire:</strong> '+(sch.arrive_bv||'')+' la Braşov';
+  if(g('ret-info-txt')) g('ret-info-txt').innerHTML=info||'Selectează data returului pentru a vedea orarul.';
+  retFilterExpired();
+  retCheckAvail();
+  retUpdateBadge();
+  dasCalcPrice();
+}
+
+async function retFetchAvail() {
+  var date=gv('ret-date'), dir=retDir();
+  if(!date) return;
+  ['c1','c2'].forEach(function(k){var c=g('ret-ac-'+k);if(c)c.classList.add('das-hide');});
+  retFilterExpired();
+  try {
+    var res=await fetch(API_BASE+'/api/availability?date='+date+'&direction='+dir);
+    _retAvail=await res.json();
+    retRenderAvail();
+  } catch(e){ _retAvail=null; }
+  retUpdate();
+}
+
+function retRenderAvail() {
+  if(!_retAvail) return;
+  var dir=retDir();
+  var times={tur:{c1:'01:30',c2:'14:00'},retur:{c1:'07:00',c2:'19:30'}};
+  ['c1','c2'].forEach(function(key){
+    var info=_retAvail[key];
+    var card=g('ret-ac-'+key), badge=g('ret-ab-'+key), timeEl=g('ret-at-'+key);
+    if(!card||!badge||!timeEl) return;
+    timeEl.textContent=(times[dir]&&times[dir][key])||'—';
+    card.classList.remove('das-hide');
+    if(!info){badge.className='avail-badge';badge.textContent='—';return;}
+    var n=info.disponibile;
+    card.classList.toggle('full',n===0);
+    if(n===0){badge.className='avail-badge full';badge.textContent='Complet';}
+    else if(n<=2){badge.className='avail-badge low';badge.textContent=n+' loc'+(n>1?'uri':'');}
+    else{badge.className='avail-badge ok';badge.textContent=n+' locuri';}
+  });
+  retCheckAvail();
+  retUpdateBadge();
+}
+
+function retFilterExpired() {
+  var date=gv('ret-date'), dir=retDir(), sel=g('ret-trip');
+  if(!sel||!date) return;
+  var now=new Date(), today=now.toISOString().slice(0,10);
+  var isToday=date===today, nowM=now.getHours()*60+now.getMinutes();
+  var doSwitch=false;
+  ['c1','c2'].forEach(function(key){
+    var opt=[].slice.call(sel.options).find(function(o){return o.value===key;});
+    var cutoff=TRIP_CUTOFFS[dir]&&TRIP_CUTOFFS[dir][key];
+    var exp=isToday&&cutoff!==undefined&&nowM>=cutoff;
+    if(opt){opt.disabled=exp;opt.textContent=exp?TRIP_LABELS[key]+' – indisponibilă':TRIP_LABELS[key];}
+    if(exp&&sel.value===key) doSwitch=true;
+  });
+  if(doSwitch){var nxt=[].slice.call(sel.options).find(function(o){return !o.disabled;});if(nxt) sel.value=nxt.value;}
+}
+
+function retUpdateBadge() {
+  var badge=g('ret-seats');
+  if(!badge) return;
+  var trip=gv('ret-trip');
+  if(!trip||!_retAvail){badge.textContent='— locuri';badge.className='das-seats gray';return;}
+  dasRenderSeatsBadge(badge,_retAvail,trip);
+}
+
+function retCheckAvail() {
+  var warn=g('ret-warn');
+  if(!warn) return;
+  warn.classList.remove('avail-ok');
+  if(!_retAvail){warn.style.display='none';return;}
+  var trip=gv('ret-trip');
+  var adults=parseInt(gv('das-adults'))||1, children=parseInt(gv('das-children'))||0;
+  var need=adults+children;
+  var avail=_retAvail[trip]?_retAvail[trip].disponibile:null;
+  if(avail===undefined||avail===null){warn.style.display='none';return;}
+  if(avail===0){warn.style.display='block';warn.textContent='⚠ Cursa de retur selectată este completă. Alege altă cursă sau dată.';}
+  else if(need>avail){warn.style.display='block';warn.textContent='⚠ Sunt disponibile doar '+avail+' loc'+(avail>1?'uri':'')+' pe cursa de retur.';}
+  else if(avail<=5){warn.style.display='block';warn.classList.add('avail-ok');warn.textContent='✓ Sunt disponibile '+avail+' loc'+(avail>1?'uri':'')+' pe cursa de retur.';}
+  else{warn.style.display='none';}
+}
+
+/* ── Signature Pad ── */
+let _sigPad = null;
+function sigInit() {
+  const canvas = document.getElementById('sig-canvas');
+  if (!canvas || _sigPad) return;
+  // Scalează canvas la rezoluția reală a dispozitivului
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+  canvas.width  = canvas.offsetWidth  * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  canvas.getContext('2d').scale(ratio, ratio);
+  _sigPad = new SignaturePad(canvas, { penColor: '#0f1e3d', minWidth: 1, maxWidth: 2.5 });
+  _sigPad.addEventListener('beginStroke', () => {
+    document.getElementById('sig-placeholder').style.display = 'none';
+  });
+}
+function sigClear() {
+  if (_sigPad) { _sigPad.clear(); document.getElementById('sig-placeholder').style.display = ''; }
+}
+function sigIsEmpty() { return !_sigPad || _sigPad.isEmpty(); }
+function sigDataURL() { return _sigPad ? _sigPad.toDataURL('image/png') : null; }
+
+// Inițializare la scroll spre zona de semnătură
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('sig-canvas');
+  if (!canvas) return;
+  const obs = new IntersectionObserver(entries => { if (entries[0].isIntersecting) { sigInit(); obs.disconnect(); } }, { threshold: 0.1 });
+  obs.observe(canvas);
+  // Fallback: inițializare la 1s dacă nu e vizibil
+  setTimeout(sigInit, 1000);
+});
+</script>
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</body>
+</html>
