@@ -13,6 +13,8 @@ const express    = require('express');
 const cors       = require('cors');
 const crypto     = require('crypto');
 const https      = require('https');
+const fs         = require('fs');
+const path       = require('path');
 const stripe     = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const nodemailer = require('nodemailer');
 const PDFDocument = require('pdfkit');
@@ -126,9 +128,21 @@ https.get('https://delta-air.ro/img/logo-p3.png', res => {
   });
 }).on('error', e => console.warn('⚠️ Logo PDF indisponibil:', e.message));
 
-/* ── Înlocuire diacritice pentru PDF (Helvetica nu suportă UTF-8) ── */
+/* ── Font Unicode pentru PDF (suport diacritice românești) ── */
+let PDF_FONT_REG  = null;
+let PDF_FONT_BOLD = null;
+try {
+  PDF_FONT_REG  = fs.readFileSync(path.join(__dirname, 'fonts', 'NotoSans-Regular.ttf'));
+  PDF_FONT_BOLD = fs.readFileSync(path.join(__dirname, 'fonts', 'NotoSans-Bold.ttf'));
+  console.log('✅ Fonturi Unicode PDF încărcate (NotoSans)');
+} catch (e) {
+  console.warn('⚠️ Fonturi Unicode PDF indisponibile — se folosește Helvetica fără diacritice:', e.message);
+}
+
+/* ── ro() — transliterare diacritice (folosit doar dacă fontul Unicode lipsește) ── */
 function ro(str) {
   if (!str) return '';
+  if (PDF_FONT_REG) return String(str);
   return String(str)
     .replace(/ă/g,'a').replace(/Ă/g,'A')
     .replace(/â/g,'a').replace(/Â/g,'A')
@@ -829,10 +843,11 @@ function generateContractPDF(meta) {
     const rCui         = ro(cui);
     const rPaxNames    = paxNames.map(ro);
 
-    const fReg  = 'Helvetica';
-    const fBold = 'Helvetica-Bold';
-
     const doc = new PDFDocument({ size: 'A4', margin: 50, bufferPages: true });
+    if (PDF_FONT_REG)  doc.registerFont('DASReg',  PDF_FONT_REG);
+    if (PDF_FONT_BOLD) doc.registerFont('DASBold', PDF_FONT_BOLD);
+    const fReg  = PDF_FONT_REG  ? 'DASReg'  : 'Helvetica';
+    const fBold = PDF_FONT_BOLD ? 'DASBold' : 'Helvetica-Bold';
     const chunks = [];
     doc.on('data', c => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -1147,8 +1162,6 @@ function generateContractPDF(meta) {
 /* ──────────────────────────────────────────────
    generateInvoicePDF(meta, invoiceNum) → Promise<Buffer>
 ────────────────────────────────────────────── */
-const fs = require('fs');
-const path = require('path');
 let INVOICE_LOGO_BUFFER = null;
 try {
   INVOICE_LOGO_BUFFER = fs.readFileSync(path.join(__dirname, 'invoice-logo.png'));
@@ -1205,6 +1218,8 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       const clientName = isFirma ? meta.firma : (meta.name || '-');
 
       const doc = new PDFDocument({ size: 'A4', margin: 0, bufferPages: true });
+      if (PDF_FONT_REG)  doc.registerFont('DASReg',  PDF_FONT_REG);
+      if (PDF_FONT_BOLD) doc.registerFont('DASBold', PDF_FONT_BOLD);
       const chunks = [];
       doc.on('data', c => chunks.push(c));
       doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -1213,7 +1228,8 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       const W = 595.28, H = 841.89;
       const M = 50;
       const navy = '#0f1e3d', gold = '#c9a84c', gray = '#4a5568', lgray = '#718096', light = '#f7f9fc';
-      const fBold = 'Helvetica-Bold', fReg = 'Helvetica';
+      const fBold = PDF_FONT_BOLD ? 'DASBold' : 'Helvetica-Bold';
+      const fReg  = PDF_FONT_REG  ? 'DASReg'  : 'Helvetica';
 
       // ── Fundal alb ──
       doc.rect(0, 0, W, H).fill('#ffffff');
