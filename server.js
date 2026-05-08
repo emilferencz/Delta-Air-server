@@ -73,6 +73,7 @@ async function initDB() {
       created_at  TIMESTAMPTZ  DEFAULT NOW()
     )
   `);
+  await db.query(`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS meta_json TEXT`);
   console.log('✅ DB bookings table gata');
 }
 
@@ -109,10 +110,11 @@ async function recordBooking(meta) {
   const passengers = tr === 'privat'
     ? CAPACITY
     : (parseInt(meta.adults || 1) + parseInt(meta.children || 0));
+  const _metaClean = (m) => { const c={...m}; delete c.signatureDataUrl; return c; };
   await db.query(
-    `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
-    [date, tripTime, dir, passengers, tr || 'economy', meta.name || '']
+    `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [date, tripTime, dir, passengers, tr || 'economy', meta.name || '', JSON.stringify(_metaClean(meta))]
   );
   console.log(`📋 Booking înregistrat: ${date} ${tripTime} ${dir} — ${passengers} loc(uri)`);
 
@@ -121,9 +123,9 @@ async function recordBooking(meta) {
     const rtTime = TRIP_TIMES[rt.dir]?.[rt.trip];
     if (rtTime) {
       await db.query(
-        `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [rt.date, rtTime, rt.dir, passengers, tr || 'economy', meta.name || '']
+        `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [rt.date, rtTime, rt.dir, passengers, tr || 'economy', meta.name || '', JSON.stringify({..._metaClean(meta), _isReturnTrip: true})]
       );
       console.log(`📋 Booking retur înregistrat: ${rt.date} ${rtTime} ${rt.dir} — ${passengers} loc(uri)`);
     }
@@ -1850,6 +1852,95 @@ app.get('/health', (_req, res) => {
     netopiaApiKey:   process.env.NETOPIA_API_KEY ? `set (${process.env.NETOPIA_API_KEY.slice(0,6)}...)` : 'NOT SET',
     netopiaSignature:process.env.NETOPIA_SIGNATURE ? `set (${process.env.NETOPIA_SIGNATURE.slice(0,4)}...)` : 'NOT SET',
   });
+});
+
+/* ══════════════════════════════════════════════════════════════
+   ADMIN API — autentificare simplă + CRUD rezervări
+   Env vars: ADMIN_USER, ADMIN_PASS, ADMIN_SECRET
+══════════════════════════════════════════════════════════════ */
+const ADMIN_USER   = process.env.ADMIN_USER   || 'admin';
+const ADMIN_PASS   = process.env.ADMIN_PASS   || 'deltaair2026';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'das-admin-secret-2026';
+const ADMIN_TTL    = 12 * 60 * 60 * 1000; // 12 ore
+
+function genAdminToken() {
+  const ts = Date.now().toString();
+  const sig = crypto.createHmac('sha256', ADMIN_SECRET).update(ts).digest('hex');
+  return `${ts}.${sig}`;
+}
+function checkAdminToken(token) {
+  try {
+    const [ts, sig] = (token || '').split('.');
+    if (!ts || !sig) return false;
+    if (Date.now() - parseInt(ts) > ADMIN_TTL) return false;
+    const exp = crypto.createHmac('sha256', ADMIN_SECRET).update(ts).digest('hex');
+    return crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(exp, 'hex'));
+  } catch { return false; }
+}
+function adminAuth(req, res, next) {
+  const tok = (req.headers.authorization || '').replace('Bearer ', '').trim();
+  if (!checkAdminToken(tok)) return res.status(401).json({ error: 'Neautorizat.' });
+  next();
+}
+
+/* POST /api/admin/login */
+app.post('/api/admin/login', express.json(), (req, res) => {
+  const { user, pass } = req.body || {};
+  if (user !== ADMIN_USER || pass !== ADMIN_PASS)
+    return res.status(401).json({ error: 'Credențiale incorecte.' });
+  res.json({ token: genAdminToken() });
+});
+
+/* GET /api/admin/bookings?from=YYYY-MM-DD&to=YYYY-MM-DD */
+app.get('/api/admin/bookings', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { from = '2020-01-01', to = '2030-12-31' } = req.query;
+  try {
+    const { rows } = await db.query(
+      `SELECT id, trip_date, trip_time, direction, passengers, transfer_type,
+              booking_ref, status, created_at, meta_json
+       FROM bookings
+       WHERE trip_date BETWEEN $1 AND $2
+       ORDER BY trip_date ASC, trip_time ASC`,
+      [from, to]
+    );
+    res.json(rows.map(r => {
+      let meta = {};
+      try { if (r.meta_json) meta = JSON.parse(r.meta_json); } catch {}
+      return { id: r.id, trip_date: r.trip_date, trip_time: r.trip_time,
+               direction: r.direction, passengers: r.passengers,
+               transfer_type: r.transfer_type, booking_ref: r.booking_ref,
+               status: r.status, created_at: r.created_at, meta };
+    }));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* PUT /api/admin/booking/:id */
+app.put('/api/admin/booking/:id', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { id } = req.params;
+  const { trip_date, trip_time, direction, passengers, transfer_type,
+          booking_ref, status, meta } = req.body || {};
+  try {
+    await db.query(
+      `UPDATE bookings SET trip_date=$1, trip_time=$2, direction=$3, passengers=$4,
+         transfer_type=$5, booking_ref=$6, status=$7, meta_json=$8
+       WHERE id=$9`,
+      [trip_date, trip_time, direction, parseInt(passengers) || 1,
+       transfer_type, booking_ref, status,
+       meta ? JSON.stringify(meta) : null, id]
+    );
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* DELETE /api/admin/booking/:id  (soft delete — status = 'cancelled') */
+app.delete('/api/admin/booking/:id', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    await db.query(`UPDATE bookings SET status='cancelled' WHERE id=$1`, [req.params.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.listen(PORT, () => {
