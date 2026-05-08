@@ -115,6 +115,19 @@ async function recordBooking(meta) {
     [date, tripTime, dir, passengers, tr || 'economy', meta.name || '']
   );
   console.log(`📋 Booking înregistrat: ${date} ${tripTime} ${dir} — ${passengers} loc(uri)`);
+
+  const rt = meta.returnTrip;
+  if (rt?.date && rt?.dir && rt?.trip) {
+    const rtTime = TRIP_TIMES[rt.dir]?.[rt.trip];
+    if (rtTime) {
+      await db.query(
+        `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [rt.date, rtTime, rt.dir, passengers, tr || 'economy', meta.name || '']
+      );
+      console.log(`📋 Booking retur înregistrat: ${rt.date} ${rtTime} ${rt.dir} — ${passengers} loc(uri)`);
+    }
+  }
 }
 
 /* ── Cache logo Delta Air pentru PDF ── */
