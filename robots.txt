@@ -6,3 +6,4 @@ Disallow: /mapped_urls/
 Disallow: /rezervare-confirmata/
 
 Sitemap: https://delta-air.ro/sitemap.xml
+<!-- sync test Sat, May  9, 2026 02:17:59 -->
