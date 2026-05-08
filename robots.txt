@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /_pgbackup/
+Disallow: /mapped_urls/
+Disallow: /rezervare-confirmata/
+
+Sitemap: https://delta-air.ro/sitemap.xml

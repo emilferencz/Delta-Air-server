@@ -587,6 +587,15 @@ app.post('/api/netopia-notify',
   }
 );
 
+/* ── Redirect transfer-brasov-aeroport.ro → delta-air.ro ── */
+app.use((req, res, next) => {
+  const h = req.hostname;
+  if (h === 'transfer-brasov-aeroport.ro' || h === 'www.transfer-brasov-aeroport.ro') {
+    return res.redirect(301, `https://delta-air.ro${req.originalUrl}`);
+  }
+  next();
+});
+
 /* ── Rest middleware (după webhook!) ── */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

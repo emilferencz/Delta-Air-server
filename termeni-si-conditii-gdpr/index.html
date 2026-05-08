@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/jpeg" href="/img/favicon.jpg">
+  <meta property="og:image" content="https://delta-air.ro/img/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://delta-air.ro/img/og-image.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Termeni și Condiții · GDPR – Delta Air Shuttle</title>
+  <meta name="description" content="Termenii și condițiile de utilizare a serviciilor Delta Air Shuttle și Politica de confidențialitate (GDPR). Transfer aeroport Brașov–Otopeni–Băneasa.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://delta-air.ro/termeni-si-conditii-gdpr">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/pages.css">
+  <style>
+    /* ── Tab switch ── */
+    .tabs-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 12px 28px; border-radius: 100px; border: 2px solid rgba(26,47,94,.2);
+      background: #fff; font-family: 'Poppins', sans-serif; font-size: .88rem; font-weight: 600;
+      color: var(--navy); cursor: pointer; transition: all .2s;
+    }
+    .tab-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+    .tab-btn:hover:not(.active) { border-color: var(--navy); background: rgba(26,47,94,.05); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Conținut legal ── */
+    .legal-wrap { max-width: 860px; margin: 0 auto; }
+    .legal-section { margin-bottom: 48px; }
+    .legal-section h2 {
+      font-size: 1.15rem; font-weight: 800; color: var(--navy);
+      padding: 14px 20px; background: rgba(26,47,94,.06);
+      border-left: 4px solid var(--gold); border-radius: 0 10px 10px 0;
+      margin-bottom: 20px;
+    }
+    .legal-section h3 {
+      font-size: .96rem; font-weight: 700; color: var(--navy); margin: 20px 0 8px;
+    }
+    .legal-section p, .legal-section li {
+      font-size: .9rem; color: #444; line-height: 1.85;
+    }
+    .legal-section ul, .legal-section ol {
+      padding-left: 22px; margin: 10px 0 10px;
+    }
+    .legal-section li { margin-bottom: 6px; }
+    .legal-section strong { color: var(--navy); }
+
+    /* ── Info box ── */
+    .info-box {
+      background: rgba(26,47,94,.05); border: 1px solid rgba(26,47,94,.15);
+      border-radius: 12px; padding: 20px 24px; margin-bottom: 32px;
+      font-size: .88rem; color: #444; line-height: 1.8;
+    }
+    .info-box strong { color: var(--navy); display: block; margin-bottom: 6px; }
+
+    /* ── Tabel ── */
+    .legal-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 16px 0 24px; }
+    .legal-table th {
+      background: var(--navy); color: #fff; padding: 12px 16px;
+      text-align: left; font-weight: 600; font-size: .8rem;
+    }
+    .legal-table th:first-child { border-radius: 8px 0 0 0; }
+    .legal-table th:last-child  { border-radius: 0 8px 0 0; }
+    .legal-table td { padding: 11px 16px; border-bottom: 1px solid rgba(26,47,94,.08); color: #444; vertical-align: top; }
+    .legal-table tr:hover td { background: rgba(26,47,94,.03); }
+
+    /* ── Update badge ── */
+    .update-note {
+      text-align: center; font-size: .8rem; color: var(--gray);
+      margin-top: 48px; padding-top: 24px;
+      border-top: 1px solid rgba(26,47,94,.1);
+    }
+
+    @media (max-width: 600px) {
+      .legal-section h2 { font-size: 1rem; padding: 12px 16px; }
+      .legal-table { font-size: .8rem; }
+      .legal-table td, .legal-table th { padding: 9px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="nav-logo"><a href="/"><img src="../img/logo-p3.png" alt="Delta Air Shuttle"></a></div>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="/">Acasă</a></li>
+    <li><a href="/despre-noi">Despre noi</a></li>
+    <li><a href="/rezervari">Rezervări</a></li>
+    <li><a href="/lista-de-preturi">Prețuri</a></li>
+    <li><a href="/realizari">Realizări</a></li>
+    <li><a href="/blog">Blog</a></li>
+    <li><a href="/contact">Contact</a></li>
+    <li><a href="/rezervari" class="nav-cta">Rezervă acum ✈</a></li>
+  </ul>
+  <div class="nav-burger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-badge">⚖️ Documente legale</div>
+    <h1>Termeni, Condiții &amp; GDPR</h1>
+    <p>Informații transparente despre serviciile noastre, drepturile tale și modul în care protejăm datele cu caracter personal.</p>
+  </div>
+</div>
+
+<section class="section section-alt">
+  <div class="container">
+
+    <!-- Tab buttons -->
+    <div class="tabs-wrap">
+      <button class="tab-btn active" onclick="switchTab('tc', this)">📋 Termeni și Condiții</button>
+      <button class="tab-btn" onclick="switchTab('gdpr', this)">🔒 Politica de Confidențialitate (GDPR)</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TAB 1: TERMENI ȘI CONDIȚII
+    ══════════════════════════════════════════ -->
+    <div id="tab-tc" class="tab-panel active">
+      <div class="legal-wrap">
+
+        <div class="info-box">
+          <strong>DELTA AIR SHUTTLE S.R.L.</strong>
+          Str. 13 Decembrie, Nr. 129A, Bloc 7, Ap. 55, Brașov, Jud. Brașov<br>
+          CUI: RO53035921 &nbsp;·&nbsp; Nr. Reg. Comerțului: J20/2509/2024<br>
+          Website: <a href="https://delta-air.ro" style="color:var(--navy);font-weight:600">delta-air.ro</a> și transfer-brasov-aeroport.ro<br>
+          Email: <a href="mailto:office@delta-air.ro" style="color:var(--navy);font-weight:600">office@delta-air.ro</a> &nbsp;·&nbsp;
+          Tel: <a href="tel:+40761617606" style="color:var(--navy);font-weight:600">+40 761 617 606</a>
+        </div>
+
+        <!-- 1 -->
+        <div class="legal-section reveal">
+          <h2>1. Acceptarea termenilor</h2>
+          <p>Prin accesarea website-urilor <strong>delta-air.ro</strong> și <strong>transfer-brasov-aeroport.ro</strong> și prin efectuarea unei rezervări, confirmați că aveți vârsta de minimum <strong>18 ani</strong> și că acceptați integral și necondiționat prezenții Termeni și Condiții.</p>
+          <p style="margin-top:12px">Dacă efectuați o rezervare pentru un grup, vă asumați responsabilitatea de a informa toți pasagerii cu privire la aceste reguli. DELTA AIR SHUTTLE S.R.L. își rezervă dreptul de a modifica acești termeni în orice moment, fără notificare prealabilă, modificările devenind aplicabile imediat după publicarea pe site.</p>
+        </div>
+
+        <!-- 2 -->
+        <div class="legal-section reveal">
+          <h2>2. Procesul de rezervare și confirmare</h2>
+          <h3>Plasarea cererii</h3>
+          <p>Completarea formularului online reprezintă o <strong>intenție de călătorie</strong>, nu o rezervare garantată.</p>
+          <h3>Confirmarea</h3>
+          <p>Contractul de transport se consideră încheiat doar în momentul în care primiți o <strong>confirmare scrisă</strong> (e-mail/SMS) sau telefonică din partea operatorilor noștri, însoțită de un număr de rezervare sau voucher de călătorie.</p>
+          <h3>Lipsa confirmării</h3>
+          <p>Dacă nu primiți un răspuns în termen de <strong>24 de ore</strong> de la plasarea cererii, vă rugăm să ne contactați telefonic.</p>
+          <h3>Refuzul rezervării</h3>
+          <p>Ne rezervăm dreptul de a refuza o cerere de transfer în cazul în care nu mai există locuri disponibile în microbuzul nostru de 8 locuri sau dacă datele furnizate sunt incomplete/incorecte.</p>
+        </div>
+
+        <!-- 3 -->
+        <div class="legal-section reveal">
+          <h2>3. Condiții de călătorie și îmbarcare</h2>
+          <h3>Prezența la îmbarcare</h3>
+          <p>Pasagerii au obligația de a se prezenta la punctul de îmbarcare stabilit cu minimum <strong>15 minute înainte</strong> de ora programată. Întârzierea poate duce la anularea rezervării fără drept de rambursare, din respect pentru ceilalți pasageri și pentru a garanta sincronizarea cu zborurile.</p>
+          <h3>Durata călătoriei</h3>
+          <p>Timpul estimat pe ruta Brașov – Otopeni/Băneasa este de aproximativ <strong>3 ore</strong>. DELTA AIR SHUTTLE S.R.L. nu își asumă răspunderea pentru întârzierile cauzate de forță majoră (condiții meteo extreme, accidente pe traseu, ambuteiaje, calamități). Recomandăm programarea transferului cu o marjă de siguranță suficientă față de ora de check-in a zborului.</p>
+          <h3>Comportament în autovehicul</h3>
+          <p>Pentru a menține standardul premium al flotei noastre, <strong>consumul de alimente și băuturi alcoolice în interiorul mașinii este strict interzis</strong>. Ne rezervăm dreptul de a refuza îmbarcarea sau de a întrerupe călătoria persoanelor aflate sub influența alcoolului/substanțelor interzise sau care manifestă un comportament agresiv față de șofer sau ceilalți pasageri.</p>
+        </div>
+
+        <!-- 4 -->
+        <div class="legal-section reveal">
+          <h2>4. Politica de bagaje</h2>
+          <h3>Bagaje incluse</h3>
+          <p>Tariful standard include <strong>1 bagaj de cală (max. 23 kg)</strong> și <strong>1 bagaj de mână</strong> (tip rucsac/geantă laptop) pentru fiecare pasager.</p>
+          <h3>Bagaje suplimentare</h3>
+          <p>Orice bagaj suplimentar sau agabaritic (echipamente sportive, cărucioare etc.) trebuie <strong>declarat obligatoriu în momentul rezervării</strong> și poate fi supus unor taxe suplimentare, în funcție de spațiul disponibil. Nedeclararea acestora poate duce la refuzul transportului lor.</p>
+          <h3>Animale de companie</h3>
+          <p>Transportul animalelor de companie este permis doar în cazul rezervării unui <strong>transfer privat</strong> (închirierea integrală a mașinii), cu condiția ca acestea să fie de talie mică și transportate în cuști speciale omologate.</p>
+        </div>
+
+        <!-- 5 -->
+        <div class="legal-section reveal">
+          <h2>5. Plăți, Anulări și Facturare</h2>
+          <h3>Modalități de plată</h3>
+          <p>Contravaloarea transferului se poate achita prin:</p>
+          <ul>
+            <li>Transfer bancar în avans</li>
+            <li>Numerar la șofer, în momentul îmbarcării</li>
+            <li>Card online prin platforma securizată Stripe de pe delta-air.ro</li>
+          </ul>
+          <h3>Facturare</h3>
+          <p>La plata în mașină se va elibera <strong>bon fiscal</strong>. Dacă aveți nevoie de factură fiscală pe persoană juridică, vă rugăm să furnizați datele de facturare cu cel puțin <strong>12 ore înainte</strong> de începerea călătoriei.</p>
+          <h3>Politica de anulare</h3>
+          <table class="legal-table">
+            <thead>
+              <tr><th>Interval anulare</th><th>Condiții rambursare</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Peste 7 zile înainte de plecare</td><td>Rambursare 100%</td></tr>
+              <tr><td>Între 3–7 zile înainte</td><td>Taxă anulare 20%</td></tr>
+              <tr><td>Sub 3 zile înainte</td><td>Taxă anulare 50%</td></tr>
+              <tr><td>Sub 24 ore înainte</td><td>Nerambursabil (100%)</td></tr>
+            </tbody>
+          </table>
+          <p>Anularea trebuie comunicată <strong>telefonic sau prin e-mail</strong> cu cel puțin 24 de ore înainte de ora plecării.</p>
+        </div>
+
+        <!-- 6 -->
+        <div class="legal-section reveal">
+          <h2>6. Drepturi de autor și proprietate intelectuală</h2>
+          <p>Întregul conținut al site-urilor <strong>delta-air.ro</strong> și <strong>transfer-brasov-aeroport.ro</strong> (texte, imagini, logo-uri, elemente de design grafic) este proprietatea exclusivă a DELTA AIR SHUTTLE S.R.L. și este protejat de legislația privind drepturile de autor.</p>
+          <p style="margin-top:12px">Copierea, reproducerea sau utilizarea acestor materiale în scopuri comerciale fără acordul nostru scris este strict interzisă și se pedepsește conform legii.</p>
+        </div>
+
+        <!-- 7 -->
+        <div class="legal-section reveal">
+          <h2>7. Limitarea răspunderii</h2>
+          <ul>
+            <li>Compania răspunde pentru siguranța pasagerilor pe durata transferului, conform asigurărilor auto obligatorii și de bunuri deținute.</li>
+            <li>Nu ne asumăm responsabilitatea pentru <strong>pierderea zborurilor sau a conexiunilor ulterioare</strong> (chartere, croaziere) din cauze independente de voința noastră (trafic blocat, condiții meteo).</li>
+            <li>În cazul unei defecțiuni tehnice a autovehiculului nostru care duce la pierderea zborului, responsabilitatea companiei se limitează strict la <strong>contravaloarea biletului de avion pierdut</strong>, în termen de maximum 6 luni, fără a acoperi alte prejudicii colaterale.</li>
+          </ul>
+        </div>
+
+        <div class="update-note">
+          Ultima actualizare: <strong>01.05.2026</strong> &nbsp;·&nbsp; DELTA AIR SHUTTLE S.R.L.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         TAB 2: GDPR
+    ══════════════════════════════════════════ -->
+    <div id="tab-gdpr" class="tab-panel">
+      <div class="legal-wrap">
+
+        <div class="info-box">
+          <strong>Operator de date cu caracter personal</strong>
+          DELTA AIR SHUTTLE S.R.L. &nbsp;·&nbsp; CUI: RO53035921 &nbsp;·&nbsp; Nr. Reg. Com.: J20/2509/2024<br>
+          Sediu: Municipiul Brașov, Str. 13 Decembrie, Nr. 129A, Bloc 7, Ap. 55, Jud. Brașov<br>
+          Contact protecția datelor:
+          <a href="mailto:office@delta-air.ro" style="color:var(--navy);font-weight:600">office@delta-air.ro</a><br>
+          Telefon: <a href="tel:+40723320310" style="color:var(--navy);font-weight:600">+40 723 320 310</a> &nbsp;/&nbsp;
+          <a href="tel:+40722818481" style="color:var(--navy);font-weight:600">+40 722 818 481</a> &nbsp;/&nbsp;
+          <a href="tel:+40761617606" style="color:var(--navy);font-weight:600">+40 761 617 606</a>
+        </div>
+
+        <div class="legal-section reveal">
+          <p>Această politică descrie modul în care prelucrăm datele cu caracter personal prin site-ul Delta Air Shuttle, inclusiv prin: formular de rezervare, plăți online, comunicare WhatsApp/telefon și instrumente de analiză/marketing (Google Analytics, Meta Pixel). Prelucrarea are loc în conformitate cu <strong>Regulamentul (UE) 2016/679 (GDPR)</strong> și legislația aplicabilă.</p>
+        </div>
+
+        <!-- 1 -->
+        <div class="legal-section reveal">
+          <h2>1. Definiții</h2>
+          <ul>
+            <li><strong>Date personale</strong> — orice informație care vă poate identifica direct sau indirect (ex: nume, e-mail, telefon, IP, ID cookie).</li>
+            <li><strong>Operator</strong> — DELTA AIR SHUTTLE S.R.L., care stabilește scopurile și mijloacele prelucrării.</li>
+          </ul>
+        </div>
+
+        <!-- 2 -->
+        <div class="legal-section reveal">
+          <h2>2. Ce date colectăm și de unde</h2>
+          <table class="legal-table">
+            <thead>
+              <tr><th>Categorie date</th><th>Exemple</th><th>Sursa</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Identificare și contact</strong></td><td>Nume, prenume, e-mail, telefon, adresă (după caz)</td><td>Direct de la dvs.</td></tr>
+              <tr><td><strong>Rezervare / serviciu</strong></td><td>Rută, dată/oră, nr. pasageri, observații, confirmări, modificări</td><td>Formular rezervare</td></tr>
+              <tr><td><strong>Plată și facturare</strong></td><td>Nume/denumire, adresă, CUI. <em>Nu stocăm nr. complet de card/CVV</em> — procesare prin Stripe</td><td>Procesator plăți (Stripe)</td></tr>
+              <tr><td><strong>Comunicare</strong></td><td>Nr. telefon, conținut mesaje WhatsApp/e-mail, dată/oră</td><td>Inițiat de dvs.</td></tr>
+              <tr><td><strong>Date tehnice</strong></td><td>IP, cookie-uri, dispozitiv, browser, pagini vizitate</td><td>Automat, la folosirea site-ului</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3 -->
+        <div class="legal-section reveal">
+          <h2>3. Scopuri și temeiuri legale</h2>
+          <table class="legal-table">
+            <thead>
+              <tr><th>Scop</th><th>Temei legal (GDPR art. 6)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Rezervări și prestare servicii de transport</td><td>Contract / demersuri precontractuale — lit. (b)</td></tr>
+              <tr><td>Plăți online și prevenirea fraudei</td><td>Contract — lit. (b) + Interes legitim — lit. (f)</td></tr>
+              <tr><td>Obligații legale (contabilitate, fiscal, arhivare)</td><td>Obligație legală — lit. (c)</td></tr>
+              <tr><td>Newsletter și comunicări de marketing</td><td>Consimțământ — lit. (a) · retragere oricând</td></tr>
+              <tr><td>Suport WhatsApp / e-mail operațional</td><td>Contract — lit. (b) sau Interes legitim — lit. (f)</td></tr>
+              <tr><td>Google Analytics (statistici site)</td><td>Consimțământ cookie-uri — lit. (a)</td></tr>
+              <tr><td>Meta Pixel (remarketing)</td><td>Consimțământ cookie-uri — lit. (a)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 4 -->
+        <div class="legal-section reveal">
+          <h2>4. Cookie-uri și consimțământ</h2>
+          <p>Site-ul utilizează:</p>
+          <ul>
+            <li><strong>Cookie-uri strict necesare</strong> — funcționare, securitate, coș/rezervare (fără consimțământ)</li>
+            <li><strong>Cookie-uri de preferințe</strong> — memorarea setărilor dvs.</li>
+            <li><strong>Cookie-uri de analiză</strong> — Google Analytics (necesită consimțământ)</li>
+            <li><strong>Cookie-uri de marketing</strong> — Meta Pixel (necesită consimțământ)</li>
+          </ul>
+          <p style="margin-top:12px">Cookie-urile de analiză/marketing sunt active <strong>doar după acceptul dvs.</strong>, obținut prin bannerul de cookie. Vă puteți modifica opțiunile oricând din setările de cookie de pe site.</p>
+        </div>
+
+        <!-- 5 -->
+        <div class="legal-section reveal">
+          <h2>5. Cui transmitem datele (destinatari)</h2>
+          <p>Putem divulga date, strict cât este necesar, către:</p>
+          <ul>
+            <li>Furnizori IT (hosting, e-mail, baze de date)</li>
+            <li>Procesatorul de plăți <strong>Stripe</strong> (pentru tranzacții online)</li>
+            <li>Furnizori de e-mail marketing / newsletter (<strong>Brevo</strong>)</li>
+            <li><strong>Google</strong> (Analytics) și <strong>Meta</strong> (Pixel) — dacă ați consimțit cookie-urile neesențiale</li>
+            <li>Canale de comunicare — WhatsApp/Meta Platforms (în funcție de canalul ales de dvs.)</li>
+            <li>Consultanți (contabilitate, juridic) și autorități publice, când impune legea</li>
+          </ul>
+          <p style="margin-top:12px">Cu toți împuterniciții urmărim să existe acorduri GDPR adecvate.</p>
+        </div>
+
+        <!-- 6 -->
+        <div class="legal-section reveal">
+          <h2>6. Transferuri în afara UE/SEE</h2>
+          <p>Unele servicii (Google, Meta, WhatsApp, Stripe sau anumiți furnizori cloud) pot implica transferuri în afara UE/SEE. În aceste situații folosim garanții adecvate (ex: <strong>Clauze Contractuale Standard</strong> sau alte mecanisme legale aplicabile). La cerere, vă comunicăm detalii despre garanții și furnizorii utilizați.</p>
+        </div>
+
+        <!-- 7 -->
+        <div class="legal-section reveal">
+          <h2>7. Cât timp păstrăm datele</h2>
+          <table class="legal-table">
+            <thead>
+              <tr><th>Categorie date</th><th>Perioadă de stocare</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Date rezervări și comunicări operaționale</td><td>3 ani (termen de prescripție uzual)</td></tr>
+              <tr><td>Documente financiar-contabile (facturi, evidențe)</td><td>Conform obligațiilor legale în vigoare (frecvent 10 ani)</td></tr>
+              <tr><td>Date newsletter / marketing</td><td>Până la retragerea consimțământului (dezabonare)</td></tr>
+              <tr><td>Date cookie-uri</td><td>Conform duratelor setate în Politica de cookie</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 8 -->
+        <div class="legal-section reveal">
+          <h2>8. Securitatea datelor</h2>
+          <p>Aplicăm măsuri tehnice și organizatorice rezonabile: control acces, parole, criptare/hashing pentru date sensibile, monitorizare, backup, limitarea accesului și actualizări de securitate. Nu putem garanta securitate absolută a transmisiilor online, dar depunem eforturi continue pentru reducerea riscurilor.</p>
+        </div>
+
+        <!-- 9 -->
+        <div class="legal-section reveal">
+          <h2>9. Drepturile dvs. (GDPR)</h2>
+          <p>În condițiile GDPR, aveți dreptul:</p>
+          <ul>
+            <li><strong>De acces</strong> — să știți ce date deținem despre dvs.</li>
+            <li><strong>La rectificare</strong> — corectarea datelor inexacte</li>
+            <li><strong>La ștergere</strong> (art. 17) — în cazurile prevăzute de lege</li>
+            <li><strong>La restricționarea prelucrării</strong></li>
+            <li><strong>La portabilitatea datelor</strong> — în situațiile aplicabile</li>
+            <li><strong>La opoziție</strong> — în special pentru interes legitim și marketing</li>
+            <li><strong>De a retrage consimțământul</strong> oricând, pentru prelucrările bazate pe consimțământ</li>
+            <li><strong>De a depune plângere</strong> la autoritatea de supraveghere (ANSPDCP)</li>
+          </ul>
+          <p style="margin-top:12px">Pentru exercitarea drepturilor, scrieți-ne la: <a href="mailto:office@delta-air.ro" style="color:var(--navy);font-weight:600">office@delta-air.ro</a>. Putem solicita informații suplimentare pentru verificarea identității, strict în scop de securitate.</p>
+        </div>
+
+        <!-- 10 -->
+        <div class="legal-section reveal">
+          <h2>10. Decizii automate și profilare</h2>
+          <p>Putem utiliza măsurare/segmentare de marketing (de exemplu prin Meta Pixel) exclusiv pe baza consimțământului dvs. pentru cookie-uri de marketing. <strong>Nu luăm decizii cu efecte juridice semnificative exclusiv automatizate</strong> asupra dvs. pe baza datelor din site. Dacă această situație se schimbă, vom actualiza politica.</p>
+        </div>
+
+        <!-- 11 -->
+        <div class="legal-section reveal">
+          <h2>11. Minori</h2>
+          <p>Site-ul nu este destinat minorilor sub 18 ani. Nu colectăm intenționat date de la minori. Dacă observați o astfel de situație, vă rugăm să ne contactați imediat pentru ștergerea datelor.</p>
+        </div>
+
+        <!-- 12 -->
+        <div class="legal-section reveal">
+          <h2>12. Plângeri</h2>
+          <p>Dacă considerați că drepturile v-au fost încălcate, puteți depune plângere la:</p>
+          <p style="margin-top:8px"><strong>ANSPDCP</strong> — Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal<br>
+          <a href="https://www.dataprotection.ro/" target="_blank" rel="noopener" style="color:var(--navy);font-weight:600">www.dataprotection.ro</a></p>
+          <p style="margin-top:8px">Vă încurajăm să ne contactați mai întâi la <a href="mailto:office@delta-air.ro" style="color:var(--navy);font-weight:600">office@delta-air.ro</a>, pentru soluționare rapidă și amiabilă.</p>
+        </div>
+
+        <!-- 13 -->
+        <div class="legal-section reveal">
+          <h2>13. Modificări ale politicii</h2>
+          <p>Putem actualiza această Politică periodic. Versiunea curentă este cea publicată pe site, împreună cu data ultimei actualizări.</p>
+        </div>
+
+        <div class="update-note">
+          Ultima actualizare: <strong>01.05.2026</strong> &nbsp;·&nbsp; DELTA AIR SHUTTLE S.R.L.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="cta-section">
+  <h2>Ai întrebări despre datele tale?</h2>
+  <p>Echipa noastră îți răspunde în maxim 30 de minute.</p>
+  <div class="btn-group" style="justify-content:center;gap:16px">
+    <a href="https://wa.me/40761617606" class="btn-primary">💬 WhatsApp</a>
+    <a href="mailto:office@delta-air.ro" class="btn-outline-white">📧 office@delta-air.ro</a>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand"><img src="../img/logo-p3.png" alt="Delta Air Shuttle"><p>Transfer premium Brașov–Otopeni–Băneasa.</p></div>
+      <div class="footer-col"><h4>Servicii</h4><ul><li><a href="/rezervari">Economy Transfer</a></li><li><a href="/rezervari">Transfer Privat</a></li><li><a href="/lista-de-preturi">Prețuri</a></li></ul></div>
+      <div class="footer-col"><h4>Rute</h4><ul><li><a href="/rezervari">Brașov → Otopeni</a></li><li><a href="/rezervari">Brașov → Băneasa</a></li><li><a href="/rezervari">Retur Brașov</a></li></ul></div>
+      <div class="footer-col"><h4>Companie</h4><ul><li><a href="/despre-noi">Despre noi</a></li><li><a href="/realizari">Realizări</a></li><li><a href="/contact">Contact</a></li><li><a href="/termeni-si-conditii-gdpr" class="active">GDPR</a></li></ul></div>
+    </div>
+    <div class="footer-anpc"><a href="https://anpc.ro/ce-este-sal" target="_blank" rel="noopener"><img src="/img/anpc-sal.png" alt="ANPC - SAL"></a><a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener"><img src="/img/anpc-sol.png" alt="ANPC - SOL"></a></div>
+      <div class="footer-bottom"><span>© 2025 Delta Air Shuttle. Toate drepturile rezervate.</span><span>Brașov · Otopeni · Băneasa</span></div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener("scroll",function(){document.getElementById("nav").classList.toggle("scrolled",window.scrollY>40);});
+function toggleMenu(){document.getElementById('nav-links').classList.toggle('open');}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Deep link: /termeni-si-conditii-gdpr#gdpr → deschide tab-ul GDPR direct
+if (window.location.hash === '#gdpr') {
+  switchTab('gdpr', document.querySelectorAll('.tab-btn')[1]);
+}
+
+document.querySelectorAll('.reveal').forEach(el => {
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) el.classList.add('visible'); }, { threshold: 0.08 }).observe(el);
+});
+</script>
+</body>
+</html>

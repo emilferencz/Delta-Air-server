@@ -1,0 +1,464 @@
+<!DOCTYPE html> 
+<html lang="ro"> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <link rel="icon" type="image/jpeg" href="/img/favicon.jpg"> 
+        <meta property="og:image" content="https://delta-air.ro/img/og-image.png"> 
+        <meta property="og:image:width" content="1200"> 
+        <meta property="og:image:height" content="630"> 
+        <meta name="twitter:card" content="summary_large_image"> 
+        <meta name="twitter:image" content="https://delta-air.ro/img/og-image.png"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>Delta Air Shuttle — Transfer Aeroport Brașov · Otopeni · Băneasa</title>         
+        <meta name="description" content="Transfer premium Brașov–Otopeni–Băneasa. Economy, Privat, Business, VIP. Punctualitate garantată, prețuri fixe de la 75 LEI/persoană.">
+        <link rel="canonical" href="https://delta-air.ro/">
+        <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "name": "Delta Air Shuttle",
+          "description": "Transfer privat și economic Brașov–Aeroport Henri Coandă (Otopeni). Curse fixe zilnice, rezervare online.",
+          "url": "https://delta-air.ro",
+          "telephone": "+40761617606",
+          "email": "rezervari@delta-air.ro",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Str. 13 Decembrie nr. 129A",
+            "addressLocality": "Brașov",
+            "addressCountry": "RO"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 45.6579,
+            "longitude": 25.6012
+          },
+          "openingHoursSpecification": [{
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+            "opens": "00:00",
+            "closes": "23:59"
+          }],
+          "priceRange": "$$",
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Tipuri de transfer",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "name": "Transfer Economy",
+                "description": "Loc individual în vehicul comun. Brașov–Otopeni.",
+                "priceCurrency": "RON",
+                "price": "120",
+                "url": "https://delta-air.ro/rezervari"
+              },
+              {
+                "@type": "Offer",
+                "name": "Transfer Privat",
+                "description": "Vehicul dedicat exclusiv. Brașov–Otopeni.",
+                "priceCurrency": "RON",
+                "price": "800",
+                "url": "https://delta-air.ro/rezervari"
+              }
+            ]
+          },
+          "sameAs": [
+            "https://www.facebook.com/deltaairshuttle",
+            "https://www.instagram.com/deltaairshuttle"
+          ]
+        }
+        </script>
+        <link rel="preconnect" href="https://fonts.googleapis.com"> 
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap" rel="stylesheet"> 
+        <link rel="stylesheet" href="/css/index.css"> 
+    </head>     
+    <body> 
+        <!-- ══ NAV ══ -->         
+        <nav id="nav"> 
+            <div class="nav-logo"> 
+                <img src="img/logo-p3.png" alt="Delta Air Shuttle"> 
+            </div>             
+            <ul class="nav-links" id="nav-links"> 
+                <li>
+                    <a href="/" class="active">Acasă</a>
+                </li>                 
+                <li>
+                    <a href="/despre-noi">Despre noi</a>
+                </li>                 
+                <li>
+                    <a href="/rezervari">Rezervări</a>
+                </li>                 
+                <li>
+                    <a href="/lista-de-preturi">Prețuri</a>
+                </li>                 
+                <li>
+                    <a href="/realizari">Realizări</a>
+                </li>                 
+                <li>
+                    <a href="/blog">Blog</a>
+                </li>                 
+                <li>
+                    <a href="/contact">Contact</a>
+                </li>                 
+                <li>
+                    <a href="/rezervari" class="nav-cta">Rezervă acum ✈</a>
+                </li>                 
+            </ul>             
+            <div class="nav-burger" id="nav-burger" onclick="toggleMenu()"> 
+                <span></span>
+                <span></span>
+                <span></span> 
+            </div>             
+        </nav>         
+        <!-- ══ HERO PINNED (o singură secțiune: blur → text → deblur → mașină → parallax) ══ -->         
+        <section id="hero"> 
+            <!-- Fundalul aeroportului -->             
+            <div class="hero-bg"></div>             
+            <!-- Overlay întunecat: face textul lizibil și ascunde fundalul negru al mașinii -->             
+            <div class="hero-overlay"></div>             
+            <!-- Logo mare centrat — vizibil la deschidere, dispare la scroll -->             
+            <img class="hero-logo" src="img/logo-hero.svg" alt="Delta Air Shuttle"> 
+            <!-- Mașina Delta Air Shuttle -->             
+            <img class="hero-van" src="img/van.png" alt="Delta Air Shuttle van"> 
+            <!-- Textul central care urcă la scroll -->             
+            <div class="hero-content"> 
+                <div class="hero-badge">Transfer Premium Aeroport</div>                 
+                <h1 class="hero-h1"> 
+      Brașov <span class="arrow">&#8596;</span> Otopeni<br> <span>&amp; Băneasa</span>, și retur </h1> 
+                <p class="hero-sub">Transferuri Premium la preț Economy</p> 
+                <div class="hero-btns"> 
+                    <a href="/rezervari" class="btn-primary">✈ Rezervă acum</a> 
+                    <a href="/lista-de-preturi" class="btn-outline">Vezi prețurile</a> 
+                </div>                 
+            </div>             
+            <div class="hero-scroll">Scroll</div>             
+        </section>         
+        <!-- ══ BENEFITS ══ -->         
+        <section id="benefits"> 
+            <div class="container"> 
+                <div style="text-align:center"> 
+                    <span class="section-badge">De ce Delta Air Shuttle?</span> 
+                    <h2 class="section-title">Alegerea inteligentă pentru<br>transferul tău la aeroport</h2> 
+                    <p class="section-sub" style="margin:0 auto 56px">Sute de călători aleg lunar Delta Air Shuttle pentru fiabilitate, confort și prețuri corecte.</p> 
+                </div>                 
+                <div class="benefits-grid"> 
+                    <div class="benefit-card reveal"> 
+                        <div class="benefit-icon">⏱</div>                         
+                        <h3>Punctualitate Garantată</h3> 
+                        <p>Cursele noastre sunt sincronizate cu orarul zborurilor. Monitorizăm zborul tău în timp real și ajustăm ora de preluare dacă este necesar.</p> 
+                    </div>                     
+                    <div class="benefit-card reveal" style="transition-delay:.1s"> 
+                        <div class="benefit-icon">💺</div>                         
+                        <h3>Confort de Business Class</h3> 
+                        <p>Scaune ergonomice, spațiu generos pentru picioare, climatizare și Wi-Fi gratuit, porturi USB — pentru a rămâne productiv pe drum.</p> 
+                    </div>                     
+                    <div class="benefit-card reveal" style="transition-delay:.2s"> 
+                        <div class="benefit-icon">💰</div>                         
+                        <h3>Prețuri Fixe, Transparente</h3> 
+                        <p>De la 75 LEI/persoană. Fără taxe ascunse pentru bagaje — ai inclus un bagaj de mână 10 kg și unul de cală 23 kg.</p> 
+                    </div>                     
+                    <div class="benefit-card reveal" style="transition-delay:.3s"> 
+                        <div class="benefit-icon">📍</div>                         
+                        <h3>Preluare din Puncte Fixe</h3> 
+                        <p>Puncte de preluare comode în Brașov, Predeal, Sinaia. Horare clare, disponibile în avans pentru planificarea ta ușoară.</p> 
+                    </div>                     
+                    <div class="benefit-card reveal" style="transition-delay:.4s"> 
+                        <div class="benefit-icon">🛡</div>                         
+                        <h3>Siguranță și Profesionalism</h3> 
+                        <p>Șoferi profesioniști, licențiați, cu experiență vastă pe ruta Brașov–București. Mașini verificate tehnic periodic.</p> 
+                    </div>                     
+                    <div class="benefit-card reveal" style="transition-delay:.5s"> 
+                        <div class="benefit-icon">📱</div>                         
+                        <h3>Rezervare Online 24/7</h3> 
+                        <p>Rezervă în câteva minute, plătești online sau la bord. Confirmare imediată prin email. Modificări fără penalizare.</p> 
+                    </div>                     
+                </div>                 
+            </div>             
+        </section>         
+        <!-- ══ SERVICES ══ -->         
+        <section id="services"> 
+            <div class="container"> 
+                <div style="text-align:center"> 
+                    <span class="section-badge">Pachete de transfer</span> 
+                    <h2 class="section-title">Servicii și pachete<br>aeroport Brașov · Otopeni · Băneasa</h2> 
+                    <p class="section-sub" style="margin:0 auto 56px">Alege pachetul potrivit nevoilor tale — de la travel economic până la experiențe VIP complete.</p> 
+                </div>                 
+                <div class="services-grid">
+                    <a class="service-card reveal" href="/rezervari?pachet=economy" style="text-decoration:none;color:inherit;cursor:pointer">
+                        <div class="service-img economy">🚐</div>
+                        <div class="service-body">
+                            <h3>Economy</h3>
+                            <p>Transfer partajat cu loc de tip shuttle shared (max 7 pers). Wi-Fi, port USB, preluare/predare din puncte fixe din Brașov.</p>
+                            <span class="service-tag active">Disponibil</span>
+                        </div>
+                    </a>
+                    <a class="service-card reveal" href="/rezervari?pachet=privat" style="text-decoration:none;color:inherit;cursor:pointer;transition-delay:.1s">
+                        <div class="service-img privat">🚙</div>
+                        <div class="service-body">
+                            <h3>Privat</h3>
+                            <p>Familii, grupuri de prieteni — experiență premium cu închirierea exclusivă a mașinii. Program flexibil, servicii personalizate.</p>
+                            <span class="service-tag active">Disponibil</span>
+                        </div>
+                    </a>
+                    <a class="service-card reveal" href="/rezervari?pachet=business" style="text-decoration:none;color:inherit;cursor:pointer;transition-delay:.2s">
+                        <div class="service-img business">💼</div>
+                        <div class="service-body">
+                            <h3>Business</h3>
+                            <p>Călătorii corporate, transfer premium cu mașină privată, apă plată/minerală, facturare corporate rapidă.</p>
+                            <span class="service-tag soon">În curând</span>
+                        </div>
+                    </a>
+                    <a class="service-card reveal" href="/rezervari?pachet=vip" style="text-decoration:none;color:inherit;cursor:pointer;transition-delay:.3s">
+                        <div class="service-img vip">⭐</div>
+                        <div class="service-body">
+                            <h3>VIP</h3>
+                            <p>Clienți exigenți, delegații, Meet &amp; Greet în aeroport, asistență bagaje, rute personalizate, experiență completă.</p>
+                            <span class="service-tag soon">În curând</span>
+                        </div>
+                    </a>
+                </div>                 
+            </div>             
+        </section>         
+        <!-- ══ STATS ══ -->         
+        <section id="stats"> 
+            <div class="container"> 
+                <div class="stats-grid"> 
+                    <div class="stat-item reveal"> 
+                        <div class="stat-num" data-target="500" data-suffix="+"></div>
+                        <div class="stat-label">Transferuri cumulate efectuate</div>                         
+                    </div>                     
+                    <div class="stat-item reveal" style="transition-delay:.1s"> 
+                        <div class="stat-num">4.9 ★</div>                         
+                        <div class="stat-label">Rating mediu clienți</div>                         
+                    </div>                     
+                    <div class="stat-item reveal" style="transition-delay:.2s"> 
+                        <div class="stat-num" data-target="75" data-suffix=" LEI">0</div>                         
+                        <div class="stat-label" style="white-space:nowrap">LEI / persoană, de la</div>                         
+                    </div>                     
+                    <div class="stat-item reveal" style="transition-delay:.3s"> 
+                        <div class="stat-num">24/7</div>                         
+                        <div class="stat-label">Disponibilitate rezervări</div>                         
+                    </div>                     
+                </div>                 
+            </div>             
+        </section>         
+        <!-- ══ HOW IT WORKS ══ -->         
+        <section id="how"> 
+            <div class="container"> 
+                <div style="text-align:center"> 
+                    <span class="section-badge">Simplu și rapid</span> 
+                    <h2 class="section-title">Cum rezervi în 3 pași</h2> 
+                    <p class="section-sub" style="margin:0 auto 64px">Fără formulare complicate. Rezervarea durează sub 2 minute.</p> 
+                </div>                 
+                <div class="steps-grid"> 
+                    <div class="step reveal"> 
+                        <div class="step-num">1</div>                         
+                        <h3>Completezi formularul</h3> 
+                        <p>Alegi direcția, data, numărul de pasageri și pachetul dorit. Afli imediat prețul total.</p> 
+                    </div>                     
+                    <div class="step reveal" style="transition-delay:.15s"> 
+                        <div class="step-num">2</div>                         
+                        <h3>Plătești online sau la bord</h3> 
+                        <p>Card online prin Stripe (securizat) sau numerar la preluare. La plată online primești contractul PDF imediat.</p> 
+                    </div>                     
+                    <div class="step reveal" style="transition-delay:.3s"> 
+                        <div class="step-num">3</div>                         
+                        <h3>Călătorești confortabil</h3> 
+                        <p>Șoferul vine la tine la ora stabilită. Tu te relaxezi — noi ne ocupăm de rest.</p> 
+                    </div>                     
+                </div>                 
+            </div>             
+        </section>         
+        <!-- ══ CTA ══ -->         
+        <section id="cta"> 
+            <div class="container" style="text-align:center"> 
+                <span class="section-badge" style="border-color:rgba(201,168,76,.4);background:rgba(201,168,76,.15)">Rezervă acum</span> 
+                <h2>Zborul tău nu te așteaptă.<br>Noi da.</h2> 
+                <p>Rezervă locul tău în câteva minute și călătorește fără stres.</p> 
+                <div class="cta-phone">📞 <a href="tel:+40761617606" style="color:inherit;text-decoration:none">+40 761 617 606</a>
+                </div>                 
+                <div class="hero-btns"> 
+                    <a href="/rezervari" class="btn-primary" style="font-size:1rem;padding:18px 44px">✈ Rezervă online acum</a> 
+                </div>                 
+            </div>             
+        </section>         
+        <!-- ══ FOOTER ══ -->         
+        <footer> 
+            <div class="footer-grid"> 
+                <div class="footer-brand"> 
+                    <img src="img/logo-p3.png" alt="Delta Air Shuttle"> 
+                    <p>Transfer premium Brașov–Otopeni–Băneasa. Punctualitate garantată, confort de business class, prețuri fixe și transparente.</p> 
+                </div>                 
+                <div class="footer-col"> 
+                    <h4>Servicii</h4> 
+                    <ul> 
+                        <li>
+                            <a href="#">Economy Transfer</a>
+                        </li>                         
+                        <li>
+                            <a href="#">Transfer Privat</a>
+                        </li>                         
+                        <li>
+                            <a href="#">Transfer Business</a>
+                        </li>                         
+                        <li>
+                            <a href="#">Transfer VIP</a>
+                        </li>                         
+                        <li>
+                            <a href="/lista-de-preturi">Listă prețuri</a>
+                        </li>                         
+                    </ul>                     
+                </div>                 
+                <div class="footer-col"> 
+                    <h4>Rute</h4> 
+                    <ul> 
+                        <li>
+                            <a href="#">Brașov → Otopeni</a>
+                        </li>                         
+                        <li>
+                            <a href="#">Brașov → Băneasa</a>
+                        </li>                         
+                        <li>
+                            <a href="#">Otopeni → Brașov</a>
+                        </li>                         
+                        <li>
+                            <a href="#">Băneasa → Brașov</a>
+                        </li>                         
+                    </ul>                     
+                </div>                 
+                <div class="footer-col"> 
+                    <h4>Companie</h4> 
+                    <ul> 
+                        <li>
+                            <a href="/despre-noi">Despre noi</a>
+                        </li>                         
+                        <li>
+                            <a href="/realizari">Realizări</a>
+                        </li>                         
+                        <li>
+                            <a href="/blog">Blog</a>
+                        </li>                         
+                        <li>
+                            <a href="/contact">Contact</a>
+                        </li>                         
+                        <li>
+                            <a href="/termeni-si-conditii-gdpr">GDPR &amp; Termeni</a>
+                        </li>                         
+                    </ul>                     
+                </div>                 
+            </div>             
+            <div class="footer-anpc"> 
+                <a href="https://anpc.ro/ce-este-sal" target="_blank" rel="noopener"><img src="img/anpc-sal.png" alt="ANPC - SAL"></a> 
+                <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener"><img src="img/anpc-sol.png" alt="ANPC - SOL"></a> 
+            </div>             
+            <div class="footer-bottom"> 
+                <span>© 2025 Delta Air Shuttle. Toate drepturile rezervate.</span> 
+                <span>Brașov · Otopeni · Băneasa</span> 
+            </div>             
+        </footer>         
+        <!-- ══ SCRIPTS ══ -->         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>         
+        <script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── Nav scroll effect ── */
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  /* ── Mobile menu ── */
+  function toggleMenu() {
+    document.getElementById('nav-links').classList.toggle('open');
+  }
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.addEventListener('click', () => document.getElementById('nav-links').classList.remove('open'));
+  });
+
+  /* ══════════════════════════════════════════
+     HERO PINNED — 4 faze pe scroll:
+     0–30%  : fundal blurat + overlay, textul urcă
+     20–65% : blur și overlay dispar treptat → imaginea clară
+     60–88% : mașina traversează dreapta→stânga
+     88–100%: parallax final
+  ══════════════════════════════════════════ */
+  const heroBg      = document.querySelector('.hero-bg');
+  const heroOverlay = document.querySelector('.hero-overlay');
+  const heroLogo    = document.querySelector('.hero-logo');
+  const heroContent = document.querySelector('.hero-content');
+  const heroVan     = document.querySelector('.hero-van');
+
+  // GSAP preia controlul complet — inițializare
+  gsap.set(heroBg,      { filter: 'blur(10px)', scale: 1.06 });
+  gsap.set(heroOverlay, { opacity: 0.62 });
+  gsap.set(heroLogo,    { opacity: 1, y: 0 });               // logo vizibil la deschidere
+  gsap.set(heroContent, { opacity: 0, y: 70 });
+  // Valori perspectivă responsive (start y → end y)
+  const vw = window.innerWidth;
+  const vanYStart = vw <= 480 ? '0vh'   : vw <= 900 ? '-12vh' : '-20vh';
+  const vanYEnd   = vw <= 480 ? '10vh'  : vw <= 900 ? '20vh'  : '36vh';
+  // Ieșire stânga: mai departe pe mobil (van mai lată = centrul trebuie să iasă complet)
+  const vanXEnd   = vw <= 480 ? '-185vw' : vw <= 900 ? '-145vw' : '-115vw';
+
+  gsap.set(heroVan, { opacity: 1, xPercent: -50, x: '115vw', y: vanYStart, scale: 0.64 });
+
+  const heroTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: '+=300%',
+      pin: true,
+      scrub: 1,
+      anticipatePin: 1,
+    }
+  });
+
+  // Faza 0 (0–24%): logo urcă în sus și dispare la scroll
+  heroTl.to(heroLogo, { opacity: 0, y: '-38vh', duration: 0.24, ease: 'power2.in' }, 0);
+
+  // Faza 1 (27–52%): textul urcă după ce logo-ul a dispărut complet
+  heroTl.to(heroContent, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }, 0.27);
+
+  // Faza 2 (20–57%): blur dispare, overlay se luminează
+  heroTl.to(heroBg,      { filter: 'blur(0px)', scale: 1, duration: 0.37, ease: 'power1.inOut' }, 0.20);
+  heroTl.to(heroOverlay, { opacity: 0.08, duration: 0.37, ease: 'power1.inOut' }, 0.20);
+
+  // Faza 2.5 (44–55%): textul dispare înainte să apară mașina
+  heroTl.to(heroContent, { opacity: 0, y: -24, duration: 0.11, ease: 'power1.in' }, 0.44);
+
+  // Faza 3 (55–87%): mașina traversează dreapta→stânga cu perspectivă responsivă
+  heroTl.to(heroVan, { x: vanXEnd, y: vanYEnd, scale: 1.0, ease: 'none', duration: 0.32 }, 0.55);
+
+  // Faza 4 (87–100%): parallax subtil
+  heroTl.to(heroBg, { y: '-7%', ease: 'none', duration: 0.13 }, 0.87);
+
+  /* ── Scroll reveal ── */
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => revealObs.observe(el));
+
+  /* ── Counter animation ── */
+  const counters = document.querySelectorAll('[data-target]');
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.target;
+      const suffix = el.dataset.suffix ?? (target >= 1000 ? '+' : ' LEI');
+      let current = 0;
+      const step = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        el.textContent = Math.round(current).toLocaleString('ro') + suffix;
+        if (current >= target) clearInterval(timer);
+      }, 20);
+      counterObs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => counterObs.observe(el));
+</script>         
+    </body>     
+</html>
