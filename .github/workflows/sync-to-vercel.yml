@@ -1,0 +1,73 @@
+name: Sync frontend → delta-air-site (Vercel)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'admin/**'
+      - 'rezervari/**'
+      - 'rezervare-confirmata/**'
+      - 'blog/**'
+      - 'contact/**'
+      - 'despre-noi/**'
+      - 'lista-de-preturi/**'
+      - 'realizari/**'
+      - 'termeni-si-conditii-gdpr/**'
+      - 'css/**'
+      - 'img/**'
+      - 'robots.txt'
+      - 'sitemap.xml'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Delta-Air-server
+        uses: actions/checkout@v4
+        with:
+          path: server
+
+      - name: Checkout delta-air-site
+        uses: actions/checkout@v4
+        with:
+          repository: emilferencz/delta-air-site
+          token: ${{ secrets.GH_PAT }}
+          path: site
+
+      - name: Copiază fișierele frontend
+        run: |
+          # Pagini HTML
+          cp server/index.html site/index.html
+
+          cp -r server/admin site/
+          cp -r server/rezervari site/
+          cp -r server/rezervare-confirmata site/
+          cp -r server/blog site/
+          cp -r server/contact site/
+          cp -r server/despre-noi site/
+          cp -r server/lista-de-preturi site/
+          cp -r server/realizari site/
+          cp -r server/termeni-si-conditii-gdpr site/
+
+          # Assets
+          cp -r server/css site/
+          cp -r server/img site/
+
+          # SEO
+          cp server/robots.txt site/robots.txt
+          cp server/sitemap.xml site/sitemap.xml
+
+      - name: Commit și push la delta-air-site
+        run: |
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Nicio modificare — sync sărit."
+          else
+            COMMIT_MSG=$(cd ../server && git log -1 --pretty=format:"%s")
+            git commit -m "sync: ${COMMIT_MSG}"
+            git push
+          fi
