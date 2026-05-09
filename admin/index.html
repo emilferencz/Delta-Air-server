@@ -70,6 +70,23 @@
     .leg-i{display:flex;align-items:center;gap:5px}
     .leg-d{width:11px;height:11px;border-radius:3px}
 
+    /* KPI Section */
+    .kpi-section{margin-bottom:24px}
+    .kpi-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .kpi-hdr h3{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);opacity:.6}
+    .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+    .kpi-card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:var(--sh);border-left:4px solid #e5e7eb;position:relative;overflow:hidden}
+    .kpi-card.kpi-good{border-left-color:#22c55e}
+    .kpi-card.kpi-warn{border-left-color:#f59e0b}
+    .kpi-card.kpi-bad{border-left-color:#ef4444}
+    .kpi-card.kpi-blue{border-left-color:var(--navy)}
+    .kpi-card.kpi-gold{border-left-color:var(--gold)}
+    .kpi-icon{font-size:1.3rem;margin-bottom:6px;line-height:1}
+    .kpi-val{font-size:1.5rem;font-weight:800;color:var(--navy);line-height:1.1;margin-bottom:3px}
+    .kpi-label{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--gray)}
+    .kpi-sub{font-size:.67rem;color:#9ca3af;margin-top:3px;line-height:1.3}
+
     /* MODAL backdrop */
     .mbk{display:none;position:fixed;inset:0;background:rgba(10,20,60,.6);z-index:1000;align-items:flex-end;justify-content:center}
     .mbk.open{display:flex}
@@ -153,6 +170,56 @@
       <div class="stt"><div class="v" id="st-retur">—</div><div class="l">Retur</div></div>
       <div class="stt"><div class="v" id="st-pax">—</div><div class="l">Pasageri</div></div>
       <div class="stt"><div class="v" id="st-priv">—</div><div class="l">Privat</div></div>
+    </div>
+
+    <!-- KPI -->
+    <div class="kpi-section" id="kpi-section" style="display:none">
+      <div class="kpi-hdr"><h3>Indicatori de performanță — <span id="kpi-month-label">—</span></h3></div>
+      <div class="kpi-grid">
+
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-icon">💰</div>
+          <div class="kpi-val" id="kpi-revenue">—</div>
+          <div class="kpi-label">Venit lunar</div>
+          <div class="kpi-sub" id="kpi-revenue-sub">—</div>
+        </div>
+
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-val" id="kpi-avg">—</div>
+          <div class="kpi-label">Medie / rezervare</div>
+          <div class="kpi-sub" id="kpi-avg-sub">—</div>
+        </div>
+
+        <div class="kpi-card" id="kpi-cancel-card">
+          <div class="kpi-icon">❌</div>
+          <div class="kpi-val" id="kpi-cancel">—</div>
+          <div class="kpi-label">Rată de anulare</div>
+          <div class="kpi-sub" id="kpi-cancel-sub">—</div>
+        </div>
+
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon">🚐</div>
+          <div class="kpi-val" id="kpi-privat-pct">—</div>
+          <div class="kpi-label">Transfer privat</div>
+          <div class="kpi-sub" id="kpi-privat-sub">—</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon">👥</div>
+          <div class="kpi-val" id="kpi-avg-pax">—</div>
+          <div class="kpi-label">Pasageri / cursă</div>
+          <div class="kpi-sub" id="kpi-pax-sub">—</div>
+        </div>
+
+        <div class="kpi-card" id="kpi-card-card">
+          <div class="kpi-icon">💳</div>
+          <div class="kpi-val" id="kpi-card-pct">—</div>
+          <div class="kpi-label">Plăți online</div>
+          <div class="kpi-sub" id="kpi-card-sub">—</div>
+        </div>
+
+      </div>
     </div>
 
     <!-- Calendar nav -->
@@ -364,6 +431,73 @@ function renderStats() {
   document.getElementById('st-retur').textContent = active.filter(b=>b.direction==='retur').length;
   document.getElementById('st-pax').textContent = active.reduce((s,b)=>s+parseInt(b.passengers||0),0);
   document.getElementById('st-priv').textContent = active.filter(b=>b.transfer_type==='privat').length;
+  renderKPIs();
+}
+
+function renderKPIs() {
+  const active   = _bookings.filter(b => b.status !== 'cancelled');
+  const total    = _bookings.length;
+  const cancelled = _bookings.filter(b => b.status === 'cancelled').length;
+
+  // ── Venit lunar ──
+  let revenue = 0, withPrice = 0;
+  active.forEach(b => {
+    const t = parseFloat(b.meta?.total);
+    if (t > 0) { revenue += t; withPrice++; }
+  });
+
+  // ── Medie / rezervare ──
+  const avg = withPrice > 0 ? Math.round(revenue / withPrice) : 0;
+
+  // ── Rată anulare ──
+  const cancelRate = total > 0 ? (cancelled / total * 100).toFixed(1) : '0.0';
+
+  // ── % Privat ──
+  const privatCount = active.filter(b => b.transfer_type === 'privat').length;
+  const privatPct   = active.length > 0 ? Math.round(privatCount / active.length * 100) : 0;
+  const privatRev   = active.filter(b=>b.transfer_type==='privat').reduce((s,b)=>s+(parseFloat(b.meta?.total)||0),0);
+
+  // ── Medie pasageri / cursă ──
+  const totalPax = active.reduce((s,b)=>s+parseInt(b.passengers||0),0);
+  const avgPax   = active.length > 0 ? (totalPax / active.length).toFixed(1) : '—';
+
+  // ── Plăți online ──
+  const cardCount = active.filter(b => { const pm=b.meta?.payMethod; return pm==='card'||pm==='netopia'; }).length;
+  const cashCount = active.length - cardCount;
+  const cardPct   = active.length > 0 ? Math.round(cardCount / active.length * 100) : 0;
+
+  // ── Update DOM ──
+  document.getElementById('kpi-month-label').textContent = `${MONTHS[_month]} ${_year}`;
+
+  document.getElementById('kpi-revenue').textContent = revenue > 0 ? `${Math.round(revenue).toLocaleString('ro-RO')} lei` : '—';
+  document.getElementById('kpi-revenue-sub').textContent = withPrice > 0
+    ? `din ${withPrice} rez. cu preț · privat: ${Math.round(privatRev).toLocaleString('ro-RO')} lei`
+    : 'Prețuri indisponibile în date';
+
+  document.getElementById('kpi-avg').textContent = avg > 0 ? `${avg} lei` : '—';
+  document.getElementById('kpi-avg-sub').textContent = withPrice > 0 ? `baza: ${withPrice} rezervări` : '—';
+
+  document.getElementById('kpi-cancel').textContent = `${cancelRate}%`;
+  document.getElementById('kpi-cancel-sub').textContent = `${cancelled} anulate din ${total} total`;
+  const cc = document.getElementById('kpi-cancel-card');
+  cc.classList.remove('kpi-good','kpi-warn','kpi-bad');
+  if (parseFloat(cancelRate) < 5) cc.classList.add('kpi-good');
+  else if (parseFloat(cancelRate) < 15) cc.classList.add('kpi-warn');
+  else cc.classList.add('kpi-bad');
+
+  document.getElementById('kpi-privat-pct').textContent = `${privatPct}%`;
+  document.getElementById('kpi-privat-sub').textContent = `${privatCount} curse private · ${active.length - privatCount} economy`;
+
+  document.getElementById('kpi-avg-pax').textContent = avgPax;
+  document.getElementById('kpi-pax-sub').textContent = `${totalPax} pasageri / ${active.length} curse`;
+
+  document.getElementById('kpi-card-pct').textContent = `${cardPct}%`;
+  document.getElementById('kpi-card-sub').textContent = `${cardCount} online · ${cashCount} numerar`;
+  const kcc = document.getElementById('kpi-card-card');
+  kcc.classList.remove('kpi-good','kpi-warn','kpi-blue');
+  kcc.classList.add(cardPct >= 50 ? 'kpi-good' : 'kpi-warn');
+
+  document.getElementById('kpi-section').style.display = total > 0 ? 'block' : 'none';
 }
 
 // ── DAY MODAL ────────────────────────────────────────
