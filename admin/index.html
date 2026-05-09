@@ -219,6 +219,27 @@
           <div class="kpi-sub" id="kpi-card-sub">—</div>
         </div>
 
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-icon">👶</div>
+          <div class="kpi-val" id="kpi-children-pct">—</div>
+          <div class="kpi-label">Pasageri copii</div>
+          <div class="kpi-sub" id="kpi-children-sub">—</div>
+        </div>
+
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-icon">🧳</div>
+          <div class="kpi-val" id="kpi-bags-total">—</div>
+          <div class="kpi-label">Bagaje totale</div>
+          <div class="kpi-sub" id="kpi-bags-sub">—</div>
+        </div>
+
+        <div class="kpi-card" id="kpi-night-card">
+          <div class="kpi-icon">🌙</div>
+          <div class="kpi-val" id="kpi-night-pct">—</div>
+          <div class="kpi-label">Curse de noapte</div>
+          <div class="kpi-sub" id="kpi-night-sub">—</div>
+        </div>
+
       </div>
     </div>
 
@@ -496,6 +517,35 @@ function renderKPIs() {
   const kcc = document.getElementById('kpi-card-card');
   kcc.classList.remove('kpi-good','kpi-warn','kpi-blue');
   kcc.classList.add(cardPct >= 50 ? 'kpi-good' : 'kpi-warn');
+
+  // ── Copii ──
+  const totalAdults   = active.reduce((s,b) => s + parseInt(b.meta?.adults || b.passengers || 0), 0);
+  const totalChildren = active.reduce((s,b) => s + parseInt(b.meta?.children || 0), 0);
+  const totalAllPax   = totalAdults + totalChildren;
+  const childrenPct   = totalAllPax > 0 ? Math.round(totalChildren / totalAllPax * 100) : 0;
+  document.getElementById('kpi-children-pct').textContent = `${childrenPct}%`;
+  document.getElementById('kpi-children-sub').textContent =
+    `${totalChildren} copii · ${totalAdults} adulți · ${totalAllPax} total`;
+
+  // ── Bagaje ──
+  const totalBags = active.reduce((s,b) => s + parseInt(b.meta?.bags || 0), 0);
+  const avgBags   = active.length > 0 ? (totalBags / active.length).toFixed(1) : '—';
+  document.getElementById('kpi-bags-total').textContent = totalBags;
+  document.getElementById('kpi-bags-sub').textContent =
+    `medie ${avgBags} bagaje / cursă`;
+
+  // ── Curse de zi vs noapte ──
+  // Noapte: plecare între 19:00 și 06:59 (01:30 și 19:30)
+  const isNight = t => { if (!t) return false; const h = parseInt(t.split(':')[0]); return h >= 19 || h < 7; };
+  const nightCount = active.filter(b => isNight(b.trip_time)).length;
+  const dayCount   = active.length - nightCount;
+  const nightPct   = active.length > 0 ? Math.round(nightCount / active.length * 100) : 0;
+  document.getElementById('kpi-night-pct').textContent = `${nightPct}%`;
+  document.getElementById('kpi-night-sub').textContent =
+    `${nightCount} noapte (01:30 · 19:30) · ${dayCount} zi`;
+  const knc = document.getElementById('kpi-night-card');
+  knc.classList.remove('kpi-good','kpi-warn','kpi-blue');
+  knc.classList.add(nightPct > 50 ? 'kpi-warn' : 'kpi-blue');
 
   document.getElementById('kpi-section').style.display = total > 0 ? 'block' : 'none';
 }
