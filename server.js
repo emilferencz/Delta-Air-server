@@ -1958,6 +1958,19 @@ app.delete('/api/admin/booking/:id', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+/* DELETE /api/admin/bookings/all — master reset: șterge toate rezervările */
+app.delete('/api/admin/bookings/all', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    const { rowCount } = await db.query('DELETE FROM bookings');
+    await db.query('DELETE FROM pending_payments');
+    res.json({ ok: true, deleted: rowCount });
+  } catch (e) {
+    console.error('❌ master reset:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 /* GET /api/admin/booking/:id/contract */
 app.get('/api/admin/booking/:id/contract', adminAuth, async (req, res) => {
   if (!db) return res.status(503).json({ error: 'DB indisponibil.' });

@@ -30,6 +30,8 @@
     .adm-hdr .title{color:rgba(255,255,255,.6);font-size:.78rem;flex:1}
     .adm-logout{background:rgba(255,255,255,.1);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:.78rem;font-family:inherit;cursor:pointer;font-weight:600}
     .adm-logout:hover{background:rgba(255,255,255,.2)}
+    .adm-reset{background:rgba(220,38,38,.15);color:#fca5a5;border:1px solid rgba(220,38,38,.3);border-radius:7px;padding:6px 14px;font-size:.78rem;font-family:inherit;cursor:pointer;font-weight:600}
+    .adm-reset:hover{background:rgba(220,38,38,.3);color:#fff}
     .adm-body{max-width:980px;margin:0 auto;padding:24px 18px}
 
     /* Stats */
@@ -161,6 +163,7 @@
   <div class="adm-hdr">
     <img src="/img/logo-p3.png" alt="Delta Air Shuttle">
     <span class="title">Dashboard Rezervări</span>
+    <button class="adm-reset" onclick="masterReset()">🗑 Reset</button>
     <button class="adm-logout" onclick="doLogout()">⎋ Ieși</button>
   </div>
   <div class="adm-body">
@@ -374,6 +377,19 @@ function doLogout() {
   localStorage.removeItem(TOK_KEY); _tok='';
   document.getElementById('dash-wrap').style.display='none';
   document.getElementById('login-wrap').style.display='flex';
+}
+async function masterReset() {
+  if (!confirm('⚠️ ATENȚIE: Această acțiune șterge DEFINITIV toate rezervările din baza de date.\n\nContinui?')) return;
+  const code = prompt('Tastează "STERGE TOT" pentru a confirma resetarea:');
+  if (code !== 'STERGE TOT') { alert('Anulat — cod incorect.'); return; }
+  try {
+    const r = await fetch(`${SERVER}/api/admin/bookings/all`, { method:'DELETE', headers: authHdrs() });
+    if (r.status === 401) { doLogout(); return; }
+    const d = await r.json();
+    if (!r.ok) { alert('Eroare: ' + (d.error || r.status)); return; }
+    alert(`✅ ${d.deleted || 0} rezervări șterse. Calendarul a fost resetat.`);
+    await loadMonth();
+  } catch(e) { alert('Eroare: ' + e.message); }
 }
 function showDash() {
   document.getElementById('login-wrap').style.display='none';
