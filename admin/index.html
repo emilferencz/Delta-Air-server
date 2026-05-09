@@ -113,12 +113,14 @@
     .badge.ret-trip{background:#f0f4ff;color:#4338ca;font-style:italic}
     .bk-info{font-size:.82rem;color:#374151;line-height:1.9}
     .bk-info strong{color:var(--navy);font-weight:700}
-    .bk-acts{display:flex;gap:8px;margin-top:10px}
+    .bk-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
     .btn-e{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
     .btn-e:hover{background:#243d75}
     .btn-c{background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
     .btn-c:hover{background:#fecaca}
     .btn-restore{background:#f0fdf4;color:#166534;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-doc{background:#fffbf0;color:#92400e;border:1.5px solid #c9a84c;border-radius:8px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-doc:hover{background:#fef3c7}
     .no-bk{text-align:center;padding:36px 0;color:var(--gray);font-size:.86rem}
 
     /* Edit modal form */
@@ -587,6 +589,8 @@ function openDay(dateStr) {
         ? `<button class="btn-restore" onclick="setStatus(${b.id},'confirmed')">↩ Reactivează</button>`
         : `<button class="btn-c" onclick="cancelBk(${b.id})">✕ Anulează</button>`
       }
+      <button class="btn-doc" onclick="adminDownload(${b.id},'contract')">📄 Contract</button>
+      <button class="btn-doc" onclick="adminDownload(${b.id},'invoice')">🧾 Factură</button>
     </div>`;
     html += '</div>';
   });
@@ -657,6 +661,20 @@ async function saveBooking() {
 async function cancelBk(id) {
   if (!confirm('Marchezi rezervarea ca ANULATĂ. Continui?')) return;
   await setStatus(id, 'cancelled');
+}
+async function adminDownload(id, type) {
+  const btn = event.target;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const res = await fetch(`${SERVER}/api/admin/booking/${id}/${type}`, { headers: authHdrs() });
+    if (!res.ok) { alert('Eroare la generarea documentului.'); return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch(e) { alert('Eroare: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = orig; }
 }
 async function setStatus(id, status) {
   const r = await fetch(`${SERVER}/api/admin/booking/${id}`, {

@@ -1958,6 +1958,66 @@ app.delete('/api/admin/booking/:id', adminAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+/* GET /api/admin/booking/:id/contract */
+app.get('/api/admin/booking/:id/contract', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    const { rows } = await db.query('SELECT meta_json FROM bookings WHERE id=$1', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Rezervare negăsită.' });
+    let meta = {};
+    try { meta = JSON.parse(rows[0].meta_json || '{}'); } catch {}
+    const pdfBuffer = await generateContractPDF(meta);
+    const name = (meta.name || 'client').replace(/\s+/g, '-').toLowerCase();
+    const date = (meta.date || '').replace(/-/g, '');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="contract-delta-air-${date}-${name}.pdf"`);
+    res.send(pdfBuffer);
+  } catch (e) {
+    console.error('❌ admin/contract:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* GET /api/admin/booking/:id/invoice */
+app.get('/api/admin/booking/:id/invoice', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    const { rows } = await db.query('SELECT meta_json FROM bookings WHERE id=$1', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Rezervare negăsită.' });
+    let meta = {};
+    try { meta = JSON.parse(rows[0].meta_json || '{}'); } catch {}
+
+    // Caută factura existentă prin pending_payments (evită duplicarea numerotării)
+    let invoiceNum, invoiceYear;
+    try {
+      const inv = await db.query(
+        `SELECT i.id, i.year FROM invoices i
+         INNER JOIN pending_payments pp ON pp.token = i.booking_token
+         WHERE pp.meta_json::jsonb->>'email' = $1
+           AND pp.meta_json::jsonb->>'date'  = $2
+         LIMIT 1`,
+        [meta.email || '', meta.date || '']
+      );
+      if (inv.rows.length) { invoiceNum = inv.rows[0].id; invoiceYear = inv.rows[0].year; }
+    } catch (_) {}
+
+    if (!invoiceNum) {
+      const r = await nextInvoiceNumber();
+      invoiceNum = r.num; invoiceYear = r.year;
+      await saveInvoiceMeta(invoiceNum, null, meta.firma || meta.name || '—');
+    }
+
+    const pdfBuffer = await generateInvoicePDF(meta, invoiceNum, invoiceYear);
+    const invoiceNo = `DAS-${invoiceYear}-${String(invoiceNum).padStart(4, '0')}`;
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="factura-${invoiceNo}-delta-air.pdf"`);
+    res.send(pdfBuffer);
+  } catch (e) {
+    console.error('❌ admin/invoice:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n✅ Delta Air Shuttle server pornit pe http://localhost:${PORT}`);
   console.log(`   Mod Stripe:     ${process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? '🔴 LIVE' : '🟡 TEST'}`);
