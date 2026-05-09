@@ -997,6 +997,7 @@ function dasRestoreState() {
       if(s.retPickup) sv('ret-pickup', s.retPickup);
       setTimeout(()=>{ datePicked('ret-date','ret-date-txt'); retFetchAvail(); }, 100);
     }
+    setTimeout(fetchAvailability, 50);
     return true;
   } catch(_){ return false; }
 }
