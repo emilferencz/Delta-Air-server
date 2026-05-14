@@ -18,16 +18,12 @@
   }
 
   function loadGA() {
-    if (window._ckGA) return;
-    window._ckGA = true;
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function () { window.dataLayer.push(arguments); };
-    gtag('js', new Date());
-    gtag('config', GA_ID);
-    var s = document.createElement('script');
-    s.async = true;
-    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
-    document.head.appendChild(s);
+    if (!window.gtag) return;
+    gtag('consent', 'update', {
+      'analytics_storage': 'granted',
+      'ad_user_data': 'granted',
+      'ad_personalization': 'granted'
+    });
   }
 
   function loadPixel() {
