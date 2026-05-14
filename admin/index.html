@@ -89,6 +89,30 @@
     .kpi-label{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--gray)}
     .kpi-sub{font-size:.67rem;color:#9ca3af;margin-top:3px;line-height:1.3}
 
+    /* ── Annual Calendar ── */
+    .ann-section{margin-bottom:24px}
+    .ann-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .ann-nav h2{flex:1;text-align:center;font-size:1rem;font-weight:700;color:var(--navy)}
+    .ann-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    @media(max-width:780px){.ann-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:520px){.ann-grid{grid-template-columns:repeat(2,1fr)}}
+    .ann-month{background:#fff;border-radius:12px;box-shadow:var(--sh);padding:10px 8px}
+    .ann-month-name{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--navy);text-align:center;margin-bottom:6px;cursor:pointer;transition:color .15s}
+    .ann-month-name:hover{color:var(--gold)}
+    .ann-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;margin-bottom:2px}
+    .ann-dow-h{font-size:.48rem;text-align:center;color:var(--gray);font-weight:600}
+    .ann-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+    .ann-day{width:100%;aspect-ratio:1;border-radius:2px;cursor:pointer;display:flex;flex-direction:column;overflow:hidden;transition:outline .1s}
+    .ann-day:hover{outline:1.5px solid var(--navy);z-index:1}
+    .ann-day.ann-empty{background:transparent;cursor:default}
+    .ann-day.ann-empty:hover{outline:none}
+    .ann-day.ann-today{outline:2px solid var(--navy);z-index:2;border-radius:3px}
+    .ann-tur{flex:1}
+    .ann-ret{flex:1}
+    .ann-legend{display:flex;gap:14px;margin-top:10px;font-size:.7rem;color:var(--gray);flex-wrap:wrap;align-items:center}
+    .ann-leg-item{display:flex;align-items:center;gap:5px}
+    .ann-leg-sq{width:12px;height:12px;border-radius:2px}
+
     /* MODAL backdrop */
     .mbk{display:none;position:fixed;inset:0;background:rgba(10,20,60,.6);z-index:1000;align-items:flex-end;justify-content:center}
     .mbk.open{display:flex}
@@ -248,6 +272,30 @@
       </div>
     </div>
 
+    <!-- Annual Calendar -->
+    <div class="ann-section" id="ann-section" style="display:none">
+      <div class="ann-nav">
+        <button class="ico-btn" onclick="moveAnnualYear(-1)">&#8592;</button>
+        <h2 id="ann-year-title">—</h2>
+        <button class="ico-btn" onclick="moveAnnualYear(1)">&#8594;</button>
+      </div>
+      <div class="ann-grid" id="ann-grid"></div>
+      <div class="ann-legend">
+        <div class="ann-leg-item">
+          <div style="width:12px;height:12px;border-radius:2px;display:flex;flex-direction:column;overflow:hidden">
+            <div style="flex:1;background:#2563eb"></div><div style="flex:1;background:#d97706"></div>
+          </div>
+          <span>Sus = Tur &nbsp;·&nbsp; Jos = Retur</span>
+        </div>
+        <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#f0f4ff;border:1px solid #e5e7eb"></div> Liber</div>
+        <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#60a5fa"></div> Parțial (tur)</div>
+        <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#1e3a8a"></div> Plin (tur)</div>
+        <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#fbbf24"></div> Parțial (retur)</div>
+        <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#92400e"></div> Plin (retur)</div>
+        <div class="ann-leg-item" style="margin-left:auto;font-style:italic">Click pe lună → calendar lunar</div>
+      </div>
+    </div>
+
     <!-- Calendar nav -->
     <div class="cal-nav">
       <button class="ico-btn" onclick="moveMonth(-1)">&#8592;</button>
@@ -395,6 +443,7 @@ function showDash() {
   document.getElementById('login-wrap').style.display='none';
   document.getElementById('dash-wrap').style.display='block';
   loadMonth();
+  loadAnnualCalendar();
 }
 function authHdrs() { return { 'Authorization':'Bearer '+_tok }; }
 
@@ -416,7 +465,13 @@ async function loadMonth() {
   }
 }
 
-function moveMonth(d) { _month += d; if(_month<0){_month=11;_year--;} if(_month>11){_month=0;_year++;} loadMonth(); }
+function moveMonth(d) {
+  _month += d;
+  if(_month<0){_month=11;_year--;}
+  if(_month>11){_month=0;_year++;}
+  loadMonth();
+  if (_annualYear !== _year) { _annualYear = _year; loadAnnualCalendar(); }
+}
 function goToday() { _year=new Date().getFullYear(); _month=new Date().getMonth(); loadMonth(); }
 
 function renderCalendar() {
@@ -566,6 +621,98 @@ function renderKPIs() {
   knc.classList.add(nightPct > 50 ? 'kpi-warn' : 'kpi-blue');
 
   document.getElementById('kpi-section').style.display = total > 0 ? 'block' : 'none';
+}
+
+// ── ANNUAL CALENDAR ──────────────────────────────────
+let _annualBookings = [];
+let _annualYear = new Date().getFullYear();
+
+async function loadAnnualCalendar() {
+  const from = `${_annualYear}-01-01`;
+  const to   = `${_annualYear}-12-31`;
+  try {
+    const r = await fetch(`${SERVER}/api/admin/bookings?from=${from}&to=${to}`, { headers: authHdrs() });
+    if (r.status === 401) { doLogout(); return; }
+    _annualBookings = await r.json();
+    renderAnnualCalendar();
+    document.getElementById('ann-section').style.display = 'block';
+  } catch(e) { console.error('Annual load error:', e); }
+}
+
+function moveAnnualYear(d) {
+  _annualYear += d;
+  loadAnnualCalendar();
+}
+
+function turColor(pax) {
+  if (!pax)    return '#f0f4ff';
+  if (pax <= 2) return '#bfdbfe';
+  if (pax <= 4) return '#60a5fa';
+  if (pax <= 6) return '#2563eb';
+  return '#1e3a8a';
+}
+function retColor(pax) {
+  if (!pax)    return '#fffbeb';
+  if (pax <= 2) return '#fde68a';
+  if (pax <= 4) return '#fbbf24';
+  if (pax <= 6) return '#d97706';
+  return '#92400e';
+}
+
+function renderAnnualCalendar() {
+  document.getElementById('ann-year-title').textContent = _annualYear;
+
+  // group active bookings by date → { tur: pax, retur: pax }
+  const byDate = {};
+  _annualBookings.filter(b => b.status !== 'cancelled').forEach(b => {
+    const key = b.trip_date.slice(0, 10);
+    if (!byDate[key]) byDate[key] = { tur: 0, retur: 0 };
+    const pax = parseInt(b.passengers || 1);
+    if (b.direction === 'tur') byDate[key].tur += pax;
+    else                        byDate[key].retur += pax;
+  });
+
+  const DOW_LABELS = ['L','M','M','J','V','S','D'];
+  let html = '';
+
+  for (let m = 0; m < 12; m++) {
+    const firstWD   = (new Date(_annualYear, m, 1).getDay() + 6) % 7;
+    const daysInMonth = new Date(_annualYear, m + 1, 0).getDate();
+    const totalCells  = Math.ceil((firstWD + daysInMonth) / 7) * 7;
+
+    html += `<div class="ann-month">`;
+    html += `<div class="ann-month-name" onclick="jumpToAnnualMonth(${m})">${MONTHS[m]}</div>`;
+    html += `<div class="ann-dow">${DOW_LABELS.map(d=>`<div class="ann-dow-h">${d}</div>`).join('')}</div>`;
+    html += `<div class="ann-days">`;
+
+    for (let i = 0; i < totalCells; i++) {
+      const dayNum = i - firstWD + 1;
+      if (dayNum < 1 || dayNum > daysInMonth) {
+        html += `<div class="ann-day ann-empty"></div>`;
+        continue;
+      }
+      const dateStr = `${_annualYear}-${String(m+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+      const isToday = dateStr === TODAY;
+      const d = byDate[dateStr] || { tur: 0, retur: 0 };
+      const tc = turColor(d.tur), rc = retColor(d.retur);
+      const tip = `${dateStr}\nTur: ${d.tur} pax | Retur: ${d.retur} pax`;
+      html += `<div class="ann-day${isToday?' ann-today':''}" title="${tip}" onclick="jumpToAnnualMonth(${m})">`;
+      html += `<div class="ann-tur" style="background:${tc}"></div>`;
+      html += `<div class="ann-ret" style="background:${rc}"></div>`;
+      html += `</div>`;
+    }
+
+    html += `</div></div>`;
+  }
+
+  document.getElementById('ann-grid').innerHTML = html;
+}
+
+function jumpToAnnualMonth(month) {
+  _year  = _annualYear;
+  _month = month;
+  loadMonth();
+  document.querySelector('.cal-nav').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── DAY MODAL ────────────────────────────────────────
