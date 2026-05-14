@@ -32,6 +32,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="../css/pages.css">
+        <link rel="stylesheet" href="/css/cookies.css">
         <style>.despre-story-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; } .despre-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; } @media (max-width: 860px) { .despre-story-grid {  grid-template-columns: 1fr;  gap: 32px; } }</style>
     </head>
     <body>
@@ -253,5 +254,6 @@ window.addEventListener("scroll",function(){document.getElementById("nav").class
 function toggleMenu(){document.getElementById('nav-links').classList.toggle('open');}
 document.querySelectorAll('.reveal').forEach(el=>{new IntersectionObserver(([e])=>{if(e.isIntersecting)el.classList.add('visible');},{threshold:0.1}).observe(el);});
 </script>
+<script src="/js/cookies.js" defer></script>
     </body>
 </html>

@@ -19,6 +19,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="../css/pages.css">
+        <link rel="stylesheet" href="/css/cookies.css">
         <style>.timeline-item { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; } .timeline-item-r { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; } @media (max-width: 600px) { .timeline-item, .timeline-item-r {  grid-template-columns: 1fr;  gap: 0; }  .timeline-item .tl-empty, .timeline-item-r .tl-empty {  display: none; }  .timeline-item > div, .timeline-item-r > div {  text-align: left !important; }  .timeline-line {  display: none; } }</style>
     </head>
     <body>
@@ -245,5 +246,6 @@ window.addEventListener("scroll",function(){document.getElementById("nav").class
 function toggleMenu(){document.getElementById('nav-links').classList.toggle('open');}
 document.querySelectorAll('.reveal').forEach(el=>{new IntersectionObserver(([e])=>{if(e.isIntersecting)el.classList.add('visible');},{threshold:0.1}).observe(el);});
 </script>
+<script src="/js/cookies.js" defer></script>
     </body>
 </html>

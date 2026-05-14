@@ -19,6 +19,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/pages.css">
+  <link rel="stylesheet" href="/css/cookies.css">
   <style>
     .blog-card { background: #fff; border-radius: var(--r); overflow: hidden; box-shadow: var(--sh); transition: transform .25s, box-shadow .25s; }
     .blog-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(26,47,94,.18); }
@@ -157,5 +158,6 @@ window.addEventListener("scroll",function(){document.getElementById("nav").class
 function toggleMenu(){document.getElementById('nav-links').classList.toggle('open');}
 document.querySelectorAll('.reveal').forEach(el=>{new IntersectionObserver(([e])=>{if(e.isIntersecting)el.classList.add('visible');},{threshold:0.1}).observe(el);});
 </script>
+<script src="/js/cookies.js" defer></script>
 </body>
 </html>

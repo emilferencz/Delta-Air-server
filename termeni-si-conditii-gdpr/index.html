@@ -16,6 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/pages.css">
+  <link rel="stylesheet" href="/css/cookies.css">
   <style>
     /* ── Tab switch ── */
     .tabs-wrap { display: flex; gap: 8px; justify-content: center; margin-bottom: 40px; flex-wrap: wrap; }
@@ -115,6 +116,7 @@
     <div class="tabs-wrap">
       <button class="tab-btn active" onclick="switchTab('tc', this)">📋 Termeni și Condiții</button>
       <button class="tab-btn" onclick="switchTab('gdpr', this)">🔒 Politica de Confidențialitate (GDPR)</button>
+      <button class="tab-btn" onclick="switchTab('cookies', this)" id="tab-btn-cookies">🍪 Politica de Cookie-uri</button>
     </div>
 
     <!-- ══════════════════════════════════════════
@@ -396,6 +398,103 @@
       </div>
     </div>
 
+    <!-- ══════════════════════════════════════════
+         TAB 3: POLITICA DE COOKIE-URI
+    ══════════════════════════════════════════ -->
+    <div id="tab-cookies" class="tab-panel">
+      <div class="legal-wrap">
+
+        <div class="info-box">
+          <strong>Ce sunt cookie-urile?</strong>
+          Cookie-urile sunt fișiere text de mici dimensiuni stocate în browserul dvs. atunci când vizitați un site web. Ele permit site-ului să vă recunoască la vizitele ulterioare, să rețină preferințele și să colecteze informații statistice.
+        </div>
+
+        <!-- 1 -->
+        <div class="legal-section reveal">
+          <h2>1. Tipuri de cookie-uri utilizate</h2>
+          <table class="legal-table">
+            <thead>
+              <tr><th>Categorie</th><th>Descriere</th><th>Consimțământ necesar</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Esențiale</strong></td>
+                <td>Necesare pentru funcționarea site-ului: sesiune, formular de rezervare, securitate CSRF. Fără acestea, site-ul nu funcționează corect.</td>
+                <td>Nu (art. 6 alin. 1 lit. b GDPR)</td>
+              </tr>
+              <tr>
+                <td><strong>Preferințe</strong></td>
+                <td>Rețin alegerile dvs. privind cookie-urile (consimțământul stocat în <code>localStorage</code>).</td>
+                <td>Nu — funcționale</td>
+              </tr>
+              <tr>
+                <td><strong>Analiză</strong></td>
+                <td>Google Analytics — statistici anonime de utilizare a site-ului (pagini vizitate, durată sesiune, sursă trafic).</td>
+                <td><strong>Da — consimțământ</strong></td>
+              </tr>
+              <tr>
+                <td><strong>Marketing</strong></td>
+                <td>Meta Pixel — măsurarea și optimizarea campaniilor publicitare pe Facebook și Instagram.</td>
+                <td><strong>Da — consimțământ</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 2 -->
+        <div class="legal-section reveal">
+          <h2>2. Cookie-uri specifice</h2>
+          <table class="legal-table">
+            <thead>
+              <tr><th>Nume / furnizor</th><th>Scop</th><th>Durată</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>deltaair_cookies</code> (localStorage)</td><td>Stochează preferințele dvs. de consimțământ cookie</td><td>Persistent (până la ștergere)</td></tr>
+              <tr><td>Stripe (_stripe_mid, _stripe_sid)</td><td>Prevenirea fraudei, securitate plăți online</td><td>1 an / sesiune</td></tr>
+              <tr><td>_ga, _ga_XXXXXXX (Google Analytics)</td><td>Identificare vizitator anonim, statistici</td><td>2 ani / 1 zi</td></tr>
+              <tr><td>_fbp, _fbc (Meta Pixel)</td><td>Urmărire conversii, remarketing Facebook/Instagram</td><td>3 luni</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3 -->
+        <div class="legal-section reveal">
+          <h2>3. Cum gestionați preferințele</h2>
+          <p>Aveți la dispoziție mai multe modalități de a vă controla cookie-urile:</p>
+          <ul>
+            <li><strong>Bannerul nostru</strong> — la prima vizită puteți accepta toate cookie-urile, le puteți respinge pe cele neesențiale sau le puteți personaliza individual.</li>
+            <li><strong>Butonul 🍪</strong> (colțul stânga-jos al oricărei pagini) — deschide panoul de setări după ce ați dat deja un răspuns, pentru a vă modifica oricând preferințele.</li>
+            <li><strong>Setările browserului</strong> — puteți bloca sau șterge cookie-urile direct din browser: Chrome → Setări → Confidențialitate; Firefox → Preferințe → Confidențialitate; Safari → Preferințe → Confidențialitate.</li>
+          </ul>
+          <p style="margin-top:12px">Retragerea consimțământului nu afectează legalitatea prelucrărilor efectuate anterior.</p>
+
+          <div style="text-align:center;margin-top:28px">
+            <button class="ck-btn ck-btn-navy" onclick="document.getElementById('ck-modal').classList.add('ck-modal-open');document.getElementById('ck-tog-analytics').checked=!!(JSON.parse(localStorage.getItem('deltaair_cookies')||'{}').analytics);document.getElementById('ck-tog-marketing').checked=!!(JSON.parse(localStorage.getItem('deltaair_cookies')||'{}').marketing);" style="font-size:.9rem;padding:12px 28px;border-radius:10px;cursor:pointer">
+              ⚙ Modifică preferințele mele de cookie-uri
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="legal-section reveal">
+          <h2>4. Transferuri internaționale</h2>
+          <p>Serviciile Google Analytics și Meta Pixel pot implica transferuri de date în SUA. Aceste transferuri se desfășoară în baza Clauzelor Contractuale Standard aprobate de Comisia Europeană sau a altor mecanisme legale echivalente.</p>
+        </div>
+
+        <!-- 5 -->
+        <div class="legal-section reveal">
+          <h2>5. Contact și drept la opoziție</h2>
+          <p>Pentru orice întrebare legată de cookie-uri sau pentru exercitarea drepturilor dvs. GDPR, ne puteți contacta la:<br>
+          <a href="mailto:office@delta-air.ro" style="color:var(--navy);font-weight:600">office@delta-air.ro</a> &nbsp;·&nbsp;
+          <a href="tel:+40761617606" style="color:var(--navy);font-weight:600">+40 761 617 606</a></p>
+        </div>
+
+        <div class="update-note">
+          Ultima actualizare: <strong>01.05.2026</strong> &nbsp;·&nbsp; DELTA AIR SHUTTLE S.R.L.
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -433,14 +532,17 @@ function switchTab(id, btn) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Deep link: /termeni-si-conditii-gdpr#gdpr → deschide tab-ul GDPR direct
+// Deep link: #gdpr / #cookies
 if (window.location.hash === '#gdpr') {
   switchTab('gdpr', document.querySelectorAll('.tab-btn')[1]);
+} else if (window.location.hash === '#cookies') {
+  switchTab('cookies', document.getElementById('tab-btn-cookies'));
 }
 
 document.querySelectorAll('.reveal').forEach(el => {
   new IntersectionObserver(([e]) => { if (e.isIntersecting) el.classList.add('visible'); }, { threshold: 0.08 }).observe(el);
 });
 </script>
+<script src="/js/cookies.js" defer></script>
 </body>
 </html>

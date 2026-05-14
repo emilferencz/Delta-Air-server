@@ -1,0 +1,315 @@
+/* ══════════════════════════════════════════
+   Delta Air Shuttle — Cookie Consent UI
+   ══════════════════════════════════════════ */
+
+/* ─── BANNER ─── */
+#ck-banner {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 9998;
+  padding: 0 16px 16px;
+  transform: translateY(110%);
+  transition: transform .42s cubic-bezier(.22,.61,.36,1);
+  pointer-events: none;
+}
+#ck-banner.ck-visible {
+  transform: translateY(0);
+  pointer-events: all;
+}
+.ck-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  background: rgba(10,20,45,.97);
+  border: 1px solid rgba(201,168,76,.35);
+  border-radius: 16px;
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 -8px 48px rgba(0,0,0,.4);
+  backdrop-filter: blur(24px);
+}
+.ck-text {
+  flex: 1;
+  min-width: 0;
+}
+.ck-text strong {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  color: #c9a84c;
+  margin-bottom: 5px;
+}
+.ck-text p {
+  font-family: 'Poppins', sans-serif;
+  font-size: .8rem;
+  line-height: 1.65;
+  color: rgba(255,255,255,.72);
+  margin: 0;
+}
+.ck-link {
+  color: #c9a84c !important;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color .2s;
+}
+.ck-link:hover { color: #e8c96a !important; }
+
+.ck-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ─── BUTTONS (shared) ─── */
+.ck-btn {
+  font-family: 'Poppins', sans-serif;
+  font-size: .79rem;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+.ck-btn-gold {
+  background: #c9a84c;
+  color: #0f1e3d;
+}
+.ck-btn-gold:hover { background: #e8c96a; }
+
+.ck-btn-ghost {
+  background: transparent;
+  color: rgba(255,255,255,.65);
+  border: 1px solid rgba(255,255,255,.18);
+}
+.ck-btn-ghost:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,.45);
+  background: rgba(255,255,255,.06);
+}
+
+.ck-btn-outline {
+  background: transparent;
+  color: #1a2f5e;
+  border: 1px solid rgba(26,47,94,.3);
+}
+.ck-btn-outline:hover {
+  border-color: #1a2f5e;
+  background: rgba(26,47,94,.06);
+}
+
+.ck-btn-navy {
+  background: #1a2f5e;
+  color: #fff;
+}
+.ck-btn-navy:hover { background: #0f1e3d; }
+
+/* ─── MODAL ─── */
+#ck-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+#ck-modal.ck-modal-open { display: block; }
+
+.ck-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(5px);
+}
+
+.ck-box {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(540px, 95vw);
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 32px 28px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.28);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.ck-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #8892a4;
+  cursor: pointer;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-family: 'Poppins', sans-serif;
+  transition: background .15s, color .15s;
+}
+.ck-close:hover { background: #f4f6fb; color: #1a2f5e; }
+
+.ck-box h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a2f5e;
+  margin-bottom: 6px;
+}
+.ck-intro {
+  font-family: 'Poppins', sans-serif;
+  font-size: .8rem;
+  color: #8892a4;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* ─── TOGGLE ROWS ─── */
+.ck-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(26,47,94,.07);
+}
+.ck-row-locked { opacity: .78; }
+
+.ck-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+.ck-row-info strong {
+  font-family: 'Poppins', sans-serif;
+  font-size: .84rem;
+  font-weight: 700;
+  color: #1a2f5e;
+}
+.ck-row-info span {
+  font-family: 'Poppins', sans-serif;
+  font-size: .76rem;
+  color: #8892a4;
+  line-height: 1.5;
+}
+
+.ck-badge-on {
+  font-family: 'Poppins', sans-serif;
+  font-size: .72rem;
+  font-weight: 600;
+  color: #15803d;
+  background: #dcfce7;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ─── TOGGLE SWITCH ─── */
+.ck-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.ck-toggle input {
+  opacity: 0;
+  width: 0; height: 0;
+  position: absolute;
+}
+.ck-knob {
+  position: absolute;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 24px;
+  transition: background .22s;
+}
+.ck-knob::before {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .22s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+}
+.ck-toggle input:checked + .ck-knob { background: #1a2f5e; }
+.ck-toggle input:checked + .ck-knob::before { transform: translateX(20px); }
+
+/* ─── MODAL ACTIONS ─── */
+.ck-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+  justify-content: flex-end;
+}
+
+.ck-ts-line {
+  font-family: 'Poppins', sans-serif;
+  font-size: .72rem;
+  color: #b0bac9;
+  text-align: center;
+  margin-top: 14px;
+}
+
+/* ─── FLOATING BUTTON ─── */
+#ck-float {
+  position: fixed;
+  bottom: 22px;
+  left: 22px;
+  z-index: 9990;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: rgba(10,20,45,.92);
+  border: 1px solid rgba(201,168,76,.4);
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0,0,0,.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+  backdrop-filter: blur(10px);
+}
+#ck-float:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 24px rgba(0,0,0,.38);
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 680px) {
+  .ck-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 20px;
+    gap: 14px;
+  }
+  .ck-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .ck-actions .ck-btn {
+    flex: 1;
+    text-align: center;
+  }
+  .ck-box {
+    padding: 28px 20px 22px;
+  }
+  .ck-modal-actions {
+    flex-direction: column;
+  }
+  .ck-modal-actions .ck-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
