@@ -89,6 +89,33 @@
     .kpi-label{font-size:.67rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--gray)}
     .kpi-sub{font-size:.67rem;color:#9ca3af;margin-top:3px;line-height:1.3}
 
+    /* ── Fleet / Vehicule ── */
+    .fleet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .fleet-hdr h3{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--navy);opacity:.6}
+    .fleet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:8px}
+    .vcard{background:#fff;border-radius:14px;box-shadow:var(--sh);padding:16px 18px;cursor:pointer;border-left:4px solid #e5e7eb;transition:border-color .2s,box-shadow .2s;position:relative}
+    .vcard:hover{box-shadow:0 6px 32px rgba(26,47,94,.18);border-left-color:var(--navy)}
+    .vcard.v-activ{border-left-color:#22c55e}
+    .vcard.v-inactiv{border-left-color:#9ca3af;opacity:.7}
+    .vcard-plate{font-size:1rem;font-weight:800;color:var(--navy);letter-spacing:1px}
+    .vcard-model{font-size:.78rem;color:var(--gray);margin:2px 0 8px}
+    .vcard-info{font-size:.73rem;color:#555;line-height:1.8}
+    .vcard-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .vbadge{font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px}
+    .vbadge-green{background:#dcfce7;color:#166534}
+    .vbadge-gray{background:#f3f4f6;color:#6b7280}
+    .vbadge-red{background:#fee2e2;color:#dc2626}
+    .vbadge-yellow{background:#fef9c3;color:#854d0e}
+    .btn-add-v{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-add-v:hover{background:#243d75}
+
+    /* ── Alerte flotă ── */
+    .fleet-alerts{background:#fff;border-radius:14px;box-shadow:var(--sh);padding:14px 18px;margin-bottom:16px;border-left:4px solid #f59e0b}
+    .fleet-alerts.has-red{border-left-color:#ef4444}
+    .alert-hdr{font-size:.74rem;font-weight:700;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
+    .alert-row{font-size:.76rem;color:#374151;padding:4px 0;border-bottom:1px solid #f0f2f8;display:flex;align-items:center;gap:8px}
+    .alert-row:last-child{border-bottom:none}
+
     /* ── Annual Calendar ── */
     .ann-section{margin-bottom:24px}
     .ann-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px}
@@ -191,6 +218,23 @@
     <button class="adm-logout" onclick="doLogout()">⎋ Ieși</button>
   </div>
   <div class="adm-body">
+
+    <!-- Alerte flotă -->
+    <div class="fleet-alerts" id="fleet-alerts" style="display:none">
+      <div class="alert-hdr">⚠️ Alerte flotă</div>
+      <div id="fleet-alerts-body"></div>
+    </div>
+
+    <!-- Flotă vehicule -->
+    <div style="margin-bottom:20px">
+      <div class="fleet-hdr">
+        <h3>🚐 Flotă vehicule</h3>
+        <button class="btn-add-v" onclick="openVehicleModal(null)">+ Adaugă vehicul</button>
+      </div>
+      <div class="fleet-grid" id="fleet-grid">
+        <div style="color:var(--gray);font-size:.82rem;padding:12px">Se încarcă...</div>
+      </div>
+    </div>
 
     <!-- Stats -->
     <div class="stats" id="stats-bar">
@@ -387,6 +431,67 @@
   </div>
 </div>
 
+<!-- ══ MODAL: VEHICUL ══ -->
+<div class="mbk" id="vehicle-modal">
+  <div class="mbox" style="max-width:620px">
+    <div class="mhdr">
+      <h3 id="vehicle-modal-title">Adaugă vehicul</h3>
+      <button class="mclose" onclick="closeModal('vehicle-modal')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="esec-title">Identificare</div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Nr. Înmatriculare *</label><input class="einput" type="text" id="v-plate" placeholder="ex: BV-01-ABC" style="text-transform:uppercase"></div>
+        <div class="egroup"><label class="elabel">Capacitate (locuri)</label><input class="einput" type="number" id="v-capacity" value="7" min="1" max="20"></div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Marcă</label><input class="einput" type="text" id="v-make" placeholder="ex: Mercedes"></div>
+        <div class="egroup"><label class="elabel">Model</label><input class="einput" type="text" id="v-model" placeholder="ex: Sprinter"></div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">An fabricație</label><input class="einput" type="number" id="v-year" placeholder="ex: 2022" min="2000" max="2030"></div>
+        <div class="egroup"><label class="elabel">Status</label>
+          <select class="einput" id="v-status">
+            <option value="activ">Activ</option>
+            <option value="inactiv">Inactiv</option>
+          </select>
+        </div>
+      </div>
+      <hr class="esep">
+      <div class="esec-title">Ore curse</div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Tur — Cursa 1</label><input class="einput" type="text" id="v-tur-c1" placeholder="01:30"></div>
+        <div class="egroup"><label class="elabel">Tur — Cursa 2</label><input class="einput" type="text" id="v-tur-c2" placeholder="14:00"></div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Retur — Cursa 1</label><input class="einput" type="text" id="v-ret-c1" placeholder="07:00"></div>
+        <div class="egroup"><label class="elabel">Retur — Cursa 2</label><input class="einput" type="text" id="v-ret-c2" placeholder="19:30"></div>
+      </div>
+      <hr class="esep">
+      <div class="esec-title">Operațional</div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Km actuali</label><input class="einput" type="number" id="v-km" placeholder="0" min="0"></div>
+        <div class="egroup"><label class="elabel">Șofer</label><input class="einput" type="text" id="v-driver" placeholder="Nume șofer"></div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Dată ITP</label><input class="einput" type="date" id="v-itp"></div>
+        <div class="egroup"><label class="elabel">Dată asigurare RCA</label><input class="einput" type="date" id="v-insurance"></div>
+      </div>
+      <div class="erow">
+        <div class="egroup"><label class="elabel">Dată ultimă revizie</label><input class="einput" type="date" id="v-service-date"></div>
+        <div class="egroup"><label class="elabel">Km la ultima revizie</label><input class="einput" type="number" id="v-service-km" placeholder="0" min="0"></div>
+      </div>
+      <div class="egroup"><label class="elabel">Note</label><textarea class="einput" id="v-notes" rows="2" style="resize:vertical"></textarea></div>
+      <div class="e-actions">
+        <button class="btn-disc" onclick="closeModal('vehicle-modal')">Renunță</button>
+        <button class="btn-c" id="v-deactivate-btn" onclick="deactivateVehicle()" style="display:none">⏸ Dezactivează</button>
+        <button class="btn-save" onclick="saveVehicle()">💾 Salvează</button>
+      </div>
+      <p class="save-msg" id="v-save-msg"></p>
+    </div>
+  </div>
+</div>
+
 <script>
 const SERVER = 'https://delta-air-server-production.up.railway.app';
 const TOK_KEY = 'das_admin_tok';
@@ -399,6 +504,8 @@ let _currentDayStr = null;
 
 const MONTHS = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
 const TODAY = new Date().toISOString().slice(0,10);
+let _vehicles = [];
+let _editVehicleId = null;
 
 // ── AUTH ──────────────────────────────────────────────
 async function doLogin(e) {
@@ -442,8 +549,191 @@ async function masterReset() {
 function showDash() {
   document.getElementById('login-wrap').style.display='none';
   document.getElementById('dash-wrap').style.display='block';
+  loadVehicles();
   loadMonth();
   loadAnnualCalendar();
+}
+
+// ── FLEET ────────────────────────────────────────────
+async function loadVehicles() {
+  try {
+    const r = await fetch(`${SERVER}/api/admin/vehicles`, { headers: authHdrs() });
+    if (r.status === 401) { doLogout(); return; }
+    _vehicles = await r.json();
+    renderFleet();
+    renderFleetAlerts();
+  } catch(e) { console.error('Fleet load error:', e); }
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('ro-RO', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function alertLevel(dateStr, kmCurrent, serviceKm) {
+  const today = new Date();
+  if (dateStr) {
+    const d = new Date(dateStr);
+    const diff = Math.floor((d - today) / 86400000);
+    if (diff < 0) return 'red';
+    if (diff <= 30) return 'yellow';
+  }
+  if (kmCurrent && serviceKm && (kmCurrent - serviceKm) > 15000) return 'yellow';
+  return 'green';
+}
+
+function renderFleet() {
+  const grid = document.getElementById('fleet-grid');
+  if (!_vehicles.length) {
+    grid.innerHTML = '<div style="color:var(--gray);font-size:.82rem;padding:12px">Niciun vehicul înregistrat.</div>';
+    return;
+  }
+  grid.innerHTML = _vehicles.map(v => {
+    const itpLvl  = alertLevel(v.itp_date);
+    const insLvl  = alertLevel(v.insurance_date);
+    const srvLvl  = alertLevel(v.service_date, v.km, v.service_km);
+    const worst   = [itpLvl, insLvl, srvLvl].includes('red') ? 'red' : [itpLvl, insLvl, srvLvl].includes('yellow') ? 'yellow' : 'green';
+    const alertBadge = worst === 'red' ? '<span class="vbadge vbadge-red">🔴 Expirat</span>'
+                     : worst === 'yellow' ? '<span class="vbadge vbadge-yellow">🟡 Atenție</span>' : '';
+    return `<div class="vcard v-${v.status}" onclick="openVehicleModal(${v.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div class="vcard-plate">${esc(v.plate)}</div>
+        <span class="vbadge ${v.status==='activ'?'vbadge-green':'vbadge-gray'}">${v.status}</span>
+      </div>
+      <div class="vcard-model">${esc(v.make||'')} ${esc(v.model||'')}${v.year?' · '+v.year:''} · ${v.capacity} locuri</div>
+      <div class="vcard-info">
+        ${v.driver_name?`👤 ${esc(v.driver_name)}<br>`:''}
+        🚐 Tur: ${v.tur_c1||'—'} / ${v.tur_c2||'—'} &nbsp;·&nbsp; Retur: ${v.retur_c1||'—'} / ${v.retur_c2||'—'}<br>
+        ITP: ${fmtDate(v.itp_date)} &nbsp;·&nbsp; Asig: ${fmtDate(v.insurance_date)}<br>
+        ${v.km?`Km: ${v.km.toLocaleString('ro-RO')}`:''}${v.service_date?` · Revizie: ${fmtDate(v.service_date)}`:''}
+      </div>
+      <div class="vcard-badges">${alertBadge}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFleetAlerts() {
+  const today = new Date();
+  const alerts = [];
+  _vehicles.forEach(v => {
+    if (v.status !== 'activ') return;
+    const check = (label, dateStr) => {
+      if (!dateStr) return;
+      const d = new Date(dateStr);
+      const diff = Math.floor((d - today) / 86400000);
+      if (diff < 0)    alerts.push({ level:'red',    text:`${v.plate} — ${label} expirat(ă) pe ${fmtDate(dateStr)}` });
+      else if (diff<=30) alerts.push({ level:'yellow', text:`${v.plate} — ${label} expiră în ${diff} zile (${fmtDate(dateStr)})` });
+    };
+    check('ITP', v.itp_date);
+    check('Asigurare RCA', v.insurance_date);
+    check('Revizie', v.service_date);
+    if (v.km && v.service_km && (v.km - v.service_km) > 15000)
+      alerts.push({ level:'yellow', text:`${v.plate} — Revizie recomandată (${(v.km-v.service_km).toLocaleString('ro-RO')} km de la ultima revizie)` });
+  });
+  const box = document.getElementById('fleet-alerts');
+  if (!alerts.length) { box.style.display='none'; return; }
+  const hasRed = alerts.some(a => a.level==='red');
+  box.className = 'fleet-alerts' + (hasRed?' has-red':'');
+  document.getElementById('fleet-alerts-body').innerHTML = alerts.map(a =>
+    `<div class="alert-row">${a.level==='red'?'🔴':'🟡'} ${esc(a.text)}</div>`
+  ).join('');
+  box.style.display='block';
+}
+
+function openVehicleModal(vehicleId) {
+  _editVehicleId = vehicleId;
+  const v = vehicleId ? _vehicles.find(x => x.id === vehicleId) : null;
+  document.getElementById('vehicle-modal-title').textContent = v ? `Editare — ${v.plate}` : 'Adaugă vehicul';
+  document.getElementById('v-plate').value       = v?.plate || '';
+  document.getElementById('v-capacity').value    = v?.capacity || 7;
+  document.getElementById('v-make').value        = v?.make || '';
+  document.getElementById('v-model').value       = v?.model || '';
+  document.getElementById('v-year').value        = v?.year || '';
+  document.getElementById('v-status').value      = v?.status || 'activ';
+  document.getElementById('v-tur-c1').value      = v?.tur_c1 || '';
+  document.getElementById('v-tur-c2').value      = v?.tur_c2 || '';
+  document.getElementById('v-ret-c1').value      = v?.retur_c1 || '';
+  document.getElementById('v-ret-c2').value      = v?.retur_c2 || '';
+  document.getElementById('v-km').value          = v?.km || '';
+  document.getElementById('v-driver').value      = v?.driver_name || '';
+  document.getElementById('v-itp').value         = v?.itp_date?.slice(0,10) || '';
+  document.getElementById('v-insurance').value   = v?.insurance_date?.slice(0,10) || '';
+  document.getElementById('v-service-date').value= v?.service_date?.slice(0,10) || '';
+  document.getElementById('v-service-km').value  = v?.service_km || '';
+  document.getElementById('v-notes').value       = v?.notes || '';
+  document.getElementById('v-save-msg').textContent = '';
+  document.getElementById('v-deactivate-btn').style.display = v && v.status==='activ' ? 'block' : 'none';
+  openModal('vehicle-modal');
+}
+
+async function saveVehicle() {
+  const btn = document.querySelector('#vehicle-modal .btn-save');
+  btn.disabled=true; btn.textContent='Se salvează...';
+  const body = {
+    plate:         document.getElementById('v-plate').value.trim().toUpperCase(),
+    capacity:      parseInt(document.getElementById('v-capacity').value)||7,
+    make:          document.getElementById('v-make').value.trim(),
+    model:         document.getElementById('v-model').value.trim(),
+    year:          parseInt(document.getElementById('v-year').value)||null,
+    status:        document.getElementById('v-status').value,
+    tur_c1:        document.getElementById('v-tur-c1').value.trim()||null,
+    tur_c2:        document.getElementById('v-tur-c2').value.trim()||null,
+    retur_c1:      document.getElementById('v-ret-c1').value.trim()||null,
+    retur_c2:      document.getElementById('v-ret-c2').value.trim()||null,
+    km:            parseInt(document.getElementById('v-km').value)||0,
+    driver_name:   document.getElementById('v-driver').value.trim(),
+    itp_date:      document.getElementById('v-itp').value||null,
+    insurance_date:document.getElementById('v-insurance').value||null,
+    service_date:  document.getElementById('v-service-date').value||null,
+    service_km:    parseInt(document.getElementById('v-service-km').value)||0,
+    notes:         document.getElementById('v-notes').value.trim(),
+  };
+  if (!body.plate) {
+    document.getElementById('v-save-msg').style.color='#dc2626';
+    document.getElementById('v-save-msg').textContent='Numărul de înmatriculare este obligatoriu.';
+    btn.disabled=false; btn.textContent='💾 Salvează'; return;
+  }
+  try {
+    const url = _editVehicleId
+      ? `${SERVER}/api/admin/vehicles/${_editVehicleId}`
+      : `${SERVER}/api/admin/vehicles`;
+    const r = await fetch(url, {
+      method: _editVehicleId ? 'PUT' : 'POST',
+      headers: {...authHdrs(), 'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
+    if (r.status===401){doLogout();return;}
+    const d = await r.json();
+    if (!r.ok) {
+      document.getElementById('v-save-msg').style.color='#dc2626';
+      document.getElementById('v-save-msg').textContent='Eroare: '+(d.error||'necunoscut');
+      btn.disabled=false; btn.textContent='💾 Salvează'; return;
+    }
+    document.getElementById('v-save-msg').style.color='#166534';
+    document.getElementById('v-save-msg').textContent='✓ Salvat cu succes!';
+    await loadVehicles();
+    setTimeout(()=>closeModal('vehicle-modal'),800);
+  } catch(e) {
+    document.getElementById('v-save-msg').style.color='#dc2626';
+    document.getElementById('v-save-msg').textContent='Eroare de rețea.';
+  }
+  btn.disabled=false; btn.textContent='💾 Salvează';
+}
+
+async function deactivateVehicle() {
+  if (!_editVehicleId) return;
+  const v = _vehicles.find(x=>x.id===_editVehicleId);
+  if (!confirm(`Dezactivezi vehiculul ${v?.plate}? Rezervările existente rămân valide.`)) return;
+  try {
+    const r = await fetch(`${SERVER}/api/admin/vehicles/${_editVehicleId}`, {
+      method:'DELETE', headers: authHdrs()
+    });
+    if (r.status===401){doLogout();return;}
+    const d = await r.json();
+    if (!r.ok){alert('Eroare: '+(d.error||'necunoscut'));return;}
+    closeModal('vehicle-modal');
+    await loadVehicles();
+  } catch(e){alert('Eroare de rețea.');}
 }
 function authHdrs() { return { 'Authorization':'Bearer '+_tok }; }
 
@@ -507,7 +797,7 @@ function renderCalendar() {
       const show = dayBks.slice(0, 3);
       show.forEach(b => {
         const cls = b.status==='cancelled'?'cancelled':b.direction;
-        const lbl = b.trip_time + ' ' + (b.direction==='tur'?'↑':'↓') + ' ' + (b.meta?.name || b.booking_ref || '');
+        const lbl = b.trip_time + ' ' + (b.direction==='tur'?'↑':'↓') + ' ' + (b.meta?.name || b.booking_ref || '') + (b.vehicle_plate?' · '+b.vehicle_plate:'');
         html += `<div class="pill ${cls}" title="${esc(b.meta?.name||b.booking_ref||'')} · ${b.passengers}pax">${esc(lbl)}</div>`;
       });
       if (dayBks.length > 3) html += `<div class="pill more">+${dayBks.length-3} mai multe</div>`;

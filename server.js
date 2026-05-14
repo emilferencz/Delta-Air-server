@@ -74,7 +74,41 @@ async function initDB() {
     )
   `);
   await db.query(`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS meta_json TEXT`);
-  console.log('✅ DB bookings table gata');
+
+  /* ── Tabel vehicule ── */
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS vehicles (
+      id              SERIAL PRIMARY KEY,
+      plate           VARCHAR(20)  NOT NULL UNIQUE,
+      make            VARCHAR(50),
+      model           VARCHAR(50),
+      year            INTEGER,
+      capacity        INTEGER      NOT NULL DEFAULT 7,
+      tur_c1          VARCHAR(5)   DEFAULT '01:30',
+      tur_c2          VARCHAR(5)   DEFAULT '14:00',
+      retur_c1        VARCHAR(5)   DEFAULT '07:00',
+      retur_c2        VARCHAR(5)   DEFAULT '19:30',
+      status          VARCHAR(10)  DEFAULT 'activ',
+      km              INTEGER      DEFAULT 0,
+      itp_date        DATE,
+      insurance_date  DATE,
+      service_date    DATE,
+      service_km      INTEGER      DEFAULT 0,
+      driver_name     VARCHAR(100),
+      notes           TEXT,
+      created_at      TIMESTAMPTZ  DEFAULT NOW()
+    )
+  `);
+  await db.query(`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS vehicle_id INTEGER REFERENCES vehicles(id)`);
+  /* Vehicul implicit la prima pornire */
+  await db.query(`
+    INSERT INTO vehicles (plate, make, model, capacity, tur_c1, tur_c2, retur_c1, retur_c2)
+    SELECT 'VB-01', 'Delta Air', 'Shuttle', 7, '01:30', '14:00', '07:00', '19:30'
+    WHERE NOT EXISTS (SELECT 1 FROM vehicles)
+  `);
+  /* Migrare rezervări existente → vehicul implicit */
+  await db.query(`UPDATE bookings SET vehicle_id = (SELECT id FROM vehicles ORDER BY id LIMIT 1) WHERE vehicle_id IS NULL`);
+  console.log('✅ DB bookings + vehicles gata');
 }
 
 async function savePendingPayment(token, meta) {
@@ -102,6 +136,26 @@ async function deletePendingPayment(token) {
 }
 initDB().catch(e => console.error('❌ DB init error:', e.message));
 
+/* Găsește vehiculul activ cu cel mai mult spațiu liber la ora/data/direcția dată */
+async function findVehicleForTrip(dir, tripTime, date, passengers) {
+  if (!db) return null;
+  const { rows } = await db.query(
+    `SELECT v.id, v.capacity,
+            COALESCE((SELECT SUM(b.passengers) FROM bookings b
+              WHERE b.vehicle_id = v.id AND b.trip_date = $3
+              AND b.trip_time = $2 AND b.direction = $1 AND b.status = 'confirmed'), 0)::int AS ocupate
+     FROM vehicles v
+     WHERE v.status = 'activ'
+       AND ($2 IN (v.tur_c1, v.tur_c2, v.retur_c1, v.retur_c2))
+     ORDER BY (v.capacity - ocupate) DESC LIMIT 1`,
+    [dir, tripTime, date]
+  );
+  if (rows.length && (rows[0].capacity - rows[0].ocupate) >= passengers) return rows[0].id;
+  /* Fallback: primul vehicul activ */
+  const { rows: fb } = await db.query(`SELECT id FROM vehicles WHERE status='activ' ORDER BY id LIMIT 1`);
+  return fb[0]?.id || null;
+}
+
 async function recordBooking(meta) {
   if (!db) return;
   const { dir, tr, trip, date } = meta || {};
@@ -111,23 +165,25 @@ async function recordBooking(meta) {
     ? CAPACITY
     : (parseInt(meta.adults || 1) + parseInt(meta.children || 0));
   const _metaClean = (m) => { const c={...m}; delete c.signatureDataUrl; return c; };
+  const vehicleId = await findVehicleForTrip(dir, tripTime, date, passengers);
   await db.query(
-    `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [date, tripTime, dir, passengers, tr || 'economy', meta.name || '', JSON.stringify(_metaClean(meta))]
+    `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json, vehicle_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [date, tripTime, dir, passengers, tr || 'economy', meta.name || '', JSON.stringify(_metaClean(meta)), vehicleId]
   );
-  console.log(`📋 Booking înregistrat: ${date} ${tripTime} ${dir} — ${passengers} loc(uri)`);
+  console.log(`📋 Booking înregistrat: ${date} ${tripTime} ${dir} — ${passengers} loc(uri) [vehicul: ${vehicleId}]`);
 
   const rt = meta.returnTrip;
   if (rt?.date && rt?.dir && rt?.trip) {
     const rtTime = TRIP_TIMES[rt.dir]?.[rt.trip];
     if (rtTime) {
+      const rtVehicleId = await findVehicleForTrip(rt.dir, rtTime, rt.date, passengers);
       await db.query(
-        `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [rt.date, rtTime, rt.dir, passengers, tr || 'economy', meta.name || '', JSON.stringify({..._metaClean(meta), _isReturnTrip: true})]
+        `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json, vehicle_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [rt.date, rtTime, rt.dir, passengers, tr || 'economy', meta.name || '', JSON.stringify({..._metaClean(meta), _isReturnTrip: true}), rtVehicleId]
       );
-      console.log(`📋 Booking retur înregistrat: ${rt.date} ${rtTime} ${rt.dir} — ${passengers} loc(uri)`);
+      console.log(`📋 Booking retur înregistrat: ${rt.date} ${rtTime} ${rt.dir} — ${passengers} loc(uri) [vehicul: ${rtVehicleId}]`);
     }
   }
 }
@@ -487,6 +543,15 @@ app.get('/api/availability', async (req, res) => {
   const times = TRIP_TIMES[direction];
   if (!times) return res.status(400).json({ error: 'direction invalid' });
   try {
+    /* Capacitate totală = suma vehiculelor active per slot orar */
+    const { rows: vehicles } = await db.query(`SELECT id, capacity, tur_c1, tur_c2, retur_c1, retur_c2 FROM vehicles WHERE status='activ'`);
+    const capPerTime = {};
+    for (const v of vehicles) {
+      const c1 = direction === 'tur' ? v.tur_c1 : v.retur_c1;
+      const c2 = direction === 'tur' ? v.tur_c2 : v.retur_c2;
+      if (c1) capPerTime[c1] = (capPerTime[c1] || 0) + v.capacity;
+      if (c2) capPerTime[c2] = (capPerTime[c2] || 0) + v.capacity;
+    }
     const result = {};
     for (const [key, time] of Object.entries(times)) {
       const { rows } = await db.query(
@@ -496,7 +561,8 @@ app.get('/api/availability', async (req, res) => {
         [date, time, direction]
       );
       const ocupate = rows[0].ocupate;
-      result[key] = { time, ocupate, disponibile: Math.max(0, CAPACITY - ocupate) };
+      const cap = capPerTime[time] || CAPACITY;
+      result[key] = { time, ocupate, disponibile: Math.max(0, cap - ocupate) };
     }
     res.json(result);
   } catch (err) {
@@ -1853,6 +1919,78 @@ app.get('/api/netopia-confirm', async (req, res) => {
   }
 });
 
+/* ══════════════════════════════════════════════════════════════
+   ADMIN API — Vehicule / Flotă
+══════════════════════════════════════════════════════════════ */
+
+/* GET /api/admin/vehicles */
+app.get('/api/admin/vehicles', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    const { rows } = await db.query(`SELECT * FROM vehicles ORDER BY id`);
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* POST /api/admin/vehicles */
+app.post('/api/admin/vehicles', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { plate, make, model, year, capacity, tur_c1, tur_c2, retur_c1, retur_c2,
+          status, km, itp_date, insurance_date, service_date, service_km, driver_name, notes } = req.body || {};
+  if (!plate) return res.status(400).json({ error: 'Numărul de înmatriculare este obligatoriu.' });
+  try {
+    const { rows } = await db.query(
+      `INSERT INTO vehicles (plate, make, model, year, capacity, tur_c1, tur_c2, retur_c1, retur_c2,
+        status, km, itp_date, insurance_date, service_date, service_km, driver_name, notes)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *`,
+      [plate.toUpperCase(), make||null, model||null, year||null, capacity||7,
+       tur_c1||null, tur_c2||null, retur_c1||null, retur_c2||null,
+       status||'activ', km||0, itp_date||null, insurance_date||null,
+       service_date||null, service_km||0, driver_name||null, notes||null]
+    );
+    res.status(201).json(rows[0]);
+  } catch (e) {
+    if (e.code === '23505') return res.status(409).json({ error: 'Număr înmatriculare deja există.' });
+    res.status(500).json({ error: e.message });
+  }
+});
+
+/* PUT /api/admin/vehicles/:id */
+app.put('/api/admin/vehicles/:id', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { id } = req.params;
+  const { plate, make, model, year, capacity, tur_c1, tur_c2, retur_c1, retur_c2,
+          status, km, itp_date, insurance_date, service_date, service_km, driver_name, notes } = req.body || {};
+  try {
+    const { rows } = await db.query(
+      `UPDATE vehicles SET plate=$1, make=$2, model=$3, year=$4, capacity=$5,
+        tur_c1=$6, tur_c2=$7, retur_c1=$8, retur_c2=$9, status=$10,
+        km=$11, itp_date=$12, insurance_date=$13, service_date=$14, service_km=$15,
+        driver_name=$16, notes=$17 WHERE id=$18 RETURNING *`,
+      [plate?.toUpperCase(), make||null, model||null, year||null, capacity||7,
+       tur_c1||null, tur_c2||null, retur_c1||null, retur_c2||null,
+       status||'activ', km||0, itp_date||null, insurance_date||null,
+       service_date||null, service_km||0, driver_name||null, notes||null, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Vehicul negăsit.' });
+    res.json(rows[0]);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* DELETE /api/admin/vehicles/:id — dezactivare, nu ștergere fizică */
+app.delete('/api/admin/vehicles/:id', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { id } = req.params;
+  try {
+    const { rows: bk } = await db.query(
+      `SELECT COUNT(*)::int AS cnt FROM bookings WHERE vehicle_id=$1 AND status='confirmed'`, [id]
+    );
+    const { rows } = await db.query(`UPDATE vehicles SET status='inactiv' WHERE id=$1 RETURNING *`, [id]);
+    if (!rows.length) return res.status(404).json({ error: 'Vehicul negăsit.' });
+    res.json({ ok: true, rezervari_active: bk[0].cnt });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 /* ──────────────────────────────────────────────
    GET /health
 ────────────────────────────────────────────── */
@@ -1912,11 +2050,13 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
   const { from = '2020-01-01', to = '2030-12-31' } = req.query;
   try {
     const { rows } = await db.query(
-      `SELECT id, trip_date, trip_time, direction, passengers, transfer_type,
-              booking_ref, status, created_at, meta_json
-       FROM bookings
-       WHERE trip_date BETWEEN $1 AND $2
-       ORDER BY trip_date ASC, trip_time ASC`,
+      `SELECT b.id, b.trip_date, b.trip_time, b.direction, b.passengers, b.transfer_type,
+              b.booking_ref, b.status, b.created_at, b.meta_json, b.vehicle_id,
+              v.plate AS vehicle_plate
+       FROM bookings b
+       LEFT JOIN vehicles v ON v.id = b.vehicle_id
+       WHERE b.trip_date BETWEEN $1 AND $2
+       ORDER BY b.trip_date ASC, b.trip_time ASC`,
       [from, to]
     );
     res.json(rows.map(r => {
@@ -1925,7 +2065,8 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
       return { id: r.id, trip_date: r.trip_date, trip_time: r.trip_time,
                direction: r.direction, passengers: r.passengers,
                transfer_type: r.transfer_type, booking_ref: r.booking_ref,
-               status: r.status, created_at: r.created_at, meta };
+               status: r.status, created_at: r.created_at, meta,
+               vehicle_id: r.vehicle_id, vehicle_plate: r.vehicle_plate };
     }));
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
