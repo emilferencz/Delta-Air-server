@@ -2,8 +2,7 @@
 (function () {
   var KEY = 'deltaair_cookies';
   /* TODO: înlocuiește cu ID-urile reale înainte de activarea tracking-ului */
-  var GA_ID = 'G-N1D0PXT6HB';
-  var PIXEL_ID = '000000000000000';
+  /* Tag-urile sunt gestionate prin GTM-5N4NP4CN */
 
   function getPrefs() {
     try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; }
@@ -27,18 +26,12 @@
   }
 
   function loadPixel() {
-    if (window._ckPixel) return;
-    window._ckPixel = true;
-    !function (f, b, e, v, n, t, s) {
-      if (f.fbq) return;
-      n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
-      if (!f._fbq) f._fbq = n;
-      n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
-      t = b.createElement(e); t.async = !0; t.src = v;
-      s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
-    }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', PIXEL_ID);
-    fbq('track', 'PageView');
+    if (!window.gtag) return;
+    gtag('consent', 'update', {
+      'ad_storage': 'granted',
+      'ad_user_data': 'granted',
+      'ad_personalization': 'granted'
+    });
   }
 
   function applyPrefs(prefs) {
