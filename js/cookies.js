@@ -183,8 +183,8 @@
       document.getElementById('ck-accept').addEventListener('click', acceptAll);
     } else {
       applyPrefs(prefs);
-      injectFloat();
     }
+    injectFloat();
   }
 
   if (document.readyState === 'loading') {
