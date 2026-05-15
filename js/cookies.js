@@ -73,6 +73,26 @@
     btn.id = 'ck-float';
     btn.title = 'Setări cookie-uri';
     btn.textContent = '🍪';
+    btn.setAttribute('style',
+      'position:fixed !important;' +
+      'bottom:80px !important;' +
+      'right:16px !important;' +
+      'left:auto !important;' +
+      'z-index:2147483647 !important;' +
+      'width:50px !important;' +
+      'height:50px !important;' +
+      'border-radius:50% !important;' +
+      'background:rgba(10,20,45,.95) !important;' +
+      'border:2px solid #c9a84c !important;' +
+      'font-size:22px !important;' +
+      'cursor:pointer !important;' +
+      'display:flex !important;' +
+      'align-items:center !important;' +
+      'justify-content:center !important;' +
+      'box-shadow:0 4px 20px rgba(0,0,0,.45) !important;' +
+      'touch-action:manipulation !important;' +
+      '-webkit-tap-highlight-color:transparent !important;'
+    );
     btn.addEventListener('click', openModal);
     document.body.appendChild(btn);
   }
