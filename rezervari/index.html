@@ -60,7 +60,7 @@
     .step-num { width: 24px; height: 24px; background: var(--navy); color: #fff; border-radius: 50%;
       display: flex; align-items: center; justify-content: center; font-size: .65rem; font-weight: 700; flex-shrink: 0; }
 
-    .form-section { background: #fff; border-radius: 20px; padding: 32px; box-shadow: var(--sh); margin-bottom: 20px; overflow-x: hidden; }
+    .form-section { background: #fff; border-radius: 20px; padding: 32px; box-shadow: var(--sh); margin-bottom: 20px; }
     @media (max-width: 480px) { .form-section { padding: 20px; } }
 
     /* Radio cards */
@@ -125,6 +125,11 @@
     .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
     @media (max-width: 860px) { .field-row-3 { grid-template-columns: 1fr 1fr; } }
     @media (max-width: 600px) { .field-row, .field-row-3 { grid-template-columns: 1fr; } }
+    /* iOS: font-size < 16px declanșează auto-zoom → overflow */
+    @media (max-width: 768px) {
+      .field-group input, .field-group select, .field-group textarea { font-size: 16px; }
+      .date-txt-inp { font-size: 16px !important; }
+    }
     .field-hint { font-size: .67rem; color: var(--gray); margin-top: 3px; }
 
     /* Buyer type tabs */
@@ -206,13 +211,16 @@
     .sig-agree label a { color:var(--navy); text-decoration:underline; }
 
     /* ── Custom date input ── */
-    .date-wrap { display:flex; align-items:stretch; }
-    .date-wrap .date-txt-inp { flex:1; border-radius:10px 0 0 10px !important; border-right:none !important; }
+    .date-wrap { display:flex; align-items:stretch; min-width:0; max-width:100%; }
+    .date-wrap .date-txt-inp { flex:1; min-width:0; border-radius:10px 0 0 10px !important; border-right:none !important; }
     .date-wrap .date-txt-inp:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(26,47,94,.1); z-index:1; position:relative; }
-    .date-cal-wrap { position:relative; width:42px; border:1.5px solid rgba(26,47,94,.18); border-radius:0 10px 10px 0; background:#f5f7fc; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; cursor:pointer; }
+    .date-cal-wrap { position:relative; min-width:44px; width:44px; max-width:44px; border:1.5px solid rgba(26,47,94,.18); border-radius:0 10px 10px 0; background:#f5f7fc; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; overflow:hidden; }
     .date-cal-wrap:hover { background:#eef1f9; border-color:var(--navy); }
     .date-cal-ico { font-size:1rem; pointer-events:none; }
-    .date-native { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; padding:0; border:none; }
+    .date-native { position:absolute; inset:0; opacity:0; cursor:pointer; padding:0; border:none; font-size:16px; }
+    @media (max-width: 600px) {
+      .date-cal-wrap { min-width:48px; width:48px; max-width:48px; }
+    }
 
     /* ── Return trip toggle ── */
     .ret-toggle-wrap { cursor:pointer; user-select:none; }
