@@ -76,8 +76,8 @@
     btn.setAttribute('style',
       'position:fixed !important;' +
       'bottom:80px !important;' +
-      'right:16px !important;' +
-      'left:auto !important;' +
+      'left:16px !important;' +
+      'right:auto !important;' +
       'z-index:2147483647 !important;' +
       'width:50px !important;' +
       'height:50px !important;' +
