@@ -7,7 +7,7 @@
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 9998;
-  padding: 0 16px 16px;
+  padding: 0 16px calc(16px + env(safe-area-inset-bottom));
   transform: translateY(110%);
   transition: transform .42s cubic-bezier(.22,.61,.36,1);
   pointer-events: none;
@@ -269,21 +269,22 @@
 /* ─── FLOATING BUTTON ─── */
 #ck-float {
   position: fixed;
-  bottom: 22px;
-  left: 22px;
-  z-index: 9990;
-  width: 42px; height: 42px;
+  bottom: max(72px, calc(env(safe-area-inset-bottom) + 72px));
+  right: 16px;
+  left: auto;
+  z-index: 99999;
+  width: 46px; height: 46px;
   border-radius: 50%;
-  background: rgba(10,20,45,.92);
-  border: 1px solid rgba(201,168,76,.4);
-  font-size: 1.05rem;
+  background: rgba(10,20,45,.95);
+  border: 2px solid rgba(201,168,76,.6);
+  font-size: 1.15rem;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(0,0,0,.28);
+  box-shadow: 0 4px 18px rgba(0,0,0,.4);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform .2s, box-shadow .2s;
-  backdrop-filter: blur(10px);
+  will-change: transform;
 }
 #ck-float:hover {
   transform: scale(1.12);
