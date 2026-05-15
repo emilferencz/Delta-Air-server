@@ -11,9 +11,13 @@
   transform: translateY(110%);
   transition: transform .42s cubic-bezier(.22,.61,.36,1);
   pointer-events: none;
+  /* forțează layer GPU propriu — rezolvă bug iOS overflow-x:hidden pe body */
+  -webkit-transform: translateY(110%);
+  will-change: transform;
 }
 #ck-banner.ck-visible {
   transform: translateY(0);
+  -webkit-transform: translateY(0);
   pointer-events: all;
 }
 .ck-inner {

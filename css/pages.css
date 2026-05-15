@@ -18,8 +18,8 @@
   --sh: 0 8px 40px rgba(26,47,94,.15);
 }
 
-html { scroll-behavior: smooth; }
-body { font-family: 'Poppins', sans-serif; color: var(--dark); overflow-x: hidden; background: var(--off); }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { font-family: 'Poppins', sans-serif; color: var(--dark); background: var(--off); max-width: 100%; }
 img  { display: block; max-width: 100%; }
 a    { text-decoration: none; color: inherit; }
 
