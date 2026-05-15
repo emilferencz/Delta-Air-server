@@ -212,4 +212,13 @@
   } else {
     inject();
   }
+
+  /* Fallback: re-injectează butonul dacă a dispărut (ex: GSAP sau alte scripturi) */
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      if (getPrefs() !== null && !document.getElementById('ck-float')) {
+        injectFloat();
+      }
+    }, 800);
+  });
 })();
