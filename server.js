@@ -157,10 +157,12 @@ async function findVehicleForTrip(dir, tripTime, date, passengers) {
 }
 
 async function recordBooking(meta) {
-  if (!db) return;
+  if (!db) throw new Error('Conexiune DB indisponibilă (DATABASE_URL lipsă)');
   const { dir, tr, trip, date } = meta || {};
+  if (!dir) throw new Error('Câmp lipsă: dir');
+  if (!date) throw new Error('Câmp lipsă: date');
   const tripTime = TRIP_TIMES[dir]?.[trip];
-  if (!tripTime || !date || !dir) return;
+  if (!tripTime) throw new Error(`Orar negăsit pentru dir="${dir}" trip="${trip}"`);
   const passengers = tr === 'privat'
     ? CAPACITY
     : (parseInt(meta.adults || 1) + parseInt(meta.children || 0));
@@ -484,7 +486,11 @@ app.post('/api/stripe-webhook',
       console.log(`✅ Plată card confirmată | ${email} | ${meta.dirLabel || ''} | ${meta.date || ''}`);
 
       // Înregistrează în baza de date
-      try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (card):', dbErr.message); }
+      try {
+        await recordBooking(meta);
+      } catch (dbErr) {
+        console.error('❌ recordBooking (card):', dbErr.message, '| meta:', JSON.stringify({ dir: meta.dir, trip: meta.trip, date: meta.date, name: meta.name }));
+      }
 
       const hasEmail = !!(process.env.EMAIL_USER && process.env.EMAIL_PASS);
       if (email && hasEmail) {
@@ -1585,7 +1591,12 @@ app.post('/api/reserve-cash', async (req, res) => {
     if (!customerEmail) return res.status(400).json({ error: 'Email lipsă.' });
 
     // Înregistrează în baza de date
-    try { await recordBooking(meta); } catch (dbErr) { console.error('❌ recordBooking (cash):', dbErr.message); }
+    try {
+      await recordBooking(meta);
+    } catch (dbErr) {
+      console.error('❌ recordBooking (cash):', dbErr.message, '| meta:', JSON.stringify({ dir: meta.dir, trip: meta.trip, date: meta.date, name: meta.name }));
+      return res.status(500).json({ error: 'Rezervarea nu a putut fi salvată în baza de date: ' + dbErr.message });
+    }
 
     // Generează PDF contract
     const pdfBuffer = await generateContractPDF(meta);
@@ -2050,7 +2061,7 @@ app.get('/api/admin/bookings', adminAuth, async (req, res) => {
   const { from = '2020-01-01', to = '2030-12-31' } = req.query;
   try {
     const { rows } = await db.query(
-      `SELECT b.id, b.trip_date, b.trip_time, b.direction, b.passengers, b.transfer_type,
+      `SELECT b.id, b.trip_date::text AS trip_date, b.trip_time, b.direction, b.passengers, b.transfer_type,
               b.booking_ref, b.status, b.created_at, b.meta_json, b.vehicle_id,
               v.plate AS vehicle_plate
        FROM bookings b
