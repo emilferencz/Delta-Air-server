@@ -470,6 +470,49 @@
     }
     .btn-email:hover { background: rgba(255,255,255,.17); }
 
+    /* ── CONTACT FORM ── */
+    .contact-form {
+      background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 36px 40px;
+      max-width: 600px;
+      margin: 32px auto 0;
+      text-align: left;
+    }
+    .cf-row { margin-bottom: 18px; }
+    .cf-row label { display: block; font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.55); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
+    .cf-row input, .cf-row textarea {
+      width: 100%; box-sizing: border-box;
+      background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.15);
+      border-radius: 10px; padding: 12px 16px;
+      font-size: .95rem; font-family: inherit; color: #fff;
+      outline: none; transition: border-color .2s;
+    }
+    .cf-row input:focus, .cf-row textarea:focus { border-color: var(--gold); }
+    .cf-row input::placeholder, .cf-row textarea::placeholder { color: rgba(255,255,255,.3); }
+    .cf-row textarea { resize: vertical; min-height: 110px; }
+    .cf-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .cf-submit {
+      width: 100%; padding: 15px; margin-top: 8px;
+      background: var(--gold); color: var(--navy2);
+      border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: background .2s, transform .2s;
+    }
+    .cf-submit:hover { background: var(--gold2); transform: translateY(-2px); }
+    .cf-submit:disabled { opacity: .6; transform: none; cursor: not-allowed; }
+    .cf-msg { text-align: center; margin-top: 14px; font-size: .9rem; font-weight: 600; }
+    .cf-msg.ok { color: #4ade80; }
+    .cf-msg.err { color: #f87171; }
+    .cf-divider { display: flex; align-items: center; gap: 14px; margin: 24px 0 20px; }
+    .cf-divider::before, .cf-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.12); }
+    .cf-divider span { font-size: .78rem; color: rgba(255,255,255,.4); white-space: nowrap; }
+    @media (max-width: 600px) {
+      .contact-form { padding: 24px 18px; }
+      .cf-cols { grid-template-columns: 1fr; }
+    }
+
     /* ── FOOTER ── */
     .kron-footer {
       background: #07111f;
@@ -754,13 +797,42 @@
     Spune-ne despre afacerea ta și îți arătăm în 30 de minute
     ce poate fi automatizat și ce impact ar avea.
   </p>
+
+  <form class="contact-form reveal" id="kron-contact-form" onsubmit="kronSubmit(event)">
+    <div class="cf-cols">
+      <div class="cf-row">
+        <label for="cf-name">Nume *</label>
+        <input id="cf-name" type="text" placeholder="Ion Popescu" required>
+      </div>
+      <div class="cf-row">
+        <label for="cf-company">Companie / Domeniu</label>
+        <input id="cf-company" type="text" placeholder="ex: Restaurant, Clinică, E-commerce">
+      </div>
+    </div>
+    <div class="cf-cols">
+      <div class="cf-row">
+        <label for="cf-email">Email *</label>
+        <input id="cf-email" type="email" placeholder="email@companie.ro" required>
+      </div>
+      <div class="cf-row">
+        <label for="cf-phone">Telefon</label>
+        <input id="cf-phone" type="tel" placeholder="+40 7xx xxx xxx">
+      </div>
+    </div>
+    <div class="cf-row">
+      <label for="cf-desc">Ce vrei să automatizezi? *</label>
+      <textarea id="cf-desc" placeholder="Ex: Trimit manual facturi pe email după fiecare comandă, procesez rezervări din 3 surse diferite, completez rapoarte săptămânal..." required></textarea>
+    </div>
+    <button class="cf-submit" type="submit" id="cf-btn">Trimite cererea →</button>
+    <div class="cf-msg" id="cf-msg"></div>
+  </form>
+
+  <div class="cf-divider reveal"><span>sau contactează-ne direct</span></div>
+
   <div class="cta-btns reveal">
     <a class="btn-wa" href="https://wa.me/40723644418?text=Buna%20ziua%2C%20as%20vrea%20sa%20discut%20despre%20automatizarea%20afacerii%20mele%20cu%20KronAds." target="_blank">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
       WhatsApp — răspundem imediat
-    </a>
-    <a class="btn-email" href="mailto:contact@kronads.ro?subject=Vreau%20sa%20automatizez%20afacerea%20mea&body=Buna%20ziua%2C%0A%0AAs%20vrea%20sa%20discutam%20despre%20automatizarea%20fluxurilor%20de%20lucru%20din%20afacerea%20mea.%0A%0ADescriere%20scurta%3A%20" target="_blank">
-      ✉ Trimite un email
     </a>
   </div>
 </section>
@@ -779,6 +851,43 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  async function kronSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('cf-btn');
+    const msg = document.getElementById('cf-msg');
+    btn.disabled = true;
+    btn.textContent = 'Se trimite...';
+    msg.className = 'cf-msg';
+    msg.textContent = '';
+    try {
+      const res = await fetch('https://delta-air-server-production.up.railway.app/api/kronads-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:        document.getElementById('cf-name').value.trim(),
+          company:     document.getElementById('cf-company').value.trim(),
+          email:       document.getElementById('cf-email').value.trim(),
+          phone:       document.getElementById('cf-phone').value.trim(),
+          description: document.getElementById('cf-desc').value.trim(),
+        })
+      });
+      if (res.ok) {
+        msg.className = 'cf-msg ok';
+        msg.textContent = '✅ Mesaj trimis! Te contactăm în maxim 24 de ore.';
+        document.getElementById('kron-contact-form').reset();
+        btn.textContent = 'Trimite cererea →';
+        btn.disabled = false;
+      } else {
+        throw new Error('server error');
+      }
+    } catch {
+      msg.className = 'cf-msg err';
+      msg.textContent = '⚠️ Ceva n-a mers. Încearcă pe WhatsApp sau email direct.';
+      btn.textContent = 'Trimite cererea →';
+      btn.disabled = false;
+    }
+  }
 </script>
 
 </body>

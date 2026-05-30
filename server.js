@@ -2662,6 +2662,38 @@ setInterval(async () => {
   } catch (e) { console.error('⚠️  Reminder cron error:', e.message); }
 }, 60 * 60 * 1000); /* rulează la fiecare 60 de minute */
 
+/* ── POST /api/kronads-contact — formular lead KronAds ── */
+app.post('/api/kronads-contact', express.json(), async (req, res) => {
+  const { name, company, email, phone, description } = req.body || {};
+  if (!name || !email || !description) {
+    return res.status(400).json({ error: 'Câmpurile obligatorii lipsesc.' });
+  }
+  const html = `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto">
+      <h2 style="color:#1a2f5e">🤖 Lead nou — KronAds AI Automations</h2>
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:8px;font-weight:600;width:140px">Nume</td><td style="padding:8px">${escHtml(name)}</td></tr>
+        <tr style="background:#f4f6fb"><td style="padding:8px;font-weight:600">Companie</td><td style="padding:8px">${escHtml(company || '—')}</td></tr>
+        <tr><td style="padding:8px;font-weight:600">Email</td><td style="padding:8px"><a href="mailto:${escHtml(email)}">${escHtml(email)}</a></td></tr>
+        <tr style="background:#f4f6fb"><td style="padding:8px;font-weight:600">Telefon</td><td style="padding:8px">${escHtml(phone || '—')}</td></tr>
+        <tr><td style="padding:8px;font-weight:600;vertical-align:top">Nevoia</td><td style="padding:8px;white-space:pre-wrap">${escHtml(description)}</td></tr>
+      </table>
+    </div>`;
+  try {
+    await transporter.sendMail({
+      from:    process.env.EMAIL_FROM || `"KronAds" <${process.env.EMAIL_USER}>`,
+      to:      'contact@kronads.ro',
+      replyTo: email,
+      subject: `🤖 Lead nou KronAds — ${escHtml(name)} (${escHtml(company || email)})`,
+      html,
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('KronAds contact email error:', err.message);
+    res.status(500).json({ error: 'Eroare la trimiterea emailului.' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n✅ Delta Air Shuttle server pornit pe http://localhost:${PORT}`);
   console.log(`   Mod Stripe:     ${process.env.STRIPE_SECRET_KEY?.startsWith('sk_live') ? '🔴 LIVE' : '🟡 TEST'}`);
