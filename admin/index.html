@@ -134,6 +134,8 @@
     .ann-day.ann-empty{background:transparent;cursor:default}
     .ann-day.ann-empty:hover{outline:none}
     .ann-day.ann-today{outline:2px solid var(--navy);z-index:2;border-radius:3px}
+    .ann-dn{font-size:6px;font-weight:700;color:#1e293b;text-align:center;line-height:1.5;flex-shrink:0;background:rgba(255,255,255,.55);padding:0 1px}
+    .ann-day.ann-today .ann-dn{color:var(--navy);background:rgba(255,255,255,.8)}
     .ann-tur{flex:1}
     .ann-ret{flex:1}
     .ann-legend{display:flex;gap:14px;margin-top:10px;font-size:.7rem;color:var(--gray);flex-wrap:wrap;align-items:center}
@@ -175,6 +177,8 @@
     .btn-doc{background:#fffbf0;color:#92400e;border:1.5px solid #c9a84c;border-radius:8px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
     .btn-doc:hover{background:#fef3c7}
     .no-bk{text-align:center;padding:36px 0;color:var(--gray);font-size:.86rem}
+    .btn-new-bk{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-new-bk:hover{background:#243d75}
 
     /* Edit modal form */
     .egroup{margin-bottom:15px}
@@ -397,15 +401,23 @@
             <option value="retur">Aeroport → Brașov (retur)</option>
           </select>
         </div>
+        <div class="egroup"><label class="elabel">Aeroport</label>
+          <select class="einput" id="e-apt">
+            <option value="otopeni">Otopeni – Henri Coandă (OTP)</option>
+            <option value="baneasa">Băneasa – Aurel Vlaicu (BBU)</option>
+          </select>
+        </div>
+      </div>
+      <div class="erow">
         <div class="egroup"><label class="elabel">Tip transfer</label>
           <select class="einput" id="e-tr">
             <option value="economy">Economy</option>
             <option value="privat">Privat</option>
           </select>
         </div>
+        <div class="egroup"><label class="elabel">Pasageri</label><input class="einput" type="number" id="e-pax" min="1" max="7"></div>
       </div>
       <div class="erow">
-        <div class="egroup"><label class="elabel">Pasageri</label><input class="einput" type="number" id="e-pax" min="1" max="7"></div>
         <div class="egroup"><label class="elabel">Status</label>
           <select class="einput" id="e-status">
             <option value="confirmed">Confirmat</option>
@@ -501,6 +513,7 @@ let _month = new Date().getMonth(); // 0-indexed
 let _bookings = [];
 let _editId = null;
 let _currentDayStr = null;
+let _dayModalFromAnnual = false;
 
 const MONTHS = ['ianuarie','februarie','martie','aprilie','mai','iunie','iulie','august','septembrie','octombrie','noiembrie','decembrie'];
 const TODAY = new Date().toISOString().slice(0,10);
@@ -986,7 +999,8 @@ function renderAnnualCalendar() {
       const d = byDate[dateStr] || { tur: 0, retur: 0 };
       const tc = turColor(d.tur), rc = retColor(d.retur);
       const tip = `${dateStr}\nTur: ${d.tur} pax | Retur: ${d.retur} pax`;
-      html += `<div class="ann-day${isToday?' ann-today':''}" title="${tip}" onclick="jumpToAnnualMonth(${m})">`;
+      html += `<div class="ann-day${isToday?' ann-today':''}" title="${tip}" onclick="openDayFromAnnual('${dateStr}')">`;
+      html += `<div class="ann-dn">${dayNum}</div>`;
       html += `<div class="ann-tur" style="background:${tc}"></div>`;
       html += `<div class="ann-ret" style="background:${rc}"></div>`;
       html += `</div>`;
@@ -1007,53 +1021,85 @@ function jumpToAnnualMonth(month) {
 
 // ── DAY MODAL ────────────────────────────────────────
 function openDay(dateStr) {
+  _dayModalFromAnnual = false;
+  _openDayModal(dateStr, _bookings);
+}
+
+function openDayFromAnnual(dateStr) {
+  _dayModalFromAnnual = true;
+  _openDayModal(dateStr, _annualBookings);
+}
+
+function _openDayModal(dateStr, bks) {
   _currentDayStr = dateStr;
   const [y,m,d] = dateStr.split('-');
   const dtObj = new Date(+y, +m-1, +d);
   const dayNames = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
   document.getElementById('day-modal-title').textContent = `${dayNames[dtObj.getDay()]}, ${+d} ${MONTHS[+m-1]} ${y}`;
-  const dayBks = _bookings.filter(b => b.trip_date.slice(0,10) === dateStr);
-  if (!dayBks.length) { document.getElementById('day-modal-body').innerHTML = '<div class="no-bk">Nicio rezervare în această zi.</div>'; openModal('day-modal'); return; }
-
-  const sorted = [...dayBks].sort((a,b) => a.trip_time.localeCompare(b.trip_time));
+  const dayBks = bks.filter(b => b.trip_date.slice(0,10) === dateStr);
   let html = '';
-  sorted.forEach(b => {
-    const meta = b.meta || {};
-    const cancelled = b.status === 'cancelled';
-    const isRet = meta._isReturnTrip;
-    html += `<div class="bkc${cancelled?' cancelled':''}">`;
-    html += `<div class="bkc-h">
-      <span class="bk-time">${b.trip_time}</span>
-      <span class="badge ${b.direction}">${b.direction === 'tur' ? '↑ Tur' : '↓ Retur'}</span>
-      <span class="badge ${b.transfer_type==='privat'?'priv':'eco'}">${b.transfer_type==='privat'?'Privat':'Economy'}</span>
-      ${isRet?'<span class="badge ret-trip">Rezervare retur</span>':''}
-      ${cancelled?'<span class="badge canc">Anulat</span>':''}
-    </div>`;
-    html += `<div class="bk-info">
-      <strong>${esc(meta.name || b.booking_ref || '—')}</strong><br>
-      ${meta.phone?`📞 ${esc(meta.phone)}<br>`:''}
-      ${meta.email?`✉ ${esc(meta.email)}<br>`:''}
-      👥 ${b.passengers} pasager${b.passengers==1?'':'i'} &nbsp;·&nbsp; ${b.transfer_type==='privat'?'Transfer privat':'Economy'}
-      ${meta.obs?`<br>📝 ${esc(meta.obs)}`:''}
-    </div>`;
-    html += `<div class="bk-acts">
-      <button class="btn-e" onclick="openEdit(${b.id})">✏ Modifică</button>
-      ${cancelled
-        ? `<button class="btn-restore" onclick="setStatus(${b.id},'confirmed')">↩ Reactivează</button>`
-        : `<button class="btn-c" onclick="cancelBk(${b.id})">✕ Anulează</button>`
-      }
-      <button class="btn-doc" onclick="adminDownload(${b.id},'contract')">📄 Contract</button>
-      <button class="btn-doc" onclick="adminDownload(${b.id},'invoice')">🧾 Factură</button>
-    </div>`;
-    html += '</div>';
-  });
+  if (dayBks.length) {
+    const sorted = [...dayBks].sort((a,b) => a.trip_time.localeCompare(b.trip_time));
+    sorted.forEach(b => {
+      const meta = b.meta || {};
+      const cancelled = b.status === 'cancelled';
+      const isRet = meta._isReturnTrip;
+      html += `<div class="bkc${cancelled?' cancelled':''}">`;
+      html += `<div class="bkc-h">
+        <span class="bk-time">${b.trip_time}</span>
+        <span class="badge ${b.direction}">${b.direction === 'tur' ? '↑ Tur' : '↓ Retur'}</span>
+        <span class="badge ${b.transfer_type==='privat'?'priv':'eco'}">${b.transfer_type==='privat'?'Privat':'Economy'}</span>
+        ${isRet?'<span class="badge ret-trip">Rezervare retur</span>':''}
+        ${cancelled?'<span class="badge canc">Anulat</span>':''}
+      </div>`;
+      html += `<div class="bk-info">
+        <strong>${esc(meta.name || b.booking_ref || '—')}</strong><br>
+        ${meta.phone?`📞 ${esc(meta.phone)}<br>`:''}
+        ${meta.email?`✉ ${esc(meta.email)}<br>`:''}
+        👥 ${b.passengers} pasager${b.passengers==1?'':'i'} &nbsp;·&nbsp; ${b.transfer_type==='privat'?'Transfer privat':'Economy'}
+        ${meta.obs?`<br>📝 ${esc(meta.obs)}`:''}
+      </div>`;
+      html += `<div class="bk-acts">
+        <button class="btn-e" onclick="openEdit(${b.id})">✏ Modifică</button>
+        ${cancelled
+          ? `<button class="btn-restore" onclick="setStatus(${b.id},'confirmed')">↩ Reactivează</button>`
+          : `<button class="btn-c" onclick="cancelBk(${b.id})">✕ Anulează</button>`
+        }
+        <button class="btn-doc" onclick="adminDownload(${b.id},'contract')">📄 Contract</button>
+        <button class="btn-doc" onclick="adminDownload(${b.id},'invoice')">🧾 Factură</button>
+      </div>`;
+      html += '</div>';
+    });
+  } else {
+    html += '<div class="no-bk">Nicio rezervare în această zi.</div>';
+  }
+  html += `<div style="margin-top:14px;text-align:center"><button class="btn-new-bk" onclick="openNewBooking('${dateStr}')">+ Rezervare manuală</button></div>`;
   document.getElementById('day-modal-body').innerHTML = html;
   openModal('day-modal');
 }
 
+function openNewBooking(dateStr) {
+  _editId = null;
+  closeModal('day-modal');
+  document.getElementById('edit-modal-title').textContent = 'Rezervare nouă';
+  document.getElementById('e-date').value = dateStr || '';
+  document.getElementById('e-time').value = '';
+  document.getElementById('e-dir').value = 'tur';
+  document.getElementById('e-apt').value = 'otopeni';
+  document.getElementById('e-tr').value = 'economy';
+  document.getElementById('e-pax').value = 1;
+  document.getElementById('e-status').value = 'confirmed';
+  document.getElementById('e-name').value = '';
+  document.getElementById('e-phone').value = '';
+  document.getElementById('e-email').value = '';
+  document.getElementById('e-obs').value = '';
+  document.getElementById('save-msg').textContent = '';
+  openModal('edit-modal');
+}
+
 // ── EDIT MODAL ───────────────────────────────────────
 function openEdit(id) {
-  const b = _bookings.find(x => x.id === id);
+  const b = _bookings.find(x => x.id === id) || _annualBookings.find(x => x.id === id);
   if (!b) return;
   _editId = id;
   const meta = b.meta || {};
@@ -1062,6 +1108,7 @@ function openEdit(id) {
   document.getElementById('e-date').value = `${y}-${m}-${d}`;
   document.getElementById('e-time').value = b.trip_time || '';
   document.getElementById('e-dir').value = b.direction || 'tur';
+  document.getElementById('e-apt').value = meta.apt || 'otopeni';
   document.getElementById('e-tr').value = b.transfer_type || 'economy';
   document.getElementById('e-pax').value = b.passengers || 1;
   document.getElementById('e-status').value = b.status || 'confirmed';
@@ -1076,12 +1123,17 @@ function openEdit(id) {
 async function saveBooking() {
   const btn = document.querySelector('#edit-modal .btn-save');
   btn.disabled = true; btn.textContent = 'Se salvează...';
-  const b = _bookings.find(x => x.id === _editId);
+  const isNew = _editId === null;
+  const b = isNew ? null : (_bookings.find(x => x.id === _editId) || _annualBookings.find(x => x.id === _editId));
+  const apt = document.getElementById('e-apt').value;
+  const APT_LBL = { otopeni: 'Henri Coandă (OTP)', baneasa: 'Băneasa (BBU)' };
   const meta = { ...(b?.meta||{}),
-    name:  document.getElementById('e-name').value.trim(),
-    phone: document.getElementById('e-phone').value.trim(),
-    email: document.getElementById('e-email').value.trim(),
-    obs:   document.getElementById('e-obs').value.trim(),
+    name:     document.getElementById('e-name').value.trim(),
+    phone:    document.getElementById('e-phone').value.trim(),
+    email:    document.getElementById('e-email').value.trim(),
+    obs:      document.getElementById('e-obs').value.trim(),
+    apt,
+    aptLabel: APT_LBL[apt] || apt,
   };
   const body = {
     trip_date:     document.getElementById('e-date').value,
@@ -1094,15 +1146,21 @@ async function saveBooking() {
     meta,
   };
   try {
-    const r = await fetch(`${SERVER}/api/admin/booking/${_editId}`, {
-      method:'PUT', headers:{...authHdrs(),'Content-Type':'application/json'}, body: JSON.stringify(body)
+    const url = isNew ? `${SERVER}/api/admin/bookings` : `${SERVER}/api/admin/booking/${_editId}`;
+    const r = await fetch(url, {
+      method: isNew ? 'POST' : 'PUT',
+      headers:{...authHdrs(),'Content-Type':'application/json'}, body: JSON.stringify(body)
     });
     if (r.status===401) { doLogout(); return; }
     if (!r.ok) { const d=await r.json(); document.getElementById('save-msg').textContent='Eroare: '+(d.error||'necunoscut'); btn.disabled=false; btn.textContent='💾 Salvează'; return; }
     document.getElementById('save-msg').style.color='#166534';
     document.getElementById('save-msg').textContent = '✓ Salvat cu succes!';
     await loadMonth();
-    if (_currentDayStr) openDay(_currentDayStr);
+    if (document.getElementById('ann-section').style.display !== 'none') await loadAnnualCalendar();
+    if (_currentDayStr) {
+      if (_dayModalFromAnnual) _openDayModal(_currentDayStr, _annualBookings);
+      else _openDayModal(_currentDayStr, _bookings);
+    }
     setTimeout(() => closeModal('edit-modal'), 900);
   } catch(e) {
     document.getElementById('save-msg').style.color='#dc2626';
@@ -1130,14 +1188,19 @@ async function adminDownload(id, type) {
   finally { btn.disabled = false; btn.textContent = orig; }
 }
 async function setStatus(id, status) {
+  const bk = _bookings.find(x=>x.id===id) || _annualBookings.find(x=>x.id===id);
   const r = await fetch(`${SERVER}/api/admin/booking/${id}`, {
     method: status==='cancelled'?'DELETE':'PUT',
     headers: { ...authHdrs(), 'Content-Type':'application/json' },
-    body: status!=='cancelled' ? JSON.stringify({ ..._bookings.find(x=>x.id===id), status, booking_ref: (_bookings.find(x=>x.id===id)?.meta?.name||'') }) : undefined
+    body: status!=='cancelled' ? JSON.stringify({ ...bk, status, booking_ref: (bk?.meta?.name||'') }) : undefined
   });
   if (r.status===401) { doLogout(); return; }
   await loadMonth();
-  if (_currentDayStr) openDay(_currentDayStr);
+  if (document.getElementById('ann-section').style.display !== 'none') await loadAnnualCalendar();
+  if (_currentDayStr) {
+    if (_dayModalFromAnnual) _openDayModal(_currentDayStr, _annualBookings);
+    else _openDayModal(_currentDayStr, _bookings);
+  }
 }
 
 // ── MODAL HELPERS ─────────────────────────────────────

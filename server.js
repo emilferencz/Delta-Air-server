@@ -2103,6 +2103,30 @@ app.put('/api/admin/booking/:id', adminAuth, express.json(), async (req, res) =>
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+/* POST /api/admin/bookings — creare rezervare manuală de admin */
+app.post('/api/admin/bookings', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { trip_date, trip_time, direction, passengers, transfer_type,
+          booking_ref, status, meta } = req.body || {};
+  if (!trip_date || !trip_time || !direction)
+    return res.status(400).json({ error: 'Câmpuri obligatorii: trip_date, trip_time, direction.' });
+  try {
+    const pax = parseInt(passengers) || 1;
+    const vehicleId = await findVehicleForTrip(direction, trip_time, trip_date, pax);
+    const { rows } = await db.query(
+      `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json, vehicle_id, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id`,
+      [trip_date, trip_time, direction, pax,
+       transfer_type || 'economy', booking_ref || '',
+       meta ? JSON.stringify(meta) : null, vehicleId,
+       status || 'confirmed']
+    );
+    console.log(`📋 Rezervare manuală admin: ${trip_date} ${trip_time} ${direction} — ${pax} loc(uri) [id: ${rows[0].id}]`);
+    res.json({ ok: true, id: rows[0].id });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 /* DELETE /api/admin/booking/:id  (soft delete — status = 'cancelled') */
 app.delete('/api/admin/booking/:id', adminAuth, async (req, res) => {
   if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
