@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KronAds MKT LLC — AI Automations & Digital Product Studio</title>
+  <meta name="description" content="Automatizăm fluxurile de lucru ale afacerii tale cu AI. Rezervări, facturare, comunicare, raportare — totul pe pilot automat.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0f1e3d;
+      --navy2: #1a2f5e;
+      --gold: #c9a84c;
+      --gold2: #e8c96a;
+      --off: #f4f6fb;
+      --gray: #6b7280;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--navy);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #07111f 0%, #0f1e3d 50%, #1a2f5e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,.12) 0%, transparent 70%);
+      top: -100px; right: -100px;
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 400px; height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+      bottom: -80px; left: -80px;
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201,168,76,.15);
+      border: 1px solid rgba(201,168,76,.35);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--gold2);
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: fadeUp .6s ease both;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      animation: fadeUp .7s .1s ease both;
+    }
+
+    .hero h1 .accent {
+      background: linear-gradient(90deg, var(--gold), var(--gold2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(.95rem, 2.5vw, 1.2rem);
+      color: rgba(255,255,255,.7);
+      max-width: 620px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+      animation: fadeUp .7s .2s ease both;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp .7s .3s ease both;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), #b8922e);
+      color: var(--navy);
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 24px rgba(201,168,76,.35);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,.45); }
+
+    .btn-secondary {
+      background: rgba(255,255,255,.08);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .2s, border-color .2s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.35); }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,255,255,.35);
+      font-size: .7rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+
+    /* ── PAIN SECTION ── */
+    .pain {
+      background: #0a1628;
+      padding: 80px 24px;
+    }
+
+    .section-inner { max-width: 960px; margin: 0 auto; }
+
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      text-align: center;
+      color: rgba(255,255,255,.6);
+      font-size: 1rem;
+      max-width: 540px;
+      margin: 0 auto 52px;
+      line-height: 1.7;
+    }
+
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .pain-item {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 20px 22px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .pain-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .pain-text { font-size: .9rem; color: rgba(255,255,255,.75); line-height: 1.6; }
+    .pain-text strong { color: #fff; display: block; margin-bottom: 3px; font-size: .95rem; }
+
+    .pain-conclusion {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold2);
+      background: rgba(201,168,76,.08);
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 12px;
+      padding: 18px 28px;
+    }
+
+    /* ── SERVICES ── */
+    .services {
+      background: linear-gradient(180deg, #0f1e3d, #07111f);
+      padding: 80px 24px;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 12px;
+    }
+
+    .service-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: border-color .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .service-card:hover { border-color: rgba(201,168,76,.3); transform: translateY(-4px); }
+    .service-card:hover::before { opacity: 1; }
+
+    .service-icon { font-size: 2rem; margin-bottom: 14px; }
+    .service-title { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .service-desc { font-size: .83rem; color: rgba(255,255,255,.6); line-height: 1.65; }
+
+    .service-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .stag {
+      font-size: .62rem;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(201,168,76,.12);
+      color: var(--gold2);
+      letter-spacing: .3px;
+    }
+
+    /* ── CASE STUDY ── */
+    .case {
+      background: #0a1628;
+      padding: 80px 24px;
+    }
+
+    .case-card {
+      background: linear-gradient(135deg, rgba(201,168,76,.07), rgba(26,47,94,.4));
+      border: 1px solid rgba(201,168,76,.2);
+      border-radius: 20px;
+      padding: 40px 36px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .case-label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .case-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 14px; }
+    .case-desc { font-size: .9rem; color: rgba(255,255,255,.7); line-height: 1.7; margin-bottom: 22px; }
+
+    .case-results {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .case-result {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: .87rem;
+      color: rgba(255,255,255,.8);
+    }
+    .case-result::before {
+      content: '✓';
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: rgba(34,197,94,.15);
+      color: #22c55e;
+      font-size: .75rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .case-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .stat-box {
+      background: rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding: 22px 18px;
+      text-align: center;
+    }
+    .stat-val { font-size: 2rem; font-weight: 900; color: var(--gold2); line-height: 1; margin-bottom: 6px; }
+    .stat-lbl { font-size: .72rem; color: rgba(255,255,255,.55); line-height: 1.4; }
+
+    /* ── PROCESS ── */
+    .process {
+      background: linear-gradient(180deg, #07111f, #0f1e3d);
+      padding: 80px 24px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 12px;
+      position: relative;
+    }
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 28px; left: 10%; right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(201,168,76,.3), transparent);
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+    }
+    .step-num {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), #b8922e);
+      color: var(--navy);
+      font-size: 1.1rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 20px rgba(201,168,76,.3);
+    }
+    .step-title { font-size: .9rem; font-weight: 700; margin-bottom: 8px; }
+    .step-desc { font-size: .78rem; color: rgba(255,255,255,.55); line-height: 1.6; }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, #0f1e3d 0%, #1a2f5e 100%);
+      padding: 90px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(201,168,76,.1) 0%, transparent 65%);
+    }
+
+    .cta-title {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 900;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .cta-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.65);
+      max-width: 500px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      position: relative;
+    }
+    .cta-btns {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .btn-wa {
+      background: #25d366;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(37,211,102,.3);
+    }
+    .btn-wa:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(37,211,102,.4); }
+
+    .btn-email {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: background .2s;
+    }
+    .btn-email:hover { background: rgba(255,255,255,.17); }
+
+    /* ── FOOTER ── */
+    .kron-footer {
+      background: #07111f;
+      padding: 28px 24px;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .kron-footer p { font-size: .78rem; color: rgba(255,255,255,.35); }
+    .kron-footer a { color: var(--gold); text-decoration: none; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* Reveal on scroll */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 780px) {
+      .pain-grid { grid-template-columns: 1fr; }
+      .case-card { grid-template-columns: 1fr; gap: 28px; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .steps::before { display: none; }
+      .case-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 500px) {
+      .steps { grid-template-columns: 1fr; }
+      .hero { padding: 60px 20px 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+  <div class="hero-badge">⚡ KronAds MKT LLC · Digital Product Studio</div>
+  <h1>Afacerea ta poate<br>merge <span class="accent">singură.</span></h1>
+  <p class="hero-sub">
+    Construim sisteme digitale inteligente care automatizează ceea ce faci manual —
+    rezervări, facturare, comunicare, raportare. Non-stop, fără erori, fără intervenție.
+  </p>
+  <div class="hero-ctas">
+    <a class="btn-primary" href="https://wa.me/40761617606?text=Buna%20ziua%2C%20as%20vrea%20sa%20discut%20despre%20automatizarea%20afacerii%20mele." target="_blank">
+      💬 Vrei și tu asta? Hai să vorbim
+    </a>
+    <a class="btn-secondary" href="#services">
+      Vezi ce facem ↓
+    </a>
+  </div>
+  <div class="hero-scroll">
+    <span>scroll</span>
+    <span style="font-size:1rem">↓</span>
+  </div>
+</section>
+
+<!-- ══ PAIN SECTION ══ -->
+<section class="pain">
+  <div class="section-inner">
+    <p class="section-label reveal">Recunoști?</p>
+    <h2 class="section-title reveal">Câte ore pierzi săptămânal<br>pe sarcini repetitive?</h2>
+    <p class="section-sub reveal">Dacă răspunsul la cel puțin una din întrebările de mai jos e <em>"da"</em>, ai o oportunitate de automatizare.</p>
+
+    <div class="pain-grid reveal">
+      <div class="pain-item">
+        <span class="pain-icon">📧</span>
+        <div class="pain-text">
+          <strong>Trimiți manual email-uri de confirmare?</strong>
+          Fiecare rezervare, comandă sau client nou îți ia câte 5 minute de redactat și trimis.
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">📄</span>
+        <div class="pain-text">
+          <strong>Creezi documente de la zero de fiecare dată?</strong>
+          Contracte, facturi, oferte — completate manual cu aceleași date din altă parte.
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">🔁</span>
+        <div class="pain-text">
+          <strong>Răspunzi la aceleași întrebări de 10 ori pe zi?</strong>
+          Prețuri, disponibilitate, condiții — informații pe care un chatbot AI le-ar da în 2 secunde.
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">📊</span>
+        <div class="pain-text">
+          <strong>Consolidezi date din mai multe surse?</strong>
+          Excel, email, WhatsApp, formulare — toate manual, în fiecare dimineață.
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">🔔</span>
+        <div class="pain-text">
+          <strong>Uiți să urmărești clienții la timp?</strong>
+          Follow-up-uri ratate, reminder-e uitate, oportunități pierdute din lipsă de automatizare.
+        </div>
+      </div>
+      <div class="pain-item">
+        <span class="pain-icon">🕐</span>
+        <div class="pain-text">
+          <strong>Lucrezi în afacere, nu la afacere?</strong>
+          Ești prins în operațional când ar trebui să te ocupi de strategie și creștere.
+        </div>
+      </div>
+    </div>
+
+    <div class="pain-conclusion reveal">
+      🤖 &nbsp;Tot ce e repetitiv poate fi automatizat. Noi facem asta pentru tine.
+    </div>
+  </div>
+</section>
+
+<!-- ══ SERVICES ══ -->
+<section class="services" id="services">
+  <div class="section-inner">
+    <p class="section-label reveal">Ce facem</p>
+    <h2 class="section-title reveal">AI Automations &<br>Digital Products</h2>
+    <p class="section-sub reveal">De la idee la sistem funcțional — construim, integrăm și livrăm.</p>
+
+    <div class="services-grid reveal">
+
+      <div class="service-card">
+        <div class="service-icon">⚡</div>
+        <div class="service-title">Automatizare fluxuri de lucru</div>
+        <div class="service-desc">Conectăm aplicațiile tale și eliminăm munca manuală repetitivă. Când se întâmplă X, se face automat Y.</div>
+        <div class="service-tags">
+          <span class="stag">n8n</span><span class="stag">Make</span><span class="stag">Zapier</span><span class="stag">API custom</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🤖</div>
+        <div class="service-title">AI Agents & Chatbots</div>
+        <div class="service-desc">Agenți inteligenți care răspund clienților, califică lead-uri și rezolvă probleme — 24/7, în limbaj natural.</div>
+        <div class="service-tags">
+          <span class="stag">Claude / GPT</span><span class="stag">RAG</span><span class="stag">WhatsApp</span><span class="stag">Web</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🛠</div>
+        <div class="service-title">Produse digitale custom</div>
+        <div class="service-desc">Platforme de rezervări, dashboard-uri admin, sisteme de management — construite exact pe nevoile tale.</div>
+        <div class="service-tags">
+          <span class="stag">Node.js</span><span class="stag">React</span><span class="stag">PostgreSQL</span><span class="stag">Vercel</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">📄</div>
+        <div class="service-title">Generare automată documente</div>
+        <div class="service-desc">Contracte, facturi, rapoarte PDF generate automat la fiecare tranzacție. Trimise pe email, stocate în cloud.</div>
+        <div class="service-tags">
+          <span class="stag">PDF auto</span><span class="stag">Email</span><span class="stag">Stocare cloud</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">📈</div>
+        <div class="service-title">Analytics & Raportare</div>
+        <div class="service-desc">Dashboard-uri live cu datele care contează. Nu mai deschizi Excel-uri dimineața — totul e actualizat în timp real.</div>
+        <div class="service-tags">
+          <span class="stag">Dashboard</span><span class="stag">KPI live</span><span class="stag">Auto-rapoarte</span>
+        </div>
+      </div>
+
+      <div class="service-card">
+        <div class="service-icon">🔗</div>
+        <div class="service-title">Integrări între sisteme</div>
+        <div class="service-desc">CRM, ERP, magazin online, contabilitate — le facem să vorbească între ele. Datele curg automat, fără copy-paste.</div>
+        <div class="service-tags">
+          <span class="stag">REST API</span><span class="stag">Webhooks</span><span class="stag">OAuth</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ CASE STUDY ══ -->
+<section class="case">
+  <div class="section-inner">
+    <p class="section-label reveal">Studiu de caz real</p>
+    <h2 class="section-title reveal">De la rezervare manuală<br>la pilot automat complet</h2>
+    <p class="section-sub reveal">Cum am transformat operațiunile unui serviciu de transfer aeroport dintr-un proces manual de 15 minute într-unul automat de 0 minute.</p>
+
+    <div class="case-card reveal">
+      <div>
+        <div class="case-label">Delta Air Shuttle · Brașov</div>
+        <div class="case-title">Sistem complet de rezervări cu AI</div>
+        <div class="case-desc">
+          Platforma de transport Brașov–Otopeni gestionează zeci de rezervări zilnic.
+          Înainte: email-uri manuale, contracte imprimate, facturi din Excel.
+          Acum: totul e automat de la click la document.
+        </div>
+        <div class="case-results">
+          <div class="case-result">Rezervare online cu plată Stripe/Netopia sau numerar</div>
+          <div class="case-result">Contract PDF + factură generate și trimise automat</div>
+          <div class="case-result">Reminder email automat cu 12h înainte de îmbarcare</div>
+          <div class="case-result">Dashboard admin cu calendar, KPI și gestiune flotă</div>
+          <div class="case-result">Blocare zile, verificare disponibilitate în timp real</div>
+          <div class="case-result">0 intervenție manuală per rezervare confirmată</div>
+        </div>
+      </div>
+      <div class="case-stats">
+        <div class="stat-box">
+          <div class="stat-val">0 min</div>
+          <div class="stat-lbl">timp procesare per rezervare</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">24/7</div>
+          <div class="stat-lbl">disponibilitate sistem fără intervenție</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">100%</div>
+          <div class="stat-lbl">documente generate automat</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val">∞</div>
+          <div class="stat-lbl">scalabilitate fără costuri suplimentare</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PROCESS ══ -->
+<section class="process">
+  <div class="section-inner">
+    <p class="section-label reveal">Cum lucrăm</p>
+    <h2 class="section-title reveal">De la idee la sistem<br>în 4 pași</h2>
+    <p class="section-sub reveal">Proces clar, livrare rapidă, rezultate măsurabile.</p>
+
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">Audit & Identificare</div>
+        <div class="step-desc">Mapăm fluxurile tale de lucru și identificăm ce poate fi automatizat cu cel mai mare impact.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">Design & Arhitectură</div>
+        <div class="step-desc">Proiectăm soluția tehnică potrivită — simplu sau complex, în funcție de nevoie.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">Build & Testare</div>
+        <div class="step-desc">Construim, testăm și rafinăm sistemul până funcționează perfect în contextul tău real.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">Deploy & Suport</div>
+        <div class="step-desc">Lansăm, te instruim și rămânem disponibili. Sistemul evoluează odată cu afacerea ta.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ══ -->
+<section class="cta-section">
+  <h2 class="cta-title reveal">Pregătit să automatizezi?</h2>
+  <p class="cta-sub reveal">
+    Spune-ne despre afacerea ta și îți arătăm în 30 de minute
+    ce poate fi automatizat și ce impact ar avea.
+  </p>
+  <div class="cta-btns reveal">
+    <a class="btn-wa" href="https://wa.me/40761617606?text=Buna%20ziua%2C%20as%20vrea%20sa%20discut%20despre%20automatizarea%20afacerii%20mele%20cu%20KronAds." target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp — răspundem imediat
+    </a>
+    <a class="btn-email" href="mailto:office@kronads.ro?subject=Vreau%20sa%20automatizez%20afacerea%20mea&body=Buna%20ziua%2C%0A%0AAs%20vrea%20sa%20discutam%20despre%20automatizarea%20fluxurilor%20de%20lucru%20din%20afacerea%20mea.%0A%0ADescriere%20scurta%3A%20" target="_blank">
+      ✉ Trimite un email
+    </a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="kron-footer">
+  <p><strong style="color:rgba(255,255,255,.6)">KronAds MKT LLC</strong> &nbsp;·&nbsp; Digital Product Studio & AI Automations &nbsp;·&nbsp; <a href="mailto:office@kronads.ro">office@kronads.ro</a></p>
+</footer>
+
+<script>
+  /* Reveal on scroll */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>

@@ -185,6 +185,15 @@
     }
     .submit-btn:hover { background: var(--gold2); transform: translateY(-2px); }
     .submit-btn:disabled { opacity: .7; transform: none; cursor: not-allowed; }
+    .kron-powered-banner {
+      display: block; text-align: center; margin-top: 14px; padding: 10px 18px;
+      background: #f4f6fb; border-radius: 10px; border: 1.5px solid rgba(26,47,94,.10);
+      color: var(--navy); font-size: .78rem; font-family: 'Poppins', sans-serif;
+      text-decoration: none; transition: background .15s, border-color .15s;
+      line-height: 1.5;
+    }
+    .kron-powered-banner:hover { background: #e8ecf7; border-color: var(--gold); }
+    .kron-powered-banner strong { color: var(--gold); }
     .das-hide { display: none !important; }
     .pay-method-card {
       display: block; border: 2px solid rgba(26,47,94,.15); border-radius: 14px;
@@ -685,6 +694,10 @@
     <button class="submit-btn" id="das-continue-btn" onclick="dasSubmit()">
       ✈ Confirmă rezervarea
     </button>
+
+    <a href="/kronads-ai/" target="_blank" class="kron-powered-banner">
+      Powered by <strong>KronAds MKT LLC</strong> · Digital Product Studio &amp; AI Automations
+    </a>
   </div>
 
   <!-- FAQ Rezervări -->

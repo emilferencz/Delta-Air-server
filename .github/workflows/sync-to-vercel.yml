@@ -14,6 +14,7 @@ on:
       - 'lista-de-preturi/**'
       - 'realizari/**'
       - 'termeni-si-conditii-gdpr/**'
+      - 'kronads-ai/**'
       - 'css/**'
       - 'img/**'
       - 'robots.txt'
@@ -49,6 +50,7 @@ jobs:
           cp -r server/lista-de-preturi site/
           cp -r server/realizari site/
           cp -r server/termeni-si-conditii-gdpr site/
+          cp -r server/kronads-ai site/
 
           # Assets
           cp -r server/css site/
