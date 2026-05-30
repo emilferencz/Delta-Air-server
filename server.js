@@ -140,14 +140,16 @@ initDB().catch(e => console.error('❌ DB init error:', e.message));
 async function findVehicleForTrip(dir, tripTime, date, passengers) {
   if (!db) return null;
   const { rows } = await db.query(
-    `SELECT v.id, v.capacity,
-            COALESCE((SELECT SUM(b.passengers) FROM bookings b
-              WHERE b.vehicle_id = v.id AND b.trip_date = $3
-              AND b.trip_time = $2 AND b.direction = $1 AND b.status = 'confirmed'), 0)::int AS ocupate
-     FROM vehicles v
-     WHERE v.status = 'activ'
-       AND ($2 IN (v.tur_c1, v.tur_c2, v.retur_c1, v.retur_c2))
-     ORDER BY (v.capacity - ocupate) DESC LIMIT 1`,
+    `SELECT id, capacity, ocupate FROM (
+       SELECT v.id, v.capacity,
+              COALESCE((SELECT SUM(b.passengers) FROM bookings b
+                WHERE b.vehicle_id = v.id AND b.trip_date = $3
+                AND b.trip_time = $2 AND b.direction = $1 AND b.status = 'confirmed'), 0)::int AS ocupate
+       FROM vehicles v
+       WHERE v.status = 'activ'
+         AND ($2 IN (v.tur_c1, v.tur_c2, v.retur_c1, v.retur_c2))
+     ) sub
+     ORDER BY (capacity - ocupate) DESC LIMIT 1`,
     [dir, tripTime, date]
   );
   if (rows.length && (rows[0].capacity - rows[0].ocupate) >= passengers) return rows[0].id;
