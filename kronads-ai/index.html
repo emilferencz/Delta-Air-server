@@ -854,8 +854,10 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
   }, { threshold: 0.12 });
   if (window.parent !== window) {
-    /* În iframe — arată tot imediat, fără animații */
+    /* În iframe — arată tot imediat, ascunde elementele incompatibile */
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    var logo = document.querySelector('.kron-page-logo');
+    if (logo) logo.style.display = 'none';
   } else {
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   }
