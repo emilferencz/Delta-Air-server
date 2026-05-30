@@ -409,6 +409,7 @@
       position: absolute;
       inset: 0;
       background: radial-gradient(ellipse at center, rgba(201,168,76,.1) 0%, transparent 65%);
+      pointer-events: none;
     }
 
     .cta-title {
@@ -479,6 +480,8 @@
       max-width: 600px;
       margin: 32px auto 0;
       text-align: left;
+      position: relative;
+      z-index: 1;
     }
     .cf-row { margin-bottom: 18px; }
     .cf-row label { display: block; font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.55); margin-bottom: 6px; letter-spacing: .04em; text-transform: uppercase; }
