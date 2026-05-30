@@ -853,7 +853,12 @@
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
   }, { threshold: 0.12 });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  if (window.parent !== window) {
+    /* În iframe — arată tot imediat, fără animații */
+    document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
 
   /* Auto-resize pentru embed iframe */
   function sendHeight() {
