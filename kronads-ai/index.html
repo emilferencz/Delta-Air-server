@@ -537,6 +537,11 @@
       z-index: 1;
     }
 
+    /* ── EMBED MODE ── */
+    body.embed-mode .hero { min-height: auto; padding: 80px 24px 60px; }
+    body.embed-mode .hero-scroll { display: none; }
+    body.embed-mode * { animation: none !important; }
+
     /* ── ANIMATIONS ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(24px); }
@@ -855,6 +860,7 @@
   }, { threshold: 0.12 });
   var isEmbed = new URLSearchParams(window.location.search).get('embed') === '1';
   if (isEmbed) {
+    document.body.classList.add('embed-mode');
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
     var logo = document.querySelector('.kron-page-logo');
     if (logo) logo.style.display = 'none';
