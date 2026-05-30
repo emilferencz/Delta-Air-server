@@ -1116,7 +1116,8 @@ function renderAvailability() {
 }
 
 function selectTrip(key) {
-  sv('das-trip', key);
+  const sel = g('das-trip');
+  if (sel) sel.value = key;
   ['c1','c2'].forEach(k => g(`avail-card-${k}`)?.classList.toggle('selected', k === key));
   dasUpdate();
   updatePassengerLimits();
@@ -1675,7 +1676,8 @@ function retRenderAvail() {
 }
 
 function selectRetTrip(key) {
-  sv('ret-trip', key);
+  var sel = g('ret-trip');
+  if (sel) sel.value = key;
   ['c1','c2'].forEach(function(k){ var c=g('ret-ac-'+k); if(c) c.classList.toggle('selected',k===key); });
   retUpdate();
   retCheckAvail();
