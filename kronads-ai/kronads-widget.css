@@ -1,0 +1,116 @@
+.kw-wrap {
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f1e3d 0%, #1a2f5e 100%);
+  border-radius: 20px;
+  padding: 40px 36px;
+  color: #fff;
+  max-width: 680px;
+  box-sizing: border-box;
+}
+.kw-wrap *, .kw-wrap *::before, .kw-wrap *::after { box-sizing: border-box; }
+
+.kw-badge {
+  display: inline-block;
+  background: rgba(201,168,76,.15);
+  border: 1px solid rgba(201,168,76,.3);
+  color: #c9a84c;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+.kw-title {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: 900;
+  line-height: 1.2;
+  margin: 0 0 8px;
+  color: #fff;
+}
+.kw-title span { color: #c9a84c; }
+.kw-sub {
+  font-size: .9rem;
+  color: rgba(255,255,255,.6);
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+.kw-form { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; }
+.kw-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.kw-field { display: flex; flex-direction: column; }
+.kw-label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  margin-bottom: 5px;
+  font-family: inherit;
+}
+.kw-input, .kw-textarea {
+  width: 100%;
+  background: rgba(255,255,255,.07);
+  border: 1.5px solid rgba(255,255,255,.15);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: .9rem;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  color: #fff;
+  outline: none;
+  transition: border-color .2s;
+}
+.kw-input:focus, .kw-textarea:focus { border-color: #c9a84c; }
+.kw-input::placeholder, .kw-textarea::placeholder { color: rgba(255,255,255,.28); }
+.kw-textarea { resize: vertical; min-height: 95px; }
+.kw-btn-submit {
+  width: 100%;
+  padding: 14px;
+  background: #c9a84c;
+  color: #0f1e3d;
+  border: none;
+  border-radius: 12px;
+  font-size: .98rem;
+  font-weight: 700;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+  margin-top: 2px;
+}
+.kw-btn-submit:hover { background: #b8943e; transform: translateY(-1px); }
+.kw-btn-submit:disabled { opacity: .6; transform: none; cursor: not-allowed; }
+.kw-msg { text-align: center; font-size: .88rem; font-weight: 600; min-height: 20px; margin-top: 4px; font-family: inherit; }
+.kw-msg.ok  { color: #4ade80; }
+.kw-msg.err { color: #f87171; }
+.kw-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0 16px;
+}
+.kw-divider::before, .kw-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.12); }
+.kw-divider span { font-size: .73rem; color: rgba(255,255,255,.35); white-space: nowrap; font-family: inherit; }
+.kw-btn-wa {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 13px;
+  background: #25d366; color: #fff;
+  border: none; border-radius: 12px;
+  font-size: .92rem; font-weight: 700;
+  font-family: 'Poppins', 'Segoe UI', sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s, transform .15s;
+  box-shadow: 0 4px 18px rgba(37,211,102,.25);
+}
+.kw-btn-wa:hover { background: #1db954; transform: translateY(-1px); }
+.kw-footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: .68rem;
+  color: rgba(255,255,255,.2);
+  font-family: inherit;
+}
+.kw-footer a { color: rgba(201,168,76,.5); text-decoration: none; }
+@media (max-width: 520px) {
+  .kw-wrap { padding: 28px 18px; }
+  .kw-cols { grid-template-columns: 1fr; }
+}
