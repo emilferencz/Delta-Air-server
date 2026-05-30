@@ -855,6 +855,14 @@
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+  /* Auto-resize pentru embed iframe */
+  function sendHeight() {
+    var h = document.documentElement.scrollHeight;
+    if (window.parent !== window) window.parent.postMessage({ kronadsHeight: h }, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  new ResizeObserver(sendHeight).observe(document.body);
+
   async function kronSubmit(e) {
     e.preventDefault();
     const btn = document.getElementById('cf-btn');
