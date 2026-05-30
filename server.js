@@ -1125,7 +1125,7 @@ function generateContractPDF(meta) {
     doc.fillColor(gray).fontSize(8.5).font(fReg).text('Modalitate de plata:', L, doc.y, { continued:false });
     doc.moveDown(0.2);
     bullet('Numerar direct soferului, inainte de pornirea cursei (chitanta eliberata)');
-    bullet('Virament bancar: ING BANK  RO57 INGB 0000 9999 0870 0688  (minim 3 zile inainte)');
+    bullet('Virament bancar: Banca Transilvania  RO35 BTRL RONC RT0D B938 0701  (minim 3 zile inainte)');
     bullet('Card online — prin platforma securizata Stripe de pe delta-air.ro');
     doc.moveDown(0.3);
     doc.fillColor(gray).fontSize(8.5).font(fReg).text('Politica de anulare:', L, doc.y);
@@ -1390,8 +1390,8 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       doc.text('CUI: RO53035921', col1, yF, { width: colW }); yF += 11;
       doc.text('Reg. Com.: J08/000/2024', col1, yF, { width: colW }); yF += 11;
       doc.text('Sediu: Brasov, Romania', col1, yF, { width: colW }); yF += 11;
-      doc.text('IBAN: RO** **** **** **** **** ****', col1, yF, { width: colW }); yF += 11;
-      doc.text('Banca: Transilvania / BCR', col1, yF, { width: colW }); yF += 11;
+      doc.text('IBAN: RO35 BTRL RONC RT0D B938 0701', col1, yF, { width: colW }); yF += 11;
+      doc.text('Banca: Banca Transilvania', col1, yF, { width: colW }); yF += 11;
       doc.text('Tel: +40 761 617 606', col1, yF, { width: colW }); yF += 11;
       doc.text('Email: office@delta-air.ro', col1, yF, { width: colW });
 
