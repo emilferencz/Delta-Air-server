@@ -19,6 +19,7 @@ on:
       - 'img/**'
       - 'robots.txt'
       - 'sitemap.xml'
+      - 'poze/**'
 
 jobs:
   sync:
@@ -55,6 +56,9 @@ jobs:
           # Assets
           cp -r server/css site/
           cp -r server/img site/
+
+          # Poze sociale
+          cp -r server/poze site/
 
           # SEO
           cp server/robots.txt site/robots.txt
