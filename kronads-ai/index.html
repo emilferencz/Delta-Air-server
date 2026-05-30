@@ -476,8 +476,21 @@
       padding: 28px 24px;
       text-align: center;
       border-top: 1px solid rgba(255,255,255,.06);
+      position: relative;
+      overflow: hidden;
     }
-    .kron-footer p { font-size: .78rem; color: rgba(255,255,255,.35); }
+    .kron-footer-logo {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50%;
+      max-width: 400px;
+      opacity: .8;
+      pointer-events: none;
+      user-select: none;
+      filter: brightness(10);
+    }
+    .kron-footer p { font-size: .78rem; color: rgba(255,255,255,.35); position: relative; z-index: 1; }
     .kron-footer a { color: var(--gold); text-decoration: none; }
 
     /* ── ANIMATIONS ── */
@@ -756,6 +769,7 @@
 
 <!-- ══ FOOTER ══ -->
 <footer class="kron-footer">
+  <img src="logo-kronads.png" alt="" class="kron-footer-logo" aria-hidden="true">
   <p><strong style="color:rgba(255,255,255,.6)">KronAds MKT LLC</strong> &nbsp;·&nbsp; Digital Product Studio & AI Automations &nbsp;·&nbsp; <a href="mailto:contact@kronads.ro">contact@kronads.ro</a></p>
 </footer>
 
