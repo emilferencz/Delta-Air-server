@@ -430,6 +430,16 @@ footer {
   .footer-bottom { flex-direction: column; gap: 8px; }
 }
 
+/* ─── SOCIAL FOOTER ─── */
+.footer-social { display: flex; gap: 10px; margin-top: 14px; }
+.footer-social a {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.75); transition: background .2s, color .2s;
+}
+.footer-social a:hover { background: rgba(201,168,76,.3); color: #fff; }
+
 /* ─── SCROLL REVEAL ─── */
 .reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.visible { opacity: 1; transform: none; }

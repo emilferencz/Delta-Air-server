@@ -179,6 +179,12 @@
     .no-bk{text-align:center;padding:36px 0;color:var(--gray);font-size:.86rem}
     .btn-new-bk{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
     .btn-new-bk:hover{background:#243d75}
+    .ann-day.ann-blocked .ann-tur,.ann-day.ann-blocked .ann-ret{background:#ef4444 !important;opacity:.65}
+    .ann-day.ann-blocked .ann-dn{color:#dc2626;font-weight:800}
+    .btn-block-day{background:#fee2e2;color:#dc2626;border:none;border-radius:8px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-block-day:hover{background:#fecaca}
+    .btn-unblock-day{background:#dcfce7;color:#166534;border:none;border-radius:8px;padding:9px 18px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-unblock-day:hover{background:#bbf7d0}
 
     /* Edit modal form */
     .egroup{margin-bottom:15px}
@@ -340,6 +346,7 @@
         <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#1e3a8a"></div> Plin (tur)</div>
         <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#fbbf24"></div> Parțial (retur)</div>
         <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#92400e"></div> Plin (retur)</div>
+        <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#ef4444;opacity:.65"></div> Zi blocată</div>
         <div class="ann-leg-item" style="margin-left:auto;font-style:italic">Click pe lună → calendar lunar</div>
       </div>
     </div>
@@ -415,8 +422,9 @@
             <option value="privat">Privat</option>
           </select>
         </div>
-        <div class="egroup"><label class="elabel">Pasageri</label><input class="einput" type="number" id="e-pax" min="1" max="7"></div>
+        <div class="egroup"><label class="elabel">Pasageri</label><input class="einput" type="number" id="e-pax" min="1" max="7" oninput="eUpdatePaxNames()"></div>
       </div>
+      <div id="e-pax-names-wrap"></div>
       <div class="erow">
         <div class="egroup"><label class="elabel">Status</label>
           <select class="einput" id="e-status">
@@ -425,6 +433,7 @@
             <option value="cancelled">Anulat</option>
           </select>
         </div>
+        <div class="egroup"><label class="elabel">Total RON</label><input class="einput" type="number" id="e-total" min="0" step="0.01" placeholder="0.00"></div>
       </div>
       <hr class="esep">
       <div class="esec-title">Date client</div>
@@ -965,10 +974,12 @@ function retColor(pax) {
 function renderAnnualCalendar() {
   document.getElementById('ann-year-title').textContent = _annualYear;
 
-  // group active bookings by date → { tur: pax, retur: pax }
+  // collect blocked dates and group non-blocat active bookings by date
+  const blockedDates = new Set();
   const byDate = {};
   _annualBookings.filter(b => b.status !== 'cancelled').forEach(b => {
     const key = b.trip_date.slice(0, 10);
+    if (b.transfer_type === 'blocat') { blockedDates.add(key); return; }
     if (!byDate[key]) byDate[key] = { tur: 0, retur: 0 };
     const pax = parseInt(b.passengers || 1);
     if (b.direction === 'tur') byDate[key].tur += pax;
@@ -996,10 +1007,11 @@ function renderAnnualCalendar() {
       }
       const dateStr = `${_annualYear}-${String(m+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
       const isToday = dateStr === TODAY;
+      const isBlocked = blockedDates.has(dateStr);
       const d = byDate[dateStr] || { tur: 0, retur: 0 };
       const tc = turColor(d.tur), rc = retColor(d.retur);
-      const tip = `${dateStr}\nTur: ${d.tur} pax | Retur: ${d.retur} pax`;
-      html += `<div class="ann-day${isToday?' ann-today':''}" title="${tip}" onclick="openDayFromAnnual('${dateStr}')">`;
+      const tip = isBlocked ? `${dateStr}\nZi blocată` : `${dateStr}\nTur: ${d.tur} pax | Retur: ${d.retur} pax`;
+      html += `<div class="ann-day${isToday?' ann-today':''}${isBlocked?' ann-blocked':''}" title="${tip}" onclick="openDayFromAnnual('${dateStr}')">`;
       html += `<div class="ann-dn">${dayNum}</div>`;
       html += `<div class="ann-tur" style="background:${tc}"></div>`;
       html += `<div class="ann-ret" style="background:${rc}"></div>`;
@@ -1036,8 +1048,13 @@ function _openDayModal(dateStr, bks) {
   const dtObj = new Date(+y, +m-1, +d);
   const dayNames = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
   document.getElementById('day-modal-title').textContent = `${dayNames[dtObj.getDay()]}, ${+d} ${MONTHS[+m-1]} ${y}`;
-  const dayBks = bks.filter(b => b.trip_date.slice(0,10) === dateStr);
+  const allDayBks = bks.filter(b => b.trip_date.slice(0,10) === dateStr);
+  const isBlocked = allDayBks.some(b => b.transfer_type === 'blocat' && b.status !== 'cancelled');
+  const dayBks = allDayBks.filter(b => b.transfer_type !== 'blocat');
   let html = '';
+  if (isBlocked) {
+    html += `<div class="no-bk" style="color:#dc2626;font-weight:700">🔒 Zi blocată — toate cursele sunt indisponibile.</div>`;
+  }
   if (dayBks.length) {
     const sorted = [...dayBks].sort((a,b) => a.trip_time.localeCompare(b.trip_time));
     sorted.forEach(b => {
@@ -1070,12 +1087,64 @@ function _openDayModal(dateStr, bks) {
       </div>`;
       html += '</div>';
     });
-  } else {
+  } else if (!isBlocked) {
     html += '<div class="no-bk">Nicio rezervare în această zi.</div>';
   }
-  html += `<div style="margin-top:14px;text-align:center"><button class="btn-new-bk" onclick="openNewBooking('${dateStr}')">+ Rezervare manuală</button></div>`;
+  html += `<div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">`;
+  html += `<button class="btn-new-bk" onclick="openNewBooking('${dateStr}')">+ Rezervare manuală</button>`;
+  if (isBlocked) {
+    html += `<button class="btn-unblock-day" onclick="unblockDay('${dateStr}')">🔓 Deblochează ziua</button>`;
+  } else {
+    html += `<button class="btn-block-day" onclick="blockDay('${dateStr}')">🔒 Blochează ziua</button>`;
+  }
+  html += `</div>`;
   document.getElementById('day-modal-body').innerHTML = html;
   openModal('day-modal');
+}
+
+function eUpdatePaxNames(existingNames) {
+  const n = parseInt(document.getElementById('e-pax').value) || 1;
+  const wrap = document.getElementById('e-pax-names-wrap');
+  if (n <= 1) { wrap.innerHTML = ''; return; }
+  let html = '<div class="esec-title" style="font-size:.8rem;margin:6px 0 4px">Nume pasageri</div>';
+  for (let i = 0; i < n; i++) {
+    const val = existingNames && existingNames[i] ? existingNames[i] : '';
+    html += `<div class="egroup" style="margin-bottom:6px"><label class="elabel">Pasager ${i+1}</label>`;
+    html += `<input class="einput" type="text" id="e-pax-name-${i}" value="${esc(val)}" placeholder="Nume complet"></div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+async function blockDay(dateStr) {
+  if (!confirm(`Blochează TOATE cursele din ${dateStr}? Rezervările existente rămân.`)) return;
+  try {
+    const r = await fetch(`${SERVER}/api/admin/block-day`, {
+      method: 'POST',
+      headers: {...authHdrs(), 'Content-Type':'application/json'},
+      body: JSON.stringify({ date: dateStr })
+    });
+    if (r.status === 401) { doLogout(); return; }
+    if (!r.ok) { const d=await r.json(); alert('Eroare: '+(d.error||'necunoscut')); return; }
+    await loadMonth();
+    if (document.getElementById('ann-section').style.display !== 'none') await loadAnnualCalendar();
+    _openDayModal(dateStr, _dayModalFromAnnual ? _annualBookings : _bookings);
+  } catch(e) { alert('Eroare de rețea: '+e.message); }
+}
+
+async function unblockDay(dateStr) {
+  if (!confirm(`Deblochează ziua ${dateStr}?`)) return;
+  try {
+    const r = await fetch(`${SERVER}/api/admin/block-day`, {
+      method: 'DELETE',
+      headers: {...authHdrs(), 'Content-Type':'application/json'},
+      body: JSON.stringify({ date: dateStr })
+    });
+    if (r.status === 401) { doLogout(); return; }
+    if (!r.ok) { const d=await r.json(); alert('Eroare: '+(d.error||'necunoscut')); return; }
+    await loadMonth();
+    if (document.getElementById('ann-section').style.display !== 'none') await loadAnnualCalendar();
+    _openDayModal(dateStr, _dayModalFromAnnual ? _annualBookings : _bookings);
+  } catch(e) { alert('Eroare de rețea: '+e.message); }
 }
 
 function openNewBooking(dateStr) {
@@ -1088,12 +1157,14 @@ function openNewBooking(dateStr) {
   document.getElementById('e-apt').value = 'otopeni';
   document.getElementById('e-tr').value = 'economy';
   document.getElementById('e-pax').value = 1;
+  document.getElementById('e-total').value = '';
   document.getElementById('e-status').value = 'confirmed';
   document.getElementById('e-name').value = '';
   document.getElementById('e-phone').value = '';
   document.getElementById('e-email').value = '';
   document.getElementById('e-obs').value = '';
   document.getElementById('save-msg').textContent = '';
+  eUpdatePaxNames();
   openModal('edit-modal');
 }
 
@@ -1111,12 +1182,14 @@ function openEdit(id) {
   document.getElementById('e-apt').value = meta.apt || 'otopeni';
   document.getElementById('e-tr').value = b.transfer_type || 'economy';
   document.getElementById('e-pax').value = b.passengers || 1;
+  document.getElementById('e-total').value = meta.total || '';
   document.getElementById('e-status').value = b.status || 'confirmed';
   document.getElementById('e-name').value = meta.name || b.booking_ref || '';
   document.getElementById('e-phone').value = meta.phone || '';
   document.getElementById('e-email').value = meta.email || '';
   document.getElementById('e-obs').value = meta.obs || '';
   document.getElementById('save-msg').textContent = '';
+  eUpdatePaxNames(meta.paxNames || []);
   openModal('edit-modal');
 }
 
@@ -1127,6 +1200,12 @@ async function saveBooking() {
   const b = isNew ? null : (_bookings.find(x => x.id === _editId) || _annualBookings.find(x => x.id === _editId));
   const apt = document.getElementById('e-apt').value;
   const APT_LBL = { otopeni: 'Henri Coandă (OTP)', baneasa: 'Băneasa (BBU)' };
+  const paxCount = parseInt(document.getElementById('e-pax').value) || 1;
+  const paxNames = Array.from({length: paxCount}, (_, i) => {
+    const el = document.getElementById(`e-pax-name-${i}`);
+    return el ? el.value.trim() : '';
+  });
+  const totalVal = parseFloat(document.getElementById('e-total').value) || 0;
   const meta = { ...(b?.meta||{}),
     name:     document.getElementById('e-name').value.trim(),
     phone:    document.getElementById('e-phone').value.trim(),
@@ -1134,6 +1213,8 @@ async function saveBooking() {
     obs:      document.getElementById('e-obs').value.trim(),
     apt,
     aptLabel: APT_LBL[apt] || apt,
+    paxNames,
+    total:    totalVal,
   };
   const body = {
     trip_date:     document.getElementById('e-date').value,

@@ -16,9 +16,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/pages.css">
-  <link rel="stylesheet" href="/css/cookies.css">
+  <link rel="stylesheet" href="/css/cookies.css?v=5">
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("consent","default",{"analytics_storage":"denied","ad_storage":"denied","ad_user_data":"denied","ad_personalization":"denied","wait_for_update":2000});(function(){try{var p=JSON.parse(localStorage.getItem("deltaair_cookies")||"null");if(p&&p.analytics)gtag("consent","update",{"analytics_storage":"granted","ad_storage":"granted","ad_user_data":"granted","ad_personalization":"granted"});}catch(e){}})();</script>
-<!-- Google Tag Manager -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DBY4Z7P1F7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DBY4Z7P1F7');
+</script><!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5N4NP4CN');</script>
 <!-- End Google Tag Manager -->
   <style>
@@ -47,31 +54,35 @@
       font-size: .96rem; font-weight: 700; color: var(--navy); margin: 20px 0 8px;
     }
     .legal-section p, .legal-section li {
-      font-size: .9rem; color: #444; line-height: 1.85;
+      font-size: .9rem; color: #0f1a2e; font-weight: 600;
+      line-height: 1.85; text-shadow: 0 1px 3px rgba(15,26,46,.12);
     }
     .legal-section ul, .legal-section ol {
       padding-left: 22px; margin: 10px 0 10px;
     }
     .legal-section li { margin-bottom: 6px; }
-    .legal-section strong { color: var(--navy); }
+    .legal-section strong { color: var(--navy); font-weight: 800; text-shadow: 0 1px 4px rgba(26,47,94,.18); }
 
     /* ── Info box ── */
     .info-box {
       background: rgba(26,47,94,.05); border: 1px solid rgba(26,47,94,.15);
       border-radius: 12px; padding: 20px 24px; margin-bottom: 32px;
-      font-size: .88rem; color: #444; line-height: 1.8;
+      font-size: .88rem; color: #0f1a2e; font-weight: 600; line-height: 1.8;
+      text-shadow: 0 1px 3px rgba(15,26,46,.12);
     }
-    .info-box strong { color: var(--navy); display: block; margin-bottom: 6px; }
+    .info-box strong { color: var(--navy); font-weight: 800; display: block; margin-bottom: 6px; text-shadow: 0 1px 4px rgba(26,47,94,.18); }
 
     /* ── Tabel ── */
     .legal-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin: 16px 0 24px; }
     .legal-table th {
       background: var(--navy); color: #fff; padding: 12px 16px;
-      text-align: left; font-weight: 600; font-size: .8rem;
+      text-align: left; font-weight: 700; font-size: .8rem;
+      text-shadow: 0 1px 3px rgba(0,0,0,.25);
     }
     .legal-table th:first-child { border-radius: 8px 0 0 0; }
     .legal-table th:last-child  { border-radius: 0 8px 0 0; }
-    .legal-table td { padding: 11px 16px; border-bottom: 1px solid rgba(26,47,94,.08); color: #444; vertical-align: top; }
+    .legal-table td { padding: 11px 16px; border-bottom: 1px solid rgba(26,47,94,.08); color: #0f1a2e; font-weight: 600; vertical-align: top; text-shadow: 0 1px 3px rgba(15,26,46,.1); }
+    .legal-table td strong { font-weight: 800; color: var(--navy); text-shadow: 0 1px 4px rgba(26,47,94,.18); }
     .legal-table tr:hover td { background: rgba(26,47,94,.03); }
 
     /* ── Update badge ── */
@@ -413,37 +424,50 @@
 
         <div class="info-box">
           <strong>Ce sunt cookie-urile?</strong>
-          Cookie-urile sunt fișiere text de mici dimensiuni stocate în browserul dvs. atunci când vizitați un site web. Ele permit site-ului să vă recunoască la vizitele ulterioare, să rețină preferințele și să colecteze informații statistice.
+          Cookie-urile sunt fișiere text de mici dimensiuni stocate în browserul dvs. atunci când vizitați un site web. Ele permit site-ului să vă recunoască la vizitele ulterioare, să rețină preferințele și să colecteze informații statistice. Site-ul utilizează module cookie <strong>proprii și de la terți</strong>.
         </div>
 
         <!-- 1 -->
         <div class="legal-section reveal">
-          <h2>1. Tipuri de cookie-uri utilizate</h2>
+          <h2>1. Categorii și tipuri de cookie-uri utilizate</h2>
+
+          <h3>🔒 Cookie-uri necesare (fără consimțământ — art. 6 alin. 1 lit. b GDPR)</h3>
           <table class="legal-table">
-            <thead>
-              <tr><th>Categorie</th><th>Descriere</th><th>Consimțământ necesar</th></tr>
-            </thead>
+            <thead><tr><th>Sub-tip</th><th>Descriere</th><th>Consimțământ</th></tr></thead>
             <tbody>
-              <tr>
-                <td><strong>Esențiale</strong></td>
-                <td>Necesare pentru funcționarea site-ului: sesiune, formular de rezervare, securitate CSRF. Fără acestea, site-ul nu funcționează corect.</td>
-                <td>Nu (art. 6 alin. 1 lit. b GDPR)</td>
-              </tr>
-              <tr>
-                <td><strong>Preferințe</strong></td>
-                <td>Rețin alegerile dvs. privind cookie-urile (consimțământul stocat în <code>localStorage</code>).</td>
-                <td>Nu — funcționale</td>
-              </tr>
-              <tr>
-                <td><strong>Analiză</strong></td>
-                <td>Google Analytics — statistici anonime de utilizare a site-ului (pagini vizitate, durată sesiune, sursă trafic).</td>
-                <td><strong>Da — consimțământ</strong></td>
-              </tr>
-              <tr>
-                <td><strong>Marketing</strong></td>
-                <td>Meta Pixel — măsurarea și optimizarea campaniilor publicitare pe Facebook și Instagram.</td>
-                <td><strong>Da — consimțământ</strong></td>
-              </tr>
+              <tr><td><strong>Funcționare site &amp; sesiune</strong></td><td>Gestionează sesiunea utilizatorului, formularele de rezervare și securitatea CSRF. Fără acestea, site-ul nu funcționează.</td><td>Nu</td></tr>
+              <tr><td><strong>Procesare plăți — Stripe</strong></td><td>Cookie-uri: <code>_stripe_mid</code> (1 an), <code>_stripe_sid</code> (sesiune). Prevenirea fraudei la plăți online securizate.</td><td>Nu</td></tr>
+            </tbody>
+          </table>
+
+          <h3>⚙ Cookie-uri de preferință (consimțământ — art. 6 alin. 1 lit. a GDPR)</h3>
+          <table class="legal-table">
+            <thead><tr><th>Sub-tip</th><th>Descriere</th><th>Consimțământ</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Preferințe consimțământ cookie-uri</strong></td><td>Memorează alegerile dvs. privind cookie-urile (<code>deltaair_cookies</code> în localStorage, pe dispozitivul dvs.).</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Setări interfață &amp; afișare</strong></td><td>Preferințe de navigare, mod de afișare și personalizare a interfeței site-ului.</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Limbă și regiune</strong></td><td>Memorarea preferinței de limbă și a formatului regional selectat de utilizator.</td><td><strong>Da</strong></td></tr>
+            </tbody>
+          </table>
+
+          <h3>📊 Cookie-uri de performanță / analiză (consimțământ — art. 6 alin. 1 lit. a GDPR)</h3>
+          <table class="legal-table">
+            <thead><tr><th>Sub-tip</th><th>Descriere</th><th>Consimțământ</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Google Analytics — statistici trafic</strong></td><td>Cookie-uri: <code>_ga</code> (2 ani), <code>_ga_*</code> (1 zi). Pagini vizitate, durată sesiune, sursă trafic — date anonimizate.</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Google Analytics — audiențe &amp; comportament</strong></td><td>Segmentarea vizitatorilor și rapoarte detaliate de comportament pentru optimizarea site-ului.</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Google Tag Manager — etichete de măsurare</strong></td><td>Container GTM-5N4NP4CN — gestionează și declanșează etichetele de analiză și urmărire.</td><td><strong>Da</strong></td></tr>
+            </tbody>
+          </table>
+
+          <h3>📣 Cookie-uri de marketing / publicitate (consimțământ — art. 6 alin. 1 lit. a GDPR)</h3>
+          <table class="legal-table">
+            <thead><tr><th>Sub-tip</th><th>Descriere</th><th>Consimțământ</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Meta Pixel — urmărire conversii Facebook</strong></td><td>Cookie: <code>_fbp</code> (3 luni). Măsoară acțiunile utilizatorilor după click pe reclame Facebook.</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Meta Pixel — remarketing Instagram</strong></td><td>Cookie: <code>_fbc</code> (3 luni). Audiențe personalizate și reclame țintite pe Instagram.</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Google Ads — urmărire conversii &amp; remarketing</strong></td><td>Măsoară performanța campaniilor Google Search și Display. Remarketing către vizitatori anteriori.</td><td><strong>Da</strong></td></tr>
+              <tr><td><strong>Retargeting multi-canal</strong></td><td>Audiențe personalizate coordonate pe mai multe platforme publicitare pentru campanii integrate.</td><td><strong>Da</strong></td></tr>
             </tbody>
           </table>
         </div>
@@ -453,13 +477,15 @@
           <h2>2. Cookie-uri specifice</h2>
           <table class="legal-table">
             <thead>
-              <tr><th>Nume / furnizor</th><th>Scop</th><th>Durată</th></tr>
+              <tr><th>Nume / furnizor</th><th>Categorie</th><th>Scop</th><th>Durată</th></tr>
             </thead>
             <tbody>
-              <tr><td><code>deltaair_cookies</code> (localStorage)</td><td>Stochează preferințele dvs. de consimțământ cookie</td><td>Persistent (până la ștergere)</td></tr>
-              <tr><td>Stripe (_stripe_mid, _stripe_sid)</td><td>Prevenirea fraudei, securitate plăți online</td><td>1 an / sesiune</td></tr>
-              <tr><td>_ga, _ga_XXXXXXX (Google Analytics)</td><td>Identificare vizitator anonim, statistici</td><td>2 ani / 1 zi</td></tr>
-              <tr><td>_fbp, _fbc (Meta Pixel)</td><td>Urmărire conversii, remarketing Facebook/Instagram</td><td>3 luni</td></tr>
+              <tr><td><code>deltaair_cookies</code> (localStorage)</td><td>Preferință</td><td>Stochează preferințele de consimțământ cookie ale utilizatorului</td><td>Persistent (până la ștergere)</td></tr>
+              <tr><td><code>_stripe_mid, _stripe_sid</code></td><td>Necesar</td><td>Prevenirea fraudei, securitate plăți online — Stripe</td><td>1 an / sesiune</td></tr>
+              <tr><td><code>_ga, _ga_*</code></td><td>Analiză</td><td>Identificare vizitator anonim, statistici trafic — Google Analytics</td><td>2 ani / 1 zi</td></tr>
+              <tr><td><code>_fbp</code></td><td>Marketing</td><td>Urmărire conversii Facebook — Meta Pixel</td><td>3 luni</td></tr>
+              <tr><td><code>_fbc</code></td><td>Marketing</td><td>Remarketing Instagram — Meta Pixel</td><td>3 luni</td></tr>
+              <tr><td>Google Ads (gcl_*)</td><td>Marketing</td><td>Urmărire conversii și remarketing Google Ads</td><td>90 zile</td></tr>
             </tbody>
           </table>
         </div>
@@ -469,14 +495,15 @@
           <h2>3. Cum gestionați preferințele</h2>
           <p>Aveți la dispoziție mai multe modalități de a vă controla cookie-urile:</p>
           <ul>
-            <li><strong>Bannerul nostru</strong> — la prima vizită puteți accepta toate cookie-urile, le puteți respinge pe cele neesențiale sau le puteți personaliza individual.</li>
-            <li><strong>Butonul 🍪</strong> (colțul stânga-jos al oricărei pagini) — deschide panoul de setări după ce ați dat deja un răspuns, pentru a vă modifica oricând preferințele.</li>
+            <li><strong>Bannerul nostru (primul strat)</strong> — la prima vizită puteți accepta toate cookie-urile, le puteți respinge pe cele neesențiale sau accesa setările granulare.</li>
+            <li><strong>Panoul de setări (al doilea strat)</strong> — permite configurarea individuală a fiecăruia dintre cele <strong>10 tipuri</strong> de cookie-uri ajustabile, grupate pe 4 categorii. Toate opțiunile sunt <strong>inactive implicit</strong>, cu excepția celor strict necesare.</li>
+            <li><strong>Butonul 🍪</strong> (colțul stânga-jos al oricărei pagini) — deschide panoul de setări oricând doriți să vă modificați preferințele anterioare.</li>
             <li><strong>Setările browserului</strong> — puteți bloca sau șterge cookie-urile direct din browser: Chrome → Setări → Confidențialitate; Firefox → Preferințe → Confidențialitate; Safari → Preferințe → Confidențialitate.</li>
           </ul>
-          <p style="margin-top:12px">Retragerea consimțământului nu afectează legalitatea prelucrărilor efectuate anterior.</p>
+          <p style="margin-top:12px">Retragerea consimțământului nu afectează legalitatea prelucrărilor efectuate anterior retragerii.</p>
 
           <div style="text-align:center;margin-top:28px">
-            <button class="ck-btn ck-btn-navy" onclick="document.getElementById('ck-modal').classList.add('ck-modal-open');document.getElementById('ck-tog-analytics').checked=!!(JSON.parse(localStorage.getItem('deltaair_cookies')||'{}').analytics);document.getElementById('ck-tog-marketing').checked=!!(JSON.parse(localStorage.getItem('deltaair_cookies')||'{}').marketing);" style="font-size:.9rem;padding:12px 28px;border-radius:10px;cursor:pointer">
+            <button class="ck-btn ck-btn-navy" onclick="var f=document.getElementById('ck-float');if(f){f.click();}else{var m=document.getElementById('ck-modal');if(m)m.classList.add('ck-modal-open');}" style="font-size:.9rem;padding:12px 28px;border-radius:10px;cursor:pointer">
               ⚙ Modifică preferințele mele de cookie-uri
             </button>
           </div>
@@ -485,7 +512,7 @@
         <!-- 4 -->
         <div class="legal-section reveal">
           <h2>4. Transferuri internaționale</h2>
-          <p>Serviciile Google Analytics și Meta Pixel pot implica transferuri de date în SUA. Aceste transferuri se desfășoară în baza Clauzelor Contractuale Standard aprobate de Comisia Europeană sau a altor mecanisme legale echivalente.</p>
+          <p>Serviciile <strong>Google Analytics</strong>, <strong>Google Tag Manager</strong>, <strong>Google Ads</strong> și <strong>Meta Pixel</strong> pot implica transferuri de date în SUA. Aceste transferuri se desfășoară în baza <strong>Clauzelor Contractuale Standard</strong> aprobate de Comisia Europeană sau a altor mecanisme legale echivalente, conform art. 46 GDPR.</p>
         </div>
 
         <!-- 5 -->
@@ -494,10 +521,11 @@
           <p>Pentru orice întrebare legată de cookie-uri sau pentru exercitarea drepturilor dvs. GDPR, ne puteți contacta la:<br>
           <a href="mailto:office@delta-air.ro" style="color:var(--navy);font-weight:600">office@delta-air.ro</a> &nbsp;·&nbsp;
           <a href="tel:+40761617606" style="color:var(--navy);font-weight:600">+40 761 617 606</a></p>
+          <p style="margin-top:10px">Puteți depune plângere și la <strong>ANSPDCP</strong>: <a href="https://www.dataprotection.ro/" target="_blank" rel="noopener" style="color:var(--navy);font-weight:600">www.dataprotection.ro</a></p>
         </div>
 
         <div class="update-note">
-          Ultima actualizare: <strong>01.05.2026</strong> &nbsp;·&nbsp; DELTA AIR SHUTTLE S.R.L.
+          Ultima actualizare: <strong>19.05.2026</strong> &nbsp;·&nbsp; DELTA AIR SHUTTLE S.R.L.
         </div>
       </div>
     </div>
@@ -517,7 +545,11 @@
 <footer>
   <div class="container">
     <div class="footer-grid">
-      <div class="footer-brand"><img src="../img/logo-p3.png" alt="Delta Air Shuttle"><p>Transfer premium Brașov–Otopeni–Băneasa.</p></div>
+      <div class="footer-brand"><img src="../img/logo-p3.png" alt="Delta Air Shuttle"><p>Transfer premium Brașov–Otopeni–Băneasa.</p>
+                    <div class="footer-social">
+                        <a href="https://www.facebook.com/deltaairshuttle" target="_blank" rel="noopener" aria-label="Facebook Delta Air Shuttle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                        <a href="https://www.instagram.com/deltaairshuttle" target="_blank" rel="noopener" aria-label="Instagram Delta Air Shuttle"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.209-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+                    </div></div>
       <div class="footer-col"><h4>Servicii</h4><ul><li><a href="/rezervari">Economy Transfer</a></li><li><a href="/rezervari">Transfer Privat</a></li><li><a href="/lista-de-preturi">Prețuri</a></li></ul></div>
       <div class="footer-col"><h4>Rute</h4><ul><li><a href="/rezervari">Brașov → Otopeni</a></li><li><a href="/rezervari">Brașov → Băneasa</a></li><li><a href="/rezervari">Retur Brașov</a></li></ul></div>
       <div class="footer-col"><h4>Companie</h4><ul><li><a href="/despre-noi">Despre noi</a></li><li><a href="/realizari">Realizări</a></li><li><a href="/contact">Contact</a></li><li><a href="/termeni-si-conditii-gdpr" class="active">GDPR</a></li></ul></div>
@@ -550,6 +582,6 @@ document.querySelectorAll('.reveal').forEach(el => {
   new IntersectionObserver(([e]) => { if (e.isIntersecting) el.classList.add('visible'); }, { threshold: 0.08 }).observe(el);
 });
 </script>
-<script src="/js/cookies.js" defer></script>
+<script src="/js/cookies.js?v=6" defer></script>
 </body>
 </html>

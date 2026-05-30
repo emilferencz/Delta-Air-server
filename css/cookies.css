@@ -1,5 +1,6 @@
 /* ══════════════════════════════════════════
    Delta Air Shuttle — Cookie Consent UI
+   GDPR/ePrivacy compliant — v5
    ══════════════════════════════════════════ */
 
 /* ─── BANNER ─── */
@@ -9,10 +10,9 @@
   z-index: 9998;
   padding: 0 16px calc(16px + env(safe-area-inset-bottom));
   transform: translateY(110%);
+  -webkit-transform: translateY(110%);
   transition: transform .42s cubic-bezier(.22,.61,.36,1);
   pointer-events: none;
-  /* forțează layer GPU propriu — rezolvă bug iOS overflow-x:hidden pe body */
-  -webkit-transform: translateY(110%);
   will-change: transform;
 }
 #ck-banner.ck-visible {
@@ -33,288 +33,232 @@
   box-shadow: 0 -8px 48px rgba(0,0,0,.4);
   backdrop-filter: blur(24px);
 }
-.ck-text {
-  flex: 1;
-  min-width: 0;
-}
+.ck-text { flex: 1; min-width: 0; }
 .ck-text strong {
   display: block;
   font-family: 'Poppins', sans-serif;
-  font-size: .95rem;
-  font-weight: 700;
-  color: #c9a84c;
-  margin-bottom: 5px;
+  font-size: .95rem; font-weight: 700;
+  color: #c9a84c; margin-bottom: 5px;
 }
 .ck-text p {
   font-family: 'Poppins', sans-serif;
-  font-size: .8rem;
-  line-height: 1.65;
-  color: rgba(255,255,255,.72);
-  margin: 0;
+  font-size: .8rem; line-height: 1.65;
+  color: rgba(255,255,255,.72); margin: 0;
 }
-.ck-link {
-  color: #c9a84c !important;
-  text-decoration: underline;
-  font-weight: 600;
-  transition: color .2s;
-}
+.ck-link { color: #c9a84c !important; text-decoration: underline; font-weight: 600; transition: color .2s; }
 .ck-link:hover { color: #e8c96a !important; }
 
 .ck-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  align-items: center;
+  display: flex; gap: 8px;
+  flex-shrink: 0; flex-wrap: wrap; align-items: center;
 }
 
-/* ─── BUTTONS (shared) ─── */
+/* ─── BUTOANE — bază ─── */
 .ck-btn {
   font-family: 'Poppins', sans-serif;
-  font-size: .79rem;
-  font-weight: 600;
-  padding: 9px 18px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
+  font-size: .79rem; font-weight: 600;
+  padding: 10px 20px; border-radius: 8px;
+  border: 2px solid transparent; cursor: pointer;
   transition: background .2s, color .2s, border-color .2s;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-.ck-btn-gold {
-  background: #c9a84c;
-  color: #0f1e3d;
-}
-.ck-btn-gold:hover { background: #e8c96a; }
-
-.ck-btn-ghost {
-  background: transparent;
-  color: rgba(255,255,255,.65);
-  border: 1px solid rgba(255,255,255,.18);
-}
-.ck-btn-ghost:hover {
-  color: #fff;
-  border-color: rgba(255,255,255,.45);
-  background: rgba(255,255,255,.06);
+  white-space: nowrap; line-height: 1.2;
 }
 
-.ck-btn-outline {
-  background: transparent;
-  color: #1a2f5e;
+/* Banner — Personalizează (secundar, mai discret) */
+.ck-btn-settings {
+  background: transparent; color: rgba(255,255,255,.6);
+  border: 1px solid rgba(255,255,255,.2); font-size: .75rem; padding: 9px 16px;
+}
+.ck-btn-settings:hover { color: #fff; border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.07); }
+
+/* Banner — Respinge & Accept: aceeași dimensiune, formă, border-width */
+.ck-btn-banner-reject {
+  background: transparent; color: rgba(255,255,255,.92);
+  border: 2px solid rgba(255,255,255,.5);
+}
+.ck-btn-banner-reject:hover { background: rgba(255,255,255,.1); border-color: #fff; color: #fff; }
+
+.ck-btn-banner-accept {
+  background: #c9a84c; color: #0f1e3d;
+  border: 2px solid #c9a84c;
+}
+.ck-btn-banner-accept:hover { background: #e8c96a; border-color: #e8c96a; }
+
+/* Modal — Respinge toate */
+.ck-btn-modal-reject {
+  background: transparent; color: #b91c1c;
+  border: 2px solid rgba(185,28,28,.4);
+}
+.ck-btn-modal-reject:hover { background: rgba(185,28,28,.07); border-color: #b91c1c; }
+
+/* Modal — Salvează preferințele (secundar) */
+.ck-btn-modal-save {
+  background: transparent; color: #1a2f5e;
   border: 1px solid rgba(26,47,94,.3);
 }
-.ck-btn-outline:hover {
-  border-color: #1a2f5e;
-  background: rgba(26,47,94,.06);
-}
+.ck-btn-modal-save:hover { border-color: #1a2f5e; background: rgba(26,47,94,.06); }
 
-.ck-btn-navy {
-  background: #1a2f5e;
-  color: #fff;
+/* Modal — Accept toate */
+.ck-btn-modal-accept {
+  background: #1a2f5e; color: #fff;
+  border: 2px solid #1a2f5e;
 }
-.ck-btn-navy:hover { background: #0f1e3d; }
+.ck-btn-modal-accept:hover { background: #0f1e3d; border-color: #0f1e3d; }
+
+/* Păstrat pentru butonul din pagina Termeni */
+.ck-btn-navy { background: #1a2f5e; color: #fff; border: 2px solid #1a2f5e; }
+.ck-btn-navy:hover { background: #0f1e3d; border-color: #0f1e3d; }
 
 /* ─── MODAL ─── */
-#ck-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
+#ck-modal { display: none; position: fixed; inset: 0; z-index: 9999; }
 #ck-modal.ck-modal-open { display: block; }
 
 .ck-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.55);
-  backdrop-filter: blur(5px);
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,.55); backdrop-filter: blur(5px);
 }
 
 .ck-box {
-  position: absolute;
-  top: 50%; left: 50%;
+  position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: min(540px, 95vw);
-  background: #fff;
-  border-radius: 20px;
+  width: min(620px, 96vw);
+  background: #fff; border-radius: 20px;
   padding: 36px 32px 28px;
   box-shadow: 0 24px 80px rgba(0,0,0,.28);
-  max-height: 90vh;
-  overflow-y: auto;
+  max-height: 88vh; overflow-y: auto;
 }
 
 .ck-close {
-  position: absolute;
-  top: 14px; right: 14px;
-  background: none;
-  border: none;
-  font-size: 1rem;
-  color: #8892a4;
-  cursor: pointer;
-  padding: 5px 9px;
-  border-radius: 7px;
-  font-family: 'Poppins', sans-serif;
+  position: absolute; top: 14px; right: 14px;
+  background: none; border: none; font-size: 1rem;
+  color: #8892a4; cursor: pointer; padding: 5px 9px;
+  border-radius: 7px; font-family: 'Poppins', sans-serif;
   transition: background .15s, color .15s;
 }
 .ck-close:hover { background: #f4f6fb; color: #1a2f5e; }
 
 .ck-box h3 {
   font-family: 'Poppins', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #1a2f5e;
-  margin-bottom: 6px;
+  font-size: 1.1rem; font-weight: 800; color: #1a2f5e; margin-bottom: 6px;
 }
 .ck-intro {
   font-family: 'Poppins', sans-serif;
-  font-size: .8rem;
-  color: #8892a4;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  font-size: .8rem; color: #8892a4; line-height: 1.6; margin-bottom: 16px;
+}
+.ck-intro strong { color: #1a2f5e; }
+
+/* ─── CATEGORII ─── */
+.ck-category { margin-bottom: 4px; }
+.ck-cat-border { border-top: 2px solid rgba(26,47,94,.08); padding-top: 4px; margin-top: 4px; }
+
+.ck-cat-header {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 12px;
+  padding: 12px 0 6px;
+}
+.ck-cat-info { flex: 1; min-width: 0; }
+.ck-cat-info strong {
+  font-family: 'Poppins', sans-serif;
+  font-size: .9rem; font-weight: 800; color: #1a2f5e;
+  display: block; margin-bottom: 2px;
+}
+.ck-cat-info span {
+  font-family: 'Poppins', sans-serif;
+  font-size: .76rem; color: #8892a4; line-height: 1.4;
 }
 
-/* ─── TOGGLE ROWS ─── */
-.ck-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 0;
-  border-top: 1px solid rgba(26,47,94,.07);
+/* ─── SUB-RÂNDURI ─── */
+.ck-subrow {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 14px;
+  padding: 9px 0 9px 16px;
+  border-top: 1px solid rgba(26,47,94,.06);
 }
-.ck-row-locked { opacity: .78; }
+.ck-subrow-locked { opacity: .7; }
 
-.ck-row-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1;
-  min-width: 0;
-}
-.ck-row-info strong {
+.ck-subrow-info { flex: 1; min-width: 0; }
+.ck-subrow-info strong {
   font-family: 'Poppins', sans-serif;
-  font-size: .84rem;
-  font-weight: 700;
-  color: #1a2f5e;
+  font-size: .8rem; font-weight: 700; color: #1a2f5e;
+  display: block; margin-bottom: 2px;
 }
-.ck-row-info span {
+.ck-subrow-info span {
   font-family: 'Poppins', sans-serif;
-  font-size: .76rem;
-  color: #8892a4;
-  line-height: 1.5;
+  font-size: .72rem; color: #9aa3b0; line-height: 1.45;
 }
 
 .ck-badge-on {
-  font-family: 'Poppins', sans-serif;
-  font-size: .72rem;
-  font-weight: 600;
-  color: #15803d;
-  background: #dcfce7;
-  padding: 4px 10px;
-  border-radius: 20px;
-  white-space: nowrap;
-  flex-shrink: 0;
+  font-family: 'Poppins', sans-serif; font-size: .72rem; font-weight: 600;
+  color: #15803d; background: #dcfce7; padding: 4px 10px;
+  border-radius: 20px; white-space: nowrap; flex-shrink: 0;
+}
+.ck-badge-locked {
+  font-family: 'Poppins', sans-serif; font-size: .7rem; font-weight: 600;
+  color: #6b7280; background: #f3f4f6; padding: 3px 8px;
+  border-radius: 20px; white-space: nowrap; flex-shrink: 0;
 }
 
 /* ─── TOGGLE SWITCH ─── */
 .ck-toggle {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
-  flex-shrink: 0;
-  cursor: pointer;
+  position: relative; display: inline-block;
+  width: 44px; height: 24px; flex-shrink: 0; cursor: pointer;
 }
-.ck-toggle input {
-  opacity: 0;
-  width: 0; height: 0;
-  position: absolute;
-}
+.ck-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
 .ck-knob {
-  position: absolute;
-  inset: 0;
-  background: #cbd5e1;
-  border-radius: 24px;
-  transition: background .22s;
+  position: absolute; inset: 0;
+  background: #cbd5e1; border-radius: 24px; transition: background .22s;
 }
 .ck-knob::before {
-  content: '';
-  position: absolute;
-  width: 18px; height: 18px;
-  left: 3px; top: 3px;
-  background: #fff;
-  border-radius: 50%;
-  transition: transform .22s;
-  box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  content: ''; position: absolute;
+  width: 18px; height: 18px; left: 3px; top: 3px;
+  background: #fff; border-radius: 50%;
+  transition: transform .22s; box-shadow: 0 1px 4px rgba(0,0,0,.18);
 }
 .ck-toggle input:checked + .ck-knob { background: #1a2f5e; }
 .ck-toggle input:checked + .ck-knob::before { transform: translateX(20px); }
 
-/* ─── MODAL ACTIONS ─── */
+/* ─── ACȚIUNI MODAL ─── */
 .ck-modal-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 22px;
-  justify-content: flex-end;
+  display: flex; gap: 10px; margin-top: 20px;
+  justify-content: flex-end; flex-wrap: wrap; align-items: center;
+  border-top: 1px solid rgba(26,47,94,.08); padding-top: 18px;
 }
 
 .ck-ts-line {
-  font-family: 'Poppins', sans-serif;
-  font-size: .72rem;
-  color: #b0bac9;
-  text-align: center;
-  margin-top: 14px;
+  font-family: 'Poppins', sans-serif; font-size: .72rem;
+  color: #b0bac9; text-align: center; margin-top: 14px; line-height: 1.8;
 }
+.ck-link-dark { color: #8892a4; text-decoration: underline; font-weight: 600; transition: color .2s; }
+.ck-link-dark:hover { color: #1a2f5e; }
 
-/* ─── FLOATING BUTTON ─── */
+/* ─── BUTON PERSISTENT ─── */
 #ck-float {
   position: fixed;
   bottom: max(72px, calc(env(safe-area-inset-bottom) + 72px));
-  left: 16px;
-  right: auto;
-  z-index: 99999;
-  width: 46px; height: 46px;
-  border-radius: 50%;
-  background: rgba(10,20,45,.95);
-  border: 2px solid rgba(201,168,76,.6);
-  font-size: 1.15rem;
-  cursor: pointer;
+  left: 16px; right: auto; z-index: 99999;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: rgba(10,20,45,.95); border: 2px solid rgba(201,168,76,.6);
+  font-size: 1.15rem; cursor: pointer;
   box-shadow: 0 4px 18px rgba(0,0,0,.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform .2s, box-shadow .2s;
-  will-change: transform;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .2s, box-shadow .2s; will-change: transform;
 }
-#ck-float:hover {
-  transform: scale(1.12);
-  box-shadow: 0 6px 24px rgba(0,0,0,.38);
-}
+#ck-float:hover { transform: scale(1.12); box-shadow: 0 6px 24px rgba(0,0,0,.38); }
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 680px) {
   .ck-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 18px 20px;
-    gap: 14px;
+    flex-direction: column; align-items: flex-start;
+    padding: 18px 20px; gap: 14px;
   }
   .ck-actions {
-    width: 100%;
-    justify-content: stretch;
+    width: 100%; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 8px;
   }
-  .ck-actions .ck-btn {
-    flex: 1;
-    text-align: center;
-  }
-  .ck-box {
-    padding: 28px 20px 22px;
-  }
-  .ck-modal-actions {
-    flex-direction: column;
-  }
-  .ck-modal-actions .ck-btn {
-    width: 100%;
-    text-align: center;
-  }
+  .ck-actions .ck-btn-settings { grid-column: 1 / -1; text-align: center; }
+  .ck-actions .ck-btn-banner-reject,
+  .ck-actions .ck-btn-banner-accept { text-align: center; }
+  .ck-box { padding: 24px 16px 20px; }
+  .ck-subrow { padding-left: 10px; }
+  .ck-modal-actions { flex-direction: column; }
+  .ck-modal-actions .ck-btn { width: 100%; text-align: center; }
 }

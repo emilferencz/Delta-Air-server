@@ -15,9 +15,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../css/pages.css">
-  <link rel="stylesheet" href="/css/cookies.css">
+  <link rel="stylesheet" href="/css/cookies.css?v=5">
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("consent","default",{"analytics_storage":"denied","ad_storage":"denied","ad_user_data":"denied","ad_personalization":"denied","wait_for_update":2000});(function(){try{var p=JSON.parse(localStorage.getItem("deltaair_cookies")||"null");if(p&&p.analytics)gtag("consent","update",{"analytics_storage":"granted","ad_storage":"granted","ad_user_data":"granted","ad_personalization":"granted"});}catch(e){}})();</script>
-<!-- Google Tag Manager -->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-DBY4Z7P1F7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-DBY4Z7P1F7');
+</script><!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5N4NP4CN');</script>
 <!-- End Google Tag Manager -->
   <style>
@@ -221,9 +228,13 @@ if(email) document.getElementById('confirm-email').textContent=email;
     html+='<div class="bsum-total"><span>Total plătit</span><span>'+esc(String(b.total))+' lei</span></div>';
     document.getElementById('booking-summary-inner').innerHTML=html;
     document.getElementById('booking-summary-wrap').style.display='block';
+    // Meta Pixel — Purchase cu valoare
+    try{var _p=JSON.parse(localStorage.getItem('deltaair_cookies'));if(_p&&(_p.meta_facebook||_p.meta_instagram)&&window.fbq){fbq('track','Purchase',{value:parseFloat(b.total)||0,currency:'RON',content_category:'Transfer aeroport'});window._mpurchaseFired=true;}}catch(ex){}
   }catch(e){}
 })();
+// Meta Pixel — Purchase fallback (fără summary disponibil)
+(function(){try{var _p=JSON.parse(localStorage.getItem('deltaair_cookies'));if(_p&&(_p.meta_facebook||_p.meta_instagram)&&window.fbq&&!window._mpurchaseFired)fbq('track','Purchase',{value:0,currency:'RON',content_category:'Transfer aeroport'});}catch(e){}})();
 </script>
-<script src="/js/cookies.js" defer></script>
+<script src="/js/cookies.js?v=6" defer></script>
 </body>
 </html>

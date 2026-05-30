@@ -74,6 +74,8 @@ async function initDB() {
     )
   `);
   await db.query(`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS meta_json TEXT`);
+  await db.query(`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS billing_token VARCHAR(64)`);
+  await db.query(`ALTER TABLE bookings ADD COLUMN IF NOT EXISTS reminded_at TIMESTAMPTZ`);
 
   /* ── Tabel vehicule ── */
   await db.query(`
@@ -910,6 +912,136 @@ function buildInternalNotificationEmail(meta) {
     </div>
   </div>
   <div class="footer">Email generat automat de sistemul de rezervări delta-air.ro</div>
+</div></body></html>`;
+}
+
+/* ──────────────────────────────────────────────
+   Email confirmare rezervare manuală admin (client)
+────────────────────────────────────────────── */
+function buildAdminBookingConfirmationEmail(meta, billingUrl) {
+  const {
+    dirLabel='—', trLabel='—', aptLabel='—',
+    date='—', depTime='—',
+    name='—', phone='—', email='—',
+    adults=1, total='—', obs,
+    paxNames=[],
+  } = meta;
+  const fmtD = s => (s&&s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
+  const paxList = paxNames.filter(Boolean).map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('');
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+<title>Rezervare confirmată – Delta Air Shuttle</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
+  .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
+  .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:40px 40px 32px;text-align:center}
+  .header h1{color:#fff;font-size:1.4rem;font-weight:700;margin:0}
+  .header p{color:rgba(255,255,255,.75);font-size:.9rem;margin:8px 0 0}
+  .body{padding:36px 40px}
+  .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
+  .detail-box{background:#f4f6fb;border-radius:10px;padding:20px 24px;margin-bottom:20px}
+  .detail-row{display:table;width:100%;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem;box-sizing:border-box}
+  .detail-row:last-child{border-bottom:none}
+  .detail-label{display:table-cell;width:45%;color:#8892a4;vertical-align:top;padding-right:8px}
+  .detail-value{display:table-cell;font-weight:600;color:#1a202c;vertical-align:top}
+  .billing-box{background:#fffbeb;border:1.5px solid #f6d860;border-radius:12px;padding:20px 24px;margin-bottom:24px;text-align:center}
+  .billing-box p{margin:0 0 14px;color:#92400e;font-size:.95rem;font-weight:600}
+  .billing-btn{display:inline-block;background:#0f1e3d;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.95rem}
+  .footer{background:#f4f6fb;padding:24px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08)}
+  .footer p{font-size:.78rem;color:#8892a4;margin:4px 0;line-height:1.6}
+  .footer a{color:#1a2f5e;text-decoration:none;font-weight:600}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <h1>✈ Rezervare confirmată!</h1>
+    <p>Locul tău este rezervat. Mulțumim că ai ales Delta Air Shuttle.</p>
+  </div>
+  <div class="body">
+    <div class="section-title">Detalii cursă</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${fmtD(date)}</span></div>
+      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
+      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}</span></div>
+      ${paxList}
+      ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
+    </div>
+    ${total && total !== '—' && total !== 0 ? `<div class="detail-box" style="margin-bottom:20px"><div class="detail-row"><span class="detail-label">Total</span><span class="detail-value" style="color:#0f1e3d;font-size:1.1rem">${total} lei</span></div></div>` : ''}
+    ${billingUrl ? `<div class="billing-box">
+      <p>Pentru a primi contractul și factura, completează datele de facturare:</p>
+      <a class="billing-btn" href="${billingUrl}">Completează datele de facturare →</a>
+    </div>` : ''}
+    <div class="section-title">Date de contact</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
+      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value">${phone}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
+    </div>
+  </div>
+  <div class="footer">
+    <p><strong>Delta Air Shuttle</strong> · Transfer premium Brașov–Otopeni–Băneasa</p>
+    <p>📞 <a href="tel:+40761617606">+40 761 617 606</a> &nbsp;·&nbsp; 💬 <a href="https://wa.me/40761617606">WhatsApp</a> &nbsp;·&nbsp; 🌐 <a href="https://delta-air.ro">delta-air.ro</a></p>
+  </div>
+</div></body></html>`;
+}
+
+/* ──────────────────────────────────────────────
+   Email reminder 12h înainte îmbarcare (client + admin)
+────────────────────────────────────────────── */
+function buildReminderEmail(meta, billingUrl) {
+  const {
+    dirLabel='—', aptLabel='—',
+    date='—', depTime='—',
+    name='—', phone='—', email='—',
+  } = meta;
+  const fmtD = s => (s&&s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+<title>Reminder îmbarcare – Delta Air Shuttle</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
+  .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
+  .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:36px 40px;text-align:center}
+  .header h1{color:#fff;font-size:1.3rem;font-weight:700;margin:0}
+  .header p{color:rgba(255,255,255,.75);font-size:.9rem;margin:8px 0 0}
+  .body{padding:32px 40px}
+  .alert-box{background:#fef3c7;border:1.5px solid #f59e0b;border-radius:12px;padding:18px 22px;margin-bottom:24px;font-size:.95rem;color:#92400e;font-weight:600;text-align:center}
+  .detail-box{background:#f4f6fb;border-radius:10px;padding:18px 22px;margin-bottom:20px}
+  .detail-row{display:table;width:100%;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem;box-sizing:border-box}
+  .detail-row:last-child{border-bottom:none}
+  .detail-label{display:table-cell;width:45%;color:#8892a4;vertical-align:top}
+  .detail-value{display:table-cell;font-weight:600;color:#1a202c;vertical-align:top}
+  .billing-box{background:#fffbeb;border:1.5px solid #f6d860;border-radius:12px;padding:20px 24px;margin-bottom:24px;text-align:center}
+  .billing-box p{margin:0 0 14px;color:#92400e;font-size:.95rem;font-weight:600}
+  .billing-btn{display:inline-block;background:#0f1e3d;color:#fff;text-decoration:none;padding:12px 28px;border-radius:8px;font-weight:700;font-size:.95rem}
+  .footer{background:#f4f6fb;padding:22px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08)}
+  .footer p{font-size:.78rem;color:#8892a4;margin:4px 0}
+  .footer a{color:#1a2f5e;text-decoration:none;font-weight:600}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <h1>⏰ Îmbarcare în ~12 ore</h1>
+    <p>${fmtD(date)} · ${depTime} · ${dirLabel}</p>
+  </div>
+  <div class="body">
+    <div class="alert-box">Cursa ta pleacă în aproximativ 12 ore. Te rugăm să fii pregătit!</div>
+    <div class="detail-box">
+      <div class="detail-row"><span class="detail-label">Pasager</span><span class="detail-value">${name}</span></div>
+      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
+      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${fmtD(date)}</span></div>
+      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
+      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value">${phone}</span></div>
+    </div>
+    ${billingUrl ? `<div class="billing-box">
+      <p>Nu ai completat încă datele de facturare. Completează acum pentru a primi contractul și factura:</p>
+      <a class="billing-btn" href="${billingUrl}">Completează datele de facturare →</a>
+    </div>` : ''}
+  </div>
+  <div class="footer">
+    <p><strong>Delta Air Shuttle</strong> · Transfer premium Brașov–Otopeni–Băneasa</p>
+    <p>📞 <a href="tel:+40761617606">+40 761 617 606</a> &nbsp;·&nbsp; 🌐 <a href="https://delta-air.ro">delta-air.ro</a></p>
+  </div>
 </div></body></html>`;
 }
 
@@ -2107,23 +2239,62 @@ app.put('/api/admin/booking/:id', adminAuth, express.json(), async (req, res) =>
 app.post('/api/admin/bookings', adminAuth, express.json(), async (req, res) => {
   if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
   const { trip_date, trip_time, direction, passengers, transfer_type,
-          booking_ref, status, meta } = req.body || {};
+          booking_ref, status, meta: rawMeta } = req.body || {};
   if (!trip_date || !trip_time || !direction)
     return res.status(400).json({ error: 'Câmpuri obligatorii: trip_date, trip_time, direction.' });
   try {
     const pax = parseInt(passengers) || 1;
     const vehicleId = await findVehicleForTrip(direction, trip_time, trip_date, pax);
+    const billingToken = crypto.randomBytes(32).toString('hex');
+    const DIR_LABELS = { tur: 'Brașov → București', retur: 'București → Brașov' };
+    const TR_LABELS  = { economy: 'Economy', privat: 'Transfer privat' };
+    const meta = {
+      ...(rawMeta || {}),
+      dirLabel: DIR_LABELS[direction] || direction,
+      trLabel:  TR_LABELS[transfer_type] || transfer_type || 'Economy',
+      date:     trip_date,
+      depTime:  trip_time,
+      adults:   pax,
+    };
     const { rows } = await db.query(
-      `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json, vehicle_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, meta_json, vehicle_id, status, billing_token)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING id`,
       [trip_date, trip_time, direction, pax,
-       transfer_type || 'economy', booking_ref || '',
-       meta ? JSON.stringify(meta) : null, vehicleId,
-       status || 'confirmed']
+       transfer_type || 'economy', booking_ref || meta.name || '',
+       JSON.stringify(meta), vehicleId,
+       status || 'confirmed', billingToken]
     );
-    console.log(`📋 Rezervare manuală admin: ${trip_date} ${trip_time} ${direction} — ${pax} loc(uri) [id: ${rows[0].id}]`);
-    res.json({ ok: true, id: rows[0].id });
+    const newId = rows[0].id;
+    console.log(`📋 Rezervare manuală admin: ${trip_date} ${trip_time} ${direction} — ${pax} loc(uri) [id: ${newId}]`);
+
+    /* Trimite email confirmare + internal dacă există adresă email */
+    if (meta.email) {
+      try {
+        const SERVER_URL = process.env.SERVER_URL || 'https://delta-air-server-production.up.railway.app';
+        const billingUrl = `${SERVER_URL}/date-facturare?token=${billingToken}`;
+        const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+        const transporter = nodemailer.createTransport({
+          host: process.env.EMAIL_HOST, port: parseInt(process.env.EMAIL_PORT || '587'),
+          secure: process.env.EMAIL_PORT === '465',
+          auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+        });
+        await transporter.sendMail({
+          from, to: meta.email,
+          subject: `✈ Rezervare confirmată Delta Air Shuttle — ${trip_date} ${meta.dirLabel}`,
+          html: buildAdminBookingConfirmationEmail(meta, billingUrl),
+        });
+        await transporter.sendMail({
+          from, to: OFFICE_EMAIL,
+          subject: `🔔 Rezervare manuală admin #${newId} — ${trip_date} ${trip_time} ${direction} — ${meta.name || ''}`,
+          html: buildInternalNotificationEmail({ ...meta, payMethod: 'cash' }),
+        });
+      } catch (emailErr) {
+        console.error('⚠️  Email confirmare admin booking:', emailErr.message);
+      }
+    }
+
+    res.json({ ok: true, id: newId });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -2208,6 +2379,288 @@ app.get('/api/admin/booking/:id/invoice', adminAuth, async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+/* ── Formular date facturare ─────────────────────────────────────── */
+
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* GET /date-facturare?token=XXX — formular HTML */
+app.get('/date-facturare', async (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).send('<h2>Token lipsă.</h2>');
+  if (!db) return res.status(503).send('<h2>DB indisponibil.</h2>');
+  try {
+    const { rows } = await db.query(
+      `SELECT id, meta_json, trip_date, trip_time, direction, status FROM bookings WHERE billing_token=$1 LIMIT 1`,
+      [token]
+    );
+    if (!rows.length) return res.status(404).send('<h2>Link invalid sau expirat.</h2>');
+    const bk = rows[0];
+    let meta = {};
+    try { meta = JSON.parse(bk.meta_json || '{}'); } catch {}
+    const name = escHtml(meta.name || '');
+    const email = escHtml(meta.email || '');
+    const date = escHtml(bk.trip_date?.toString().slice(0,10) || '');
+    const time = escHtml(bk.trip_time || '');
+    const dir  = escHtml(meta.dirLabel || bk.direction || '');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(`<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Date facturare – Delta Air Shuttle</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:20px}
+  .card{max-width:540px;margin:0 auto;background:#fff;border-radius:14px;padding:32px;box-shadow:0 4px 24px rgba(26,47,94,.1)}
+  h1{color:#0f1e3d;font-size:1.3rem;margin:0 0 4px}
+  .sub{color:#8892a4;font-size:.88rem;margin:0 0 24px}
+  .trip-info{background:#f4f6fb;border-radius:10px;padding:14px 18px;margin-bottom:24px;font-size:.88rem;color:#374151}
+  .trip-info strong{color:#0f1e3d}
+  label{display:block;font-size:.82rem;font-weight:600;color:#374151;margin-bottom:4px}
+  input,select{width:100%;padding:10px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:.93rem;margin-bottom:14px;outline:none;transition:border .2s}
+  input:focus,select:focus{border-color:#0f1e3d}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  button{width:100%;background:#0f1e3d;color:#fff;border:none;border-radius:10px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:4px}
+  button:hover{background:#243d75}
+  .msg{margin-top:14px;padding:12px 16px;border-radius:8px;font-size:.9rem;display:none}
+  .msg.ok{background:#f0fff4;color:#276749;border:1px solid #9ae6b4}
+  .msg.err{background:#fff5f5;color:#c53030;border:1px solid #fc8181}
+</style></head><body>
+<div class="card">
+  <h1>Date de facturare</h1>
+  <p class="sub">Completează pentru a primi contractul și factura.</p>
+  <div class="trip-info">
+    <strong>${dir}</strong> &nbsp;·&nbsp; ${date} ${time}<br>Pasager: ${name}
+  </div>
+  <form id="form">
+    <div class="row">
+      <div><label>Nume / Prenume *</label><input name="clientName" required value="${name}"></div>
+      <div><label>Email *</label><input name="clientEmail" type="email" required value="${email}"></div>
+    </div>
+    <label>Adresă *</label><input name="address" required placeholder="Str. Exemplu nr. 1, Cluj">
+    <div class="row">
+      <div><label>Localitate *</label><input name="city" required placeholder="Cluj-Napoca"></div>
+      <div><label>Județ *</label><input name="county" required placeholder="Cluj"></div>
+    </div>
+    <div class="row">
+      <div><label>CNP / CUI</label><input name="cnp" placeholder="CNP sau CUI firmă"></div>
+      <div><label>Cod poștal</label><input name="postalCode" placeholder="400001"></div>
+    </div>
+    <label>Denumire firmă (dacă e cazul)</label><input name="firma" placeholder="S.C. Exemplu S.R.L.">
+    <button type="submit">Trimite și generează documentele →</button>
+  </form>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+document.getElementById('form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = this.querySelector('button');
+  btn.disabled = true; btn.textContent = 'Se trimite...';
+  const data = Object.fromEntries(new FormData(this));
+  try {
+    const r = await fetch('/api/date-facturare', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ token: '${escHtml(token)}', ...data })
+    });
+    const d = await r.json();
+    const msg = document.getElementById('msg');
+    msg.style.display = 'block';
+    if (r.ok) {
+      msg.className = 'msg ok';
+      msg.textContent = '✓ Date salvate! Vei primi contractul și factura pe email în câteva minute.';
+      btn.textContent = '✓ Trimis';
+    } else {
+      msg.className = 'msg err';
+      msg.textContent = 'Eroare: ' + (d.error || 'necunoscut');
+      btn.disabled = false; btn.textContent = 'Trimite și generează documentele →';
+    }
+  } catch(err) {
+    const msg = document.getElementById('msg');
+    msg.style.display='block'; msg.className='msg err';
+    msg.textContent = 'Eroare de rețea: ' + err.message;
+    btn.disabled=false; btn.textContent='Trimite și generează documentele →';
+  }
+});
+</script>
+</body></html>`);
+  } catch (e) { res.status(500).send('<h2>Eroare server.</h2>'); }
+});
+
+/* POST /api/date-facturare — salvează date + trimite PDF-uri */
+app.post('/api/date-facturare', express.json(), async (req, res) => {
+  const { token, clientName, clientEmail, address, city, county, cnp, postalCode, firma } = req.body || {};
+  if (!token) return res.status(400).json({ error: 'Token lipsă.' });
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    const { rows } = await db.query(
+      `SELECT id, meta_json FROM bookings WHERE billing_token=$1 AND status != 'cancelled' LIMIT 1`,
+      [token]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'Link invalid sau expirat.' });
+    const bk = rows[0];
+    let meta = {};
+    try { meta = JSON.parse(bk.meta_json || '{}'); } catch {}
+
+    const billingData = { clientName, clientEmail, address, city, county, cnp, postalCode, firma };
+    const enrichedMeta = { ...meta, ...billingData,
+      name:  clientName || meta.name,
+      email: clientEmail || meta.email,
+    };
+
+    await db.query(
+      `UPDATE bookings SET meta_json=$1, reminded_at=NOW() WHERE id=$2`,
+      [JSON.stringify(enrichedMeta), bk.id]
+    );
+
+    /* Generează și trimite PDF-uri */
+    try {
+      const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      const toEmail = clientEmail || meta.email;
+      const transporter = nodemailer.createTransport({
+        host: process.env.EMAIL_HOST, port: parseInt(process.env.EMAIL_PORT || '587'),
+        secure: process.env.EMAIL_PORT === '465',
+        auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+      });
+
+      const contractBuf = await generateContractPDF(enrichedMeta);
+      const { year, num } = await nextInvoiceNumber();
+      await saveInvoiceMeta(num, token, enrichedMeta.firma || enrichedMeta.name || '—');
+      const invoiceNo  = `DAS-${year}-${String(num).padStart(4,'0')}`;
+      const invoiceBuf = await generateInvoicePDF(enrichedMeta, num, year);
+
+      const attachments = [
+        { filename: `contract-delta-air-${enrichedMeta.date||''}-${(enrichedMeta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`, content: contractBuf, contentType: 'application/pdf' },
+        { filename: `factura-${invoiceNo}-delta-air.pdf`, content: invoiceBuf, contentType: 'application/pdf' },
+      ];
+
+      if (toEmail) {
+        await transporter.sendMail({
+          from, to: toEmail,
+          subject: `✈ Contract și factură Delta Air Shuttle — ${enrichedMeta.date||''} ${enrichedMeta.dirLabel||''}`,
+          html: `<p>Bună ziua, ${escHtml(enrichedMeta.name||'')},</p><p>Atașăm contractul și factura pentru rezervarea dumneavoastră Delta Air Shuttle din <strong>${enrichedMeta.date||''}</strong>.</p><p>Mulțumim!</p>`,
+          attachments,
+        });
+      }
+      await transporter.sendMail({
+        from, to: OFFICE_EMAIL,
+        subject: `📄 Date facturare completate #${bk.id} — ${enrichedMeta.name||''} — ${enrichedMeta.date||''}`,
+        html: `<p>Clientul <strong>${escHtml(enrichedMeta.name||'')}</strong> a completat datele de facturare pentru rezervarea #${bk.id}.<br>CUI/CNP: ${escHtml(cnp||'')} &nbsp;·&nbsp; Firmă: ${escHtml(firma||'—')}<br>Adresă: ${escHtml(address||'')} ${escHtml(city||'')} ${escHtml(county||'')}</p>`,
+        attachments,
+      });
+    } catch (emailErr) {
+      console.error('⚠️  Email PDF date-facturare:', emailErr.message);
+    }
+
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* ── Block / unblock zi ──────────────────────────────────────────── */
+
+/* POST /api/admin/block-day */
+app.post('/api/admin/block-day', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { date } = req.body || {};
+  if (!date) return res.status(400).json({ error: 'Câmp obligatoriu: date.' });
+  try {
+    /* Calculează capacitatea totală per slot (suma vehiculelor active pe fiecare orar) */
+    const slots = [
+      { direction: 'tur',   trip_time: TRIP_TIMES.tur.c1 },
+      { direction: 'tur',   trip_time: TRIP_TIMES.tur.c2 },
+      { direction: 'retur', trip_time: TRIP_TIMES.retur.c1 },
+      { direction: 'retur', trip_time: TRIP_TIMES.retur.c2 },
+    ];
+    for (const slot of slots) {
+      /* Verifică dacă există deja un blocat activ pentru slotul acesta */
+      const { rows: existing } = await db.query(
+        `SELECT id FROM bookings WHERE trip_date=$1 AND trip_time=$2 AND direction=$3
+         AND transfer_type='blocat' AND status='confirmed' LIMIT 1`,
+        [date, slot.trip_time, slot.direction]
+      );
+      if (existing.length) continue;
+      /* Sumă capacități vehicule active pe slotul acesta */
+      const { rows: veh } = await db.query(
+        `SELECT COALESCE(SUM(capacity), ${CAPACITY}) AS total_cap
+         FROM vehicles WHERE status='activ' AND $1 IN (tur_c1, tur_c2, retur_c1, retur_c2)`,
+        [slot.trip_time]
+      );
+      const slotCap = parseInt(veh[0]?.total_cap) || CAPACITY;
+      const firstVeh = await db.query(`SELECT id FROM vehicles WHERE status='activ' ORDER BY id LIMIT 1`);
+      const vehicleId = firstVeh.rows[0]?.id || null;
+      await db.query(
+        `INSERT INTO bookings (trip_date, trip_time, direction, passengers, transfer_type, booking_ref, status, vehicle_id)
+         VALUES ($1, $2, $3, $4, 'blocat', 'BLOCAT', 'confirmed', $5)`,
+        [date, slot.trip_time, slot.direction, slotCap, vehicleId]
+      );
+    }
+    console.log(`🔒 Zi blocată: ${date}`);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* DELETE /api/admin/block-day */
+app.delete('/api/admin/block-day', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { date } = req.body || {};
+  if (!date) return res.status(400).json({ error: 'Câmp obligatoriu: date.' });
+  try {
+    await db.query(
+      `UPDATE bookings SET status='cancelled' WHERE trip_date=$1 AND transfer_type='blocat' AND status='confirmed'`,
+      [date]
+    );
+    console.log(`🔓 Zi deblocată: ${date}`);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* ── Reminder cron — 12h înainte îmbarcare ───────────────────────── */
+setInterval(async () => {
+  if (!db) return;
+  try {
+    const SERVER_URL = process.env.SERVER_URL || 'https://delta-air-server-production.up.railway.app';
+    const { rows } = await db.query(
+      `SELECT id, meta_json, trip_date, trip_time, billing_token
+       FROM bookings
+       WHERE status = 'confirmed'
+         AND transfer_type != 'blocat'
+         AND billing_token IS NOT NULL
+         AND reminded_at IS NULL
+         AND (trip_date::date + trip_time::time) AT TIME ZONE 'Europe/Bucharest'
+             BETWEEN NOW() AND NOW() + INTERVAL '12 hours 30 minutes'`
+    );
+    for (const bk of rows) {
+      /* Marchează idempotent — dacă altă instanță deja trimis, skip */
+      const { rowCount } = await db.query(
+        `UPDATE bookings SET reminded_at = NOW() WHERE id = $1 AND reminded_at IS NULL`,
+        [bk.id]
+      );
+      if (rowCount === 0) continue;
+      let meta = {};
+      try { meta = JSON.parse(bk.meta_json || '{}'); } catch {}
+      const billingUrl = `${SERVER_URL}/date-facturare?token=${bk.billing_token}`;
+      const toEmail = meta.email;
+      if (!toEmail) continue;
+      try {
+        const from = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+        const transporter = nodemailer.createTransport({
+          host: process.env.EMAIL_HOST, port: parseInt(process.env.EMAIL_PORT || '587'),
+          secure: process.env.EMAIL_PORT === '465',
+          auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+        });
+        const html = buildReminderEmail(meta, billingUrl);
+        const subject = `⏰ Reminder îmbarcare Delta Air — ${bk.trip_date?.toString().slice(0,10)||''} ${bk.trip_time}`;
+        await transporter.sendMail({ from, to: toEmail, subject, html });
+        await transporter.sendMail({ from, to: OFFICE_EMAIL,
+          subject: `⏰ Reminder trimis #${bk.id} — ${meta.name||''} — ${bk.trip_date?.toString().slice(0,10)||''} ${bk.trip_time}`,
+          html: `<p>Reminder automat trimis clientului <strong>${escHtml(meta.name||'')}</strong> (${escHtml(toEmail)}) pentru cursa #${bk.id} din ${bk.trip_date?.toString().slice(0,10)||''} ${bk.trip_time}.<br>Link facturare: <a href="${billingUrl}">${billingUrl}</a></p>`,
+        });
+        console.log(`⏰ Reminder trimis booking #${bk.id} → ${toEmail}`);
+      } catch (err) { console.error(`⚠️  Reminder email #${bk.id}:`, err.message); }
+    }
+  } catch (e) { console.error('⚠️  Reminder cron error:', e.message); }
+}, 60 * 60 * 1000); /* rulează la fiecare 60 de minute */
 
 app.listen(PORT, () => {
   console.log(`\n✅ Delta Air Shuttle server pornit pe http://localhost:${PORT}`);
