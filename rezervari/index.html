@@ -103,8 +103,11 @@
     .date-avail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: end; }
     .date-avail-grid > * { min-width: 0; }
     .avail-card { border: 1.5px solid rgba(26,47,94,.15); border-radius: 10px; padding: 10px 14px;
-      display: flex; align-items: center; justify-content: space-between; background: #fff; min-height: 44px; }
-    .avail-card.full { background: rgba(220,53,69,.04); border-color: rgba(220,53,69,.3); }
+      display: flex; align-items: center; justify-content: space-between; background: #fff; min-height: 44px;
+      cursor: pointer; transition: border-color .15s, box-shadow .15s; user-select: none; }
+    .avail-card:not(.full):hover { border-color: var(--navy); box-shadow: 0 2px 10px rgba(26,47,94,.13); }
+    .avail-card.full { background: rgba(220,53,69,.04); border-color: rgba(220,53,69,.3); cursor: not-allowed; }
+    .avail-card.selected { border-color: var(--navy); border-width: 2px; box-shadow: 0 0 0 3px rgba(26,47,94,.12); background: #f0f4ff; }
     @media (max-width: 600px) {
       .date-avail-grid { grid-template-columns: 1fr; }
       .avail-card { margin-top: 0; }
@@ -1058,6 +1061,7 @@ function renderAvailability() {
 
   const dir = gr('das_dir');
   const times = { tur: { c1:'01:30', c2:'14:00' }, retur: { c1:'07:00', c2:'19:30' } };
+  const currentTrip = gv('das-trip');
 
   ['c1','c2'].forEach(key => {
     const info = _availData[key];
@@ -1073,20 +1077,35 @@ function renderAvailability() {
     if (!info) { badge.className='avail-badge'; badge.textContent='—'; return; }
 
     const { disponibile } = info;
-    card.classList.toggle('full', disponibile === 0);
+    const isFull = disponibile === 0;
+    card.classList.toggle('full', isFull);
+    card.classList.toggle('selected', key === currentTrip);
 
-    if (disponibile === 0) {
+    if (isFull) {
       badge.className = 'avail-badge full'; badge.textContent = 'Complet';
+      card.onclick = null;
     } else if (disponibile <= 2) {
       badge.className = 'avail-badge low'; badge.textContent = `${disponibile} loc${disponibile>1?'uri':''}`;
+      card.onclick = () => selectTrip(key);
     } else {
       badge.className = 'avail-badge ok'; badge.textContent = `${disponibile} locuri`;
+      card.onclick = () => selectTrip(key);
     }
   });
 
   filterExpiredTrips();
   filterPrivatAvailability();
   updatePassengerLimits();
+  dasCheckAvailForTrip();
+  dasUpdateSeatsBadge();
+}
+
+function selectTrip(key) {
+  sv('das-trip', key);
+  ['c1','c2'].forEach(k => g(`avail-card-${k}`)?.classList.toggle('selected', k === key));
+  dasUpdate();
+  updatePassengerLimits();
+  filterPrivatAvailability();
   dasCheckAvailForTrip();
   dasUpdateSeatsBadge();
 }
@@ -1613,6 +1632,7 @@ function retRenderAvail() {
   if(!_retAvail) return;
   var dir=retDir();
   var times={tur:{c1:'01:30',c2:'14:00'},retur:{c1:'07:00',c2:'19:30'}};
+  var currentRet=gv('ret-trip');
   ['c1','c2'].forEach(function(key){
     var info=_retAvail[key];
     var card=g('ret-ac-'+key), badge=g('ret-ab-'+key), timeEl=g('ret-at-'+key);
@@ -1621,11 +1641,28 @@ function retRenderAvail() {
     card.classList.remove('das-hide');
     if(!info){badge.className='avail-badge';badge.textContent='—';return;}
     var n=info.disponibile;
-    card.classList.toggle('full',n===0);
-    if(n===0){badge.className='avail-badge full';badge.textContent='Complet';}
-    else if(n<=2){badge.className='avail-badge low';badge.textContent=n+' loc'+(n>1?'uri':'');}
-    else{badge.className='avail-badge ok';badge.textContent=n+' locuri';}
+    var isFull=n===0;
+    card.classList.toggle('full',isFull);
+    card.classList.toggle('selected',key===currentRet);
+    if(isFull){
+      badge.className='avail-badge full';badge.textContent='Complet';
+      card.onclick=null;
+    } else if(n<=2){
+      badge.className='avail-badge low';badge.textContent=n+' loc'+(n>1?'uri':'');
+      card.onclick=function(){selectRetTrip(key);};
+    } else {
+      badge.className='avail-badge ok';badge.textContent=n+' locuri';
+      card.onclick=function(){selectRetTrip(key);};
+    }
   });
+  retCheckAvail();
+  retUpdateBadge();
+}
+
+function selectRetTrip(key) {
+  sv('ret-trip', key);
+  ['c1','c2'].forEach(function(k){ var c=g('ret-ac-'+k); if(c) c.classList.toggle('selected',k===key); });
+  retUpdate();
   retCheckAvail();
   retUpdateBadge();
 }

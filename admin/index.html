@@ -1169,10 +1169,16 @@ async function eUpdateAvail() {
         const free  = s.disponibile ?? 0;
         const pct   = cap > 0 ? Math.min(100, Math.round(occ / cap * 100)) : 0;
         const isSelected = s.time === time;
-        const borderColor = free === 0 ? '#ef4444' : free <= 2 ? '#f59e0b' : '#22c55e';
-        const freeColor   = free === 0 ? '#dc2626' : free <= 2 ? '#b45309' : '#166534';
-        const statusTxt   = free === 0 ? '🔴 Complet' : `🟢 ${free} loc${free===1?'':'uri'} liber${free===1?'':'e'}`;
-        return `<div style="background:${isSelected?'#eff6ff':'#f4f6fb'};border-radius:9px;padding:9px 12px;border-left:3px solid ${borderColor}${isSelected?';outline:2px solid #2563eb':''}">
+        const isFull = free === 0;
+        const borderColor = isFull ? '#ef4444' : free <= 2 ? '#f59e0b' : '#22c55e';
+        const freeColor   = isFull ? '#dc2626' : free <= 2 ? '#b45309' : '#166534';
+        const statusTxt   = isFull ? '🔴 Complet' : `🟢 ${free} loc${free===1?'':'uri'} liber${free===1?'':'e'}`;
+        const cursor = isFull ? 'not-allowed' : 'pointer';
+        const selStyle = isSelected ? ';outline:2px solid #2563eb;background:#eff6ff' : '';
+        return `<div onclick="${isFull ? '' : `eSelectSlot('${s.time}')`}"
+          style="background:#f4f6fb;border-radius:9px;padding:9px 12px;border-left:3px solid ${borderColor};cursor:${cursor}${selStyle};transition:box-shadow .15s"
+          onmouseenter="if(this.style.cursor!='not-allowed')this.style.boxShadow='0 2px 8px rgba(26,47,94,.15)'"
+          onmouseleave="this.style.boxShadow=''">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
             <span style="font-size:.78rem;font-weight:800;color:#0f1e3d">${s.time}</span>
             <span style="font-size:.72rem;font-weight:700;color:#6b7280">${occ}/${cap}</span>
@@ -1187,6 +1193,11 @@ async function eUpdateAvail() {
       panel.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">${slotHTML}</div>`;
     } catch(e) { panel.innerHTML = ''; }
   }, 300);
+}
+
+function eSelectSlot(time) {
+  document.getElementById('e-time').value = time;
+  eUpdateAvail();
 }
 
 function eUpdatePaxNames(existingNames) {
