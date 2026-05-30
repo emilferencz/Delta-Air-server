@@ -408,12 +408,12 @@
     <div class="mbody">
       <div class="esec-title">Detalii cursă</div>
       <div class="erow">
-        <div class="egroup"><label class="elabel">Dată</label><input class="einput" type="date" id="e-date"></div>
-        <div class="egroup"><label class="elabel">Ora plecare</label><input class="einput" type="text" id="e-time" placeholder="ex: 01:30"></div>
+        <div class="egroup"><label class="elabel">Dată</label><input class="einput" type="date" id="e-date" oninput="eUpdateAvail()"></div>
+        <div class="egroup"><label class="elabel">Ora plecare</label><input class="einput" type="text" id="e-time" placeholder="ex: 01:30" oninput="eUpdateAvail()"></div>
       </div>
       <div class="erow">
         <div class="egroup"><label class="elabel">Direcție</label>
-          <select class="einput" id="e-dir">
+          <select class="einput" id="e-dir" onchange="eUpdateAvail()">
             <option value="tur">Brașov → Aeroport (tur)</option>
             <option value="retur">Aeroport → Brașov (retur)</option>
           </select>
@@ -434,6 +434,7 @@
         </div>
         <div class="egroup"><label class="elabel">Pasageri</label><input class="einput" type="number" id="e-pax" min="1" max="7" oninput="eUpdatePaxNames()"></div>
       </div>
+      <div id="e-avail-panel"></div>
       <div id="e-pax-names-wrap"></div>
       <div class="erow">
         <div class="egroup"><label class="elabel">Status</label>
@@ -1144,6 +1145,50 @@ function _openDayModal(dateStr, bks) {
   openModal('day-modal');
 }
 
+let _availTimer = null;
+async function eUpdateAvail() {
+  const date = document.getElementById('e-date').value;
+  const dir  = document.getElementById('e-dir').value;
+  const time = document.getElementById('e-time').value.trim();
+  const panel = document.getElementById('e-avail-panel');
+  if (!date || !dir) { panel.innerHTML = ''; return; }
+
+  panel.innerHTML = '<div style="font-size:.72rem;color:#9ca3af;padding:4px 0 8px">Se verifică disponibilitatea...</div>';
+  clearTimeout(_availTimer);
+  _availTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(`${SERVER}/api/availability?date=${date}&direction=${dir}`, { headers: authHdrs() });
+      if (!r.ok) { panel.innerHTML = ''; return; }
+      const d = await r.json();
+      const slots = Object.values(d).filter(s => s && typeof s === 'object');
+      if (!slots.length) { panel.innerHTML = ''; return; }
+
+      const slotHTML = slots.map(s => {
+        const cap   = (s.ocupate || 0) + (s.disponibile ?? 0);
+        const occ   = s.ocupate || 0;
+        const free  = s.disponibile ?? 0;
+        const pct   = cap > 0 ? Math.min(100, Math.round(occ / cap * 100)) : 0;
+        const isSelected = s.time === time;
+        const borderColor = free === 0 ? '#ef4444' : free <= 2 ? '#f59e0b' : '#22c55e';
+        const freeColor   = free === 0 ? '#dc2626' : free <= 2 ? '#b45309' : '#166534';
+        const statusTxt   = free === 0 ? '🔴 Complet' : `🟢 ${free} loc${free===1?'':'uri'} liber${free===1?'':'e'}`;
+        return `<div style="background:${isSelected?'#eff6ff':'#f4f6fb'};border-radius:9px;padding:9px 12px;border-left:3px solid ${borderColor}${isSelected?';outline:2px solid #2563eb':''}">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <span style="font-size:.78rem;font-weight:800;color:#0f1e3d">${s.time}</span>
+            <span style="font-size:.72rem;font-weight:700;color:#6b7280">${occ}/${cap}</span>
+          </div>
+          <div style="background:#e5e7eb;border-radius:3px;height:5px;overflow:hidden;margin-bottom:5px">
+            <div style="width:${pct}%;height:100%;background:${borderColor};border-radius:3px"></div>
+          </div>
+          <div style="font-size:.67rem;font-weight:600;color:${freeColor}">${statusTxt}</div>
+        </div>`;
+      }).join('');
+
+      panel.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">${slotHTML}</div>`;
+    } catch(e) { panel.innerHTML = ''; }
+  }, 300);
+}
+
 function eUpdatePaxNames(existingNames) {
   const n = parseInt(document.getElementById('e-pax').value) || 1;
   const wrap = document.getElementById('e-pax-names-wrap');
@@ -1206,7 +1251,9 @@ function openNewBooking(dateStr) {
   document.getElementById('e-email').value = '';
   document.getElementById('e-obs').value = '';
   document.getElementById('save-msg').textContent = '';
+  document.getElementById('e-avail-panel').innerHTML = '';
   eUpdatePaxNames();
+  eUpdateAvail();
   openModal('edit-modal');
 }
 
@@ -1232,6 +1279,7 @@ function openEdit(id) {
   document.getElementById('e-obs').value = meta.obs || '';
   document.getElementById('save-msg').textContent = '';
   eUpdatePaxNames(meta.paxNames || []);
+  eUpdateAvail();
   openModal('edit-modal');
 }
 
