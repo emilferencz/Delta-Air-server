@@ -441,5 +441,4 @@ footer {
 .footer-social a:hover { background: rgba(201,168,76,.3); color: #fff; }
 
 /* ─── SCROLL REVEAL ─── */
-.reveal { opacity: 0; transform: translateY(32px); transition: opacity .7s ease, transform .7s ease; }
-.reveal.visible { opacity: 1; transform: none; }
+.reveal { opacity: 0; transform: translateY(32px); }
