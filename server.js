@@ -291,6 +291,45 @@ function buildConfirmationEmail(meta) {
   const isFirma = !!(firma && cui);
   const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
 
+  const LBL = 'padding:7px 8px 7px 24px;border-bottom:1px solid rgba(26,47,94,.07);color:#8892a4;font-size:.88rem;width:44%;vertical-align:top';
+  const VAL = 'padding:7px 24px 7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-weight:600;color:#1a202c;font-size:.88rem;vertical-align:top';
+  const dr = (lbl, val, vEx) => '<tr><td style="'+LBL+'">'+lbl+'</td><td style="'+VAL+(vEx?';'+vEx:'')+'">'+val+'</td></tr>';
+  const tbl = (rows, xStyle) => '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb;border-radius:10px;margin-bottom:20px'+(xStyle?';'+xStyle:'')+'">'+rows+'</table>';
+
+  const turRows = dr('Direcție', dirLabel)
+    + dr('Tip transfer', trLabel)
+    + dr('Aeroport', aptLabel)
+    + dr('Data', fmtD(date))
+    + dr('Ora plecare', depTime)
+    + dr('Sosire estimată', arrTime)
+    + (pickupLabel ? dr('Punct îmbarcare', pickupLabel) : '')
+    + dr('Pasageri', adults+' adult'+(adults>1?'ți':'')+(children>0?' + '+children+' copil'+(children>1?'i':''):''))
+    + (bags>0 ? dr('Bagaje extra', bags+' bagaj'+(bags>1?'e':'')) : '')
+    + (obs ? dr('Observații', obs) : '');
+
+  const retSection = returnTrip ? (
+    '<div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>'
+    + tbl(
+        dr('Direcție retur', returnTrip.dirLabel||'—')
+      + dr('Data retur', fmtD(returnTrip.date))
+      + (returnTrip.depTime ? dr('Ora plecare', returnTrip.depTime) : '')
+      + (returnTrip.arrTime ? dr('Sosire estimată', returnTrip.arrTime) : '')
+      + (returnTrip.pickupLabel ? dr('Punct îmbarcare', returnTrip.pickupLabel) : '')
+      + dr('Reducere retur', '−20% aplicat', 'color:#276749;font-weight:700')
+    )
+  ) : '';
+
+  const contactRows = dr('Nume', name)
+    + dr('Telefon', phone)
+    + dr('Email', email)
+    + (isFirma ? dr('Firmă', firma+' ('+cui+')') : '');
+
+  const voucherSection = voucherCode ? tbl(
+    dr('Preț inițial', (parseFloat(total)+parseFloat(voucherDiscount||0))+' lei')
+    + dr('Voucher '+voucherCode, '-'+voucherDiscount+' lei', 'color:#276749'),
+    'margin-bottom:12px'
+  ) : '';
+
   return `<!DOCTYPE html>
 <html lang="ro">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -299,31 +338,23 @@ function buildConfirmationEmail(meta) {
   body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
   .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
   .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:40px 40px 32px;text-align:center}
-  .header img{height:56px;margin-bottom:16px}
   .header h1{color:#fff;font-size:1.4rem;font-weight:700;margin:0}
   .header p{color:rgba(255,255,255,.75);font-size:.9rem;margin:8px 0 0}
   .body{padding:36px 40px}
-  .success-badge{display:flex;align-items:center;gap:12px;background:#f0fff4;border:1.5px solid #9ae6b4;border-radius:12px;padding:16px 20px;margin-bottom:28px}
-  .success-badge .icon{font-size:1.8rem}
+  .success-badge{background:#f0fff4;border:1.5px solid #9ae6b4;border-radius:12px;padding:16px 20px;margin-bottom:28px}
   .success-badge p{margin:0;font-size:.95rem;color:#276749;font-weight:600}
   .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
-  .detail-box{background:#f4f6fb;border-radius:10px;padding:20px 24px;margin-bottom:20px}
-  .detail-row{display:table;width:100%;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem;box-sizing:border-box}
-  .detail-row:last-child{border-bottom:none}
-  .detail-label{display:table-cell;width:45%;color:#8892a4;vertical-align:top;padding-right:8px}
-  .detail-value{display:table-cell;font-weight:600;color:#1a202c;vertical-align:top}
-  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-  .total-label{color:rgba(255,255,255,.75);font-size:.9rem}
-  .total-value{color:#e8c96a;font-size:2rem;font-weight:900}
+  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+  .total-label{color:rgba(255,255,255,.75);font-size:.9rem;display:block;margin-bottom:4px}
+  .total-value{color:#e8c96a;font-size:2rem;font-weight:900;display:block}
   .steps{margin-bottom:28px}
-  .step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
-  .step-num{width:28px;height:28px;background:#c9a84c;color:#0f1e3d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:2px}
-  .step-text h4{font-size:.88rem;font-weight:700;color:#1a2f5e;margin:0 0 3px}
-  .step-text p{font-size:.82rem;color:#8892a4;margin:0;line-height:1.6}
+  .step{margin-bottom:16px;padding-left:42px;position:relative;min-height:32px}
+  .step-num{position:absolute;left:0;top:0;width:28px;height:28px;background:#c9a84c;color:#0f1e3d;border-radius:50%;font-size:.72rem;font-weight:800;text-align:center;line-height:28px}
+  .step h4{font-size:.88rem;font-weight:700;color:#1a2f5e;margin:0 0 3px}
+  .step p{font-size:.82rem;color:#8892a4;margin:0;line-height:1.6}
   .footer{background:#f4f6fb;padding:24px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08)}
   .footer p{font-size:.78rem;color:#8892a4;margin:4px 0;line-height:1.6}
   .footer a{color:#1a2f5e;text-decoration:none;font-weight:600}
-  @media(max-width:600px){.body,.header,.footer{padding:24px 20px}.detail-row{flex-direction:column;gap:4px}.detail-value{text-align:left}}
 </style>
 </head>
 <body>
@@ -334,48 +365,18 @@ function buildConfirmationEmail(meta) {
   </div>
   <div class="body">
     <div class="success-badge">
-      <div class="icon">✅</div>
-      <p>Rezervarea ta este confirmată și locul asigurat.</p>
+      <p>✅ &nbsp;Rezervarea ta este confirmată și locul asigurat.</p>
     </div>
 
     <div class="section-title">Detalii cursă</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${fmtD(date)}</span></div>
-      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
-      <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
-      ${pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults > 1 ? 'ți' : ''}${children > 0 ? ` + ${children} copil${children > 1 ? 'i' : ''}` : ''}</span></div>
-      ${bags > 0 ? `<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags} bagaj${bags > 1 ? 'e' : ''}</span></div>` : ''}
-      ${obs ? `<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>` : ''}
-    </div>
+    ${tbl(turRows)}
 
-    ${returnTrip ? `
-    <div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Direcție retur</span><span class="detail-value">${returnTrip.dirLabel||'—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Data retur</span><span class="detail-value">${fmtD(returnTrip.date)}</span></div>
-      ${returnTrip.depTime ? `<div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${returnTrip.depTime}</span></div>` : ''}
-      ${returnTrip.arrTime ? `<div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${returnTrip.arrTime}</span></div>` : ''}
-      ${returnTrip.pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${returnTrip.pickupLabel}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-label">Reducere retur</span><span class="detail-value" style="color:#276749;font-weight:700">−20% aplicat</span></div>
-    </div>` : ''}
+    ${retSection}
 
     <div class="section-title">Date de contact</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
-      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value">${phone}</span></div>
-      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
-      ${isFirma ? `<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} (${cui})</span></div>` : ''}
-    </div>
+    ${tbl(contactRows)}
 
-    ${voucherCode ? `
-    <div class="detail-box" style="margin-bottom:12px">
-      <div class="detail-row"><span class="detail-label">Preț inițial</span><span class="detail-value">${parseFloat(total) + parseFloat(voucherDiscount || 0)} lei</span></div>
-      <div class="detail-row"><span class="detail-label" style="color:#276749">Voucher ${voucherCode}</span><span class="detail-value" style="color:#276749">-${voucherDiscount} lei</span></div>
-    </div>` : ''}
+    ${voucherSection}
     <div class="total-box">
       <span class="total-label">Total achitat${returnTrip ? ' (tur + retur)' : ''}</span>
       <span class="total-value">${total} lei</span>
@@ -383,9 +384,9 @@ function buildConfirmationEmail(meta) {
 
     <div class="section-title">Ce urmează</div>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>Locul de plecare: ${pickupLabel || 'conform rezervării'}. Ora exactă: ${depTime}.</p></div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text"><h4>Șoferul te contactează înainte de plecare</h4><p>Vei primi un SMS sau apel de confirmare cu 30 de minute înainte.</p></div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text"><h4>Călătorești confortabil și prinzi zborul</h4><p>Sosire estimată la ${aptLabel}: ora ${arrTime}.</p></div></div>
+      <div class="step"><div class="step-num">1</div><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>Locul de plecare: ${pickupLabel || 'conform rezervării'}. Ora exactă: ${depTime}.</p></div>
+      <div class="step"><div class="step-num">2</div><h4>Șoferul te contactează înainte de plecare</h4><p>Vei primi un SMS sau apel de confirmare cu 30 de minute înainte.</p></div>
+      <div class="step"><div class="step-num">3</div><h4>Călătorești confortabil și prinzi zborul</h4><p>Sosire estimată la ${aptLabel}: ora ${arrTime}.</p></div>
     </div>
   </div>
   <div class="footer">
@@ -746,9 +747,50 @@ function buildCashConfirmationEmail(meta) {
   } = meta;
   const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
   const isFirma = !!(firma && cui);
-  const paxList = paxNames.length ? paxNames.map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('') : '';
 
-  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
+  const LBL = 'padding:7px 8px 7px 24px;border-bottom:1px solid rgba(26,47,94,.07);color:#8892a4;font-size:.88rem;width:44%;vertical-align:top';
+  const VAL = 'padding:7px 24px 7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-weight:600;color:#1a202c;font-size:.88rem;vertical-align:top';
+  const dr = (lbl, val, vEx) => '<tr><td style="'+LBL+'">'+lbl+'</td><td style="'+VAL+(vEx?';'+vEx:'')+'">'+val+'</td></tr>';
+  const tbl = (rows, xStyle) => '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb;border-radius:10px;margin-bottom:20px'+(xStyle?';'+xStyle:'')+'">'+rows+'</table>';
+
+  const paxRows = paxNames.length ? paxNames.map((n,i)=>dr('Pasager '+(i+1), n)).join('') : '';
+
+  const turRows = dr('Direcție', dirLabel)
+    + dr('Tip transfer', trLabel)
+    + dr('Aeroport', aptLabel)
+    + dr('Data', fmtD(date))
+    + dr('Ora plecare', depTime)
+    + dr('Sosire estimată', arrTime)
+    + (pickupLabel ? dr('Punct îmbarcare', pickupLabel) : '')
+    + dr('Pasageri', adults+' adult'+(adults>1?'ți':'')+(children>0?' + '+children+' copil'+(children>1?'i':''):''))
+    + (bags>0 ? dr('Bagaje extra', bags+' bagaj'+(bags>1?'e':'')) : '')
+    + paxRows
+    + (obs ? dr('Observații', obs) : '');
+
+  const retSection = returnTrip ? (
+    '<div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>'
+    + tbl(
+        dr('Direcție retur', returnTrip.dirLabel||'—')
+      + dr('Data retur', fmtD(returnTrip.date))
+      + (returnTrip.depTime ? dr('Ora plecare', returnTrip.depTime) : '')
+      + (returnTrip.arrTime ? dr('Sosire estimată', returnTrip.arrTime) : '')
+      + (returnTrip.pickupLabel ? dr('Punct îmbarcare', returnTrip.pickupLabel) : '')
+      + dr('Reducere retur', '−20% aplicat', 'color:#276749;font-weight:700')
+    )
+  ) : '';
+
+  const contactRows = dr('Nume', name)
+    + dr('Telefon', phone)
+    + dr('Email', email)
+    + (isFirma ? dr('Firmă', firma+' ('+cui+')') : '');
+
+  const voucherSection = voucherCodeC ? tbl(
+    dr('Preț inițial', (parseFloat(total)+parseFloat(voucherDiscountC||0))+' lei')
+    + dr('Voucher '+voucherCodeC, '-'+voucherDiscountC+' lei', 'color:#276749'),
+    'margin-bottom:12px'
+  ) : '';
+
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rezervare confirmată – Delta Air Shuttle</title>
 <style>
   body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
@@ -757,26 +799,19 @@ function buildCashConfirmationEmail(meta) {
   .header h1{color:#fff;font-size:1.4rem;font-weight:700;margin:0}
   .header p{color:rgba(255,255,255,.75);font-size:.9rem;margin:8px 0 0}
   .body{padding:36px 40px}
-  .cash-badge{display:flex;align-items:center;gap:12px;background:#fffbeb;border:1.5px solid #f6d860;border-radius:12px;padding:16px 20px;margin-bottom:28px}
-  .cash-badge .icon{font-size:1.8rem}
+  .cash-badge{background:#fffbeb;border:1.5px solid #f6d860;border-radius:12px;padding:16px 20px;margin-bottom:28px}
   .cash-badge p{margin:0;font-size:.95rem;color:#92400e;font-weight:600}
   .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
-  .detail-box{background:#f4f6fb;border-radius:10px;padding:20px 24px;margin-bottom:20px}
-  .detail-row{display:table;width:100%;padding:7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.9rem;box-sizing:border-box}
-  .detail-row:last-child{border-bottom:none}
-  .detail-label{display:table-cell;width:45%;color:#8892a4;vertical-align:top;padding-right:8px}
-  .detail-value{display:table-cell;font-weight:600;color:#1a202c;vertical-align:top}
-  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
-  .total-label{color:rgba(255,255,255,.75);font-size:.9rem}
-  .total-value{color:#e8c96a;font-size:2rem;font-weight:900}
-  .step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
-  .step-num{width:28px;height:28px;background:#c9a84c;color:#0f1e3d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:2px}
-  .step-text h4{font-size:.88rem;font-weight:700;color:#1a2f5e;margin:0 0 3px}
-  .step-text p{font-size:.82rem;color:#8892a4;margin:0;line-height:1.6}
+  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+  .total-label{color:rgba(255,255,255,.75);font-size:.9rem;display:block;margin-bottom:4px}
+  .total-value{color:#e8c96a;font-size:2rem;font-weight:900;display:block}
+  .step{margin-bottom:16px;padding-left:42px;position:relative;min-height:32px}
+  .step-num{position:absolute;left:0;top:0;width:28px;height:28px;background:#c9a84c;color:#0f1e3d;border-radius:50%;font-size:.72rem;font-weight:800;text-align:center;line-height:28px}
+  .step h4{font-size:.88rem;font-weight:700;color:#1a2f5e;margin:0 0 3px}
+  .step p{font-size:.82rem;color:#8892a4;margin:0;line-height:1.6}
   .footer{background:#f4f6fb;padding:24px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08)}
   .footer p{font-size:.78rem;color:#8892a4;margin:4px 0;line-height:1.6}
   .footer a{color:#1a2f5e;text-decoration:none;font-weight:600}
-  @media(max-width:600px){.body,.header,.footer{padding:24px 20px}.detail-row{flex-direction:column;gap:4px}.detail-value{text-align:left}}
 </style></head><body>
 <div class="wrap">
   <div class="header">
@@ -785,53 +820,22 @@ function buildCashConfirmationEmail(meta) {
   </div>
   <div class="body">
     <div class="cash-badge">
-      <div class="icon">💵</div>
-      <p>Ai optat pentru plata în numerar la îmbarcare. Pregătește suma de <strong>${total} lei</strong> pentru șofer.${voucherCodeC ? ` (include reducere voucher ${voucherCodeC}: -${voucherDiscountC} lei)` : ''}</p>
+      <p>💵 &nbsp;Ai optat pentru plata în numerar la îmbarcare. Pregătește suma de <strong>${total} lei</strong> pentru șofer.${voucherCodeC ? ' (include reducere voucher '+voucherCodeC+': -'+voucherDiscountC+' lei)' : ''}</p>
     </div>
     <div class="section-title">Detalii cursă</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${fmtD(date)}</span></div>
-      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
-      <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
-      ${pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}</span></div>
-      ${bags>0?`<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags} bagaj${bags>1?'e':''}</span></div>`:''}
-      ${paxList}
-      ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
-    </div>
-    ${returnTrip ? `
-    <div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Direcție retur</span><span class="detail-value">${returnTrip.dirLabel||'—'}</span></div>
-      <div class="detail-row"><span class="detail-label">Data retur</span><span class="detail-value">${fmtD(returnTrip.date)}</span></div>
-      ${returnTrip.depTime ? `<div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${returnTrip.depTime}</span></div>` : ''}
-      ${returnTrip.arrTime ? `<div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${returnTrip.arrTime}</span></div>` : ''}
-      ${returnTrip.pickupLabel ? `<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${returnTrip.pickupLabel}</span></div>` : ''}
-      <div class="detail-row"><span class="detail-label">Reducere retur</span><span class="detail-value" style="color:#276749;font-weight:700">−20% aplicat</span></div>
-    </div>` : ''}
+    ${tbl(turRows)}
+    ${retSection}
     <div class="section-title">Date de contact</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
-      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value">${phone}</span></div>
-      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
-      ${isFirma?`<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} (${cui})</span></div>`:''}
-    </div>
-    ${voucherCodeC ? `
-    <div class="detail-box" style="margin-bottom:12px">
-      <div class="detail-row"><span class="detail-label">Preț inițial</span><span class="detail-value">${parseFloat(total) + parseFloat(voucherDiscountC || 0)} lei</span></div>
-      <div class="detail-row"><span class="detail-label" style="color:#276749">Voucher ${voucherCodeC}</span><span class="detail-value" style="color:#276749">-${voucherDiscountC} lei</span></div>
-    </div>` : ''}
+    ${tbl(contactRows)}
+    ${voucherSection}
     <div class="total-box">
       <span class="total-label">Total de achitat la îmbarcare${returnTrip ? ' (tur + retur)' : ''}</span>
       <span class="total-value">${total} lei</span>
     </div>
     <div class="section-title">Ce urmează</div>
-    <div class="step"><div class="step-num">1</div><div class="step-text"><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>${pickupLabel||'Punct conform rezervării'}, ora ${depTime}.</p></div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-text"><h4>Pregătește suma în numerar</h4><p>Plătești direct șoferului: <strong>${total} lei</strong>. Nu este necesară altă confirmare.</p></div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-text"><h4>Călătorești confortabil și prinzi zborul</h4><p>Sosire estimată la ${aptLabel}: ora ${arrTime}.</p></div></div>
+    <div class="step"><div class="step-num">1</div><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>${pickupLabel||'Punct conform rezervării'}, ora ${depTime}.</p></div>
+    <div class="step"><div class="step-num">2</div><h4>Pregătește suma în numerar</h4><p>Plătești direct șoferului: <strong>${total} lei</strong>. Nu este necesară altă confirmare.</p></div>
+    <div class="step"><div class="step-num">3</div><h4>Călătorești confortabil și prinzi zborul</h4><p>Sosire estimată la ${aptLabel}: ora ${arrTime}.</p></div>
   </div>
   <div class="footer">
     <p><strong>Delta Air Shuttle</strong> · Transfer premium Brașov–Otopeni–Băneasa</p>
@@ -852,69 +856,84 @@ function buildInternalNotificationEmail(meta) {
     adults=1, children=0, bags=0,
     total='—', pickupLabel, obs,
     firma, cui, paxNames=[], payMethod='online',
+    voucherCode, voucherDiscount,
   } = meta;
   const isCash = payMethod === 'cash';
-  const paxList = paxNames.length ? paxNames.map((n,i)=>`<div class="detail-row"><span class="detail-label">Pasager ${i+1}</span><span class="detail-value">${n}</span></div>`).join('') : '';
+  const isNetopia = payMethod === 'netopia';
+  const badgeBg = isCash ? '#fffbeb' : '#f0fff4';
+  const badgeBorder = isCash ? '#f6d860' : '#9ae6b4';
+  const badgeColor = isCash ? '#92400e' : '#276749';
+  const badgeText = isCash
+    ? '&#x1F4B5; Plat&#x103; la &#xEE;mbarcare &#x2014; client achit&#x103; numerar la &#x15F;ofer'
+    : isNetopia
+      ? '&#x1F4B3; Plat&#x103; online &#x2014; confirmat&#x103; prin Netopia'
+      : '&#x1F4B3; Plat&#x103; online &#x2014; confirmat&#x103; prin Stripe';
+
+  const LBL = 'padding:7px 8px 7px 16px;border-bottom:1px solid rgba(26,47,94,.07);color:#8892a4;font-size:.88rem;width:44%;vertical-align:top';
+  const VAL = 'padding:7px 16px 7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-weight:600;color:#1a202c;font-size:.88rem;vertical-align:top';
+  const dr = (lbl, val, vEx) => `<tr><td style="${LBL}">${lbl}</td><td style="${VAL}${vEx?';'+vEx:''}">${val}</td></tr>`;
+  const tbl = (rows, xStyle) => `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb;border-radius:10px;margin-bottom:18px${xStyle?';'+xStyle:''}">${rows}</table>`;
+
+  const paxRows = paxNames.length ? paxNames.map((n,i) => dr(`Pasager ${i+1}`, n)).join('') : '';
+  const cursaRows =
+    dr('Direc&#x21B;ie', dirLabel) +
+    dr('Tip transfer', trLabel) +
+    dr('Aeroport', aptLabel) +
+    dr('Data', date) +
+    dr('Ora plecare', depTime) +
+    dr('Sosire estimat&#x103;', arrTime) +
+    (pickupLabel ? dr('Punct &#xEE;mbarcare', pickupLabel) : '') +
+    dr('Pasageri', `${adults} adult${adults>1?'&#x21B;i':''}${children>0?` + ${children} copil${children>1?'i':''}`:''} `) +
+    (bags>0 ? dr('Bagaje extra', String(bags)) : '') +
+    paxRows +
+    (obs ? dr('Observa&#x21B;ii', obs) : '');
+
+  const clientRows =
+    dr('Nume', name) +
+    dr('Telefon', `<a href="tel:${phone}" style="color:#1a4bbd">${phone}</a>`) +
+    dr('Email', email) +
+    (firma ? dr('Firm&#x103;', `${firma}${cui?' ('+cui+')':''}`) : '');
+
+  const voucherSection = voucherCode && voucherDiscount
+    ? `<div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 10px">Voucher aplicat</div>
+       ${tbl(dr('Cod voucher', voucherCode) + dr('Reducere', `- ${voucherDiscount} lei`, 'color:#2f855a'))}`
+    : '';
 
   return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8">
-<title>🔔 Rezervare nouă – Delta Air Shuttle</title>
-<style>
-  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
-  .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
-  .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:32px 40px;text-align:center}
-  .header h1{color:#fff;font-size:1.3rem;font-weight:700;margin:0}
-  .header p{color:rgba(255,255,255,.75);font-size:.88rem;margin:8px 0 0}
-  .body{padding:32px 40px}
-  .pay-badge{padding:12px 20px;border-radius:10px;margin-bottom:24px;font-weight:700;font-size:.95rem;text-align:center}
-  .pay-badge.cash{background:#fffbeb;border:1.5px solid #f6d860;color:#92400e}
-  .pay-badge.online{background:#f0fff4;border:1.5px solid #9ae6b4;color:#276749}
-  .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 10px}
-  .detail-box{background:#f4f6fb;border-radius:10px;padding:18px 22px;margin-bottom:18px}
-  .detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(26,47,94,.07);font-size:.88rem}
-  .detail-row:last-child{border-bottom:none}
-  .detail-label{color:#8892a4}
-  .detail-value{font-weight:600;color:#1a202c;text-align:right}
-  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:18px 22px;display:flex;justify-content:space-between;align-items:center}
-  .total-label{color:rgba(255,255,255,.75);font-size:.88rem}
-  .total-value{color:#e8c96a;font-size:1.8rem;font-weight:900}
-  .footer{background:#f4f6fb;padding:20px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08);font-size:.76rem;color:#8892a4}
-  @media(max-width:600px){.body,.header,.footer{padding:20px}.detail-row{flex-direction:column;gap:4px}.detail-value{text-align:left}}
-</style></head><body>
-<div class="wrap">
-  <div class="header">
-    <h1>🔔 Rezervare nouă primită!</h1>
-    <p>${date} · ${dirLabel}</p>
-  </div>
-  <div class="body">
-    <div class="pay-badge ${isCash?'cash':'online'}">${isCash?'💵 Plată la îmbarcare — client achită numerar la șofer':'💳 Plată online — confirmată prin Stripe'}</div>
-    <div class="section-title">Detalii cursă</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Direcție</span><span class="detail-value">${dirLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Tip transfer</span><span class="detail-value">${trLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Aeroport</span><span class="detail-value">${aptLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">${date}</span></div>
-      <div class="detail-row"><span class="detail-label">Ora plecare</span><span class="detail-value">${depTime}</span></div>
-      <div class="detail-row"><span class="detail-label">Sosire estimată</span><span class="detail-value">${arrTime}</span></div>
-      ${pickupLabel?`<div class="detail-row"><span class="detail-label">Punct îmbarcare</span><span class="detail-value">${pickupLabel}</span></div>`:''}
-      <div class="detail-row"><span class="detail-label">Pasageri</span><span class="detail-value">${adults} adult${adults>1?'ți':''}${children>0?` + ${children} copil${children>1?'i':''}`:''}</span></div>
-      ${bags>0?`<div class="detail-row"><span class="detail-label">Bagaje extra</span><span class="detail-value">${bags}</span></div>`:''}
-      ${paxList}
-      ${obs?`<div class="detail-row"><span class="detail-label">Observații</span><span class="detail-value">${obs}</span></div>`:''}
-    </div>
-    <div class="section-title">Date client</div>
-    <div class="detail-box">
-      <div class="detail-row"><span class="detail-label">Nume</span><span class="detail-value">${name}</span></div>
-      <div class="detail-row"><span class="detail-label">Telefon</span><span class="detail-value"><a href="tel:${phone}">${phone}</a></span></div>
-      <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">${email}</span></div>
-      ${firma?`<div class="detail-row"><span class="detail-label">Firmă</span><span class="detail-value">${firma} ${cui?'('+cui+')':''}</span></div>`:''}
-    </div>
-    <div class="total-box">
-      <span class="total-label">Total ${isCash?'de încasat la bord':'achitat online'}</span>
-      <span class="total-value">${total} lei</span>
-    </div>
-  </div>
-  <div class="footer">Email generat automat de sistemul de rezervări delta-air.ro</div>
-</div></body></html>`;
+<title>Rezervare noua - Delta Air Shuttle</title>
+</head><body style="font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb">
+<tr><td align="center" style="padding:32px 16px">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)">
+  <tr><td style="background:linear-gradient(135deg,#0f1e3d,#243d75);padding:32px 40px;text-align:center">
+    <h1 style="color:#fff;font-size:1.3rem;font-weight:700;margin:0">Rezervare noua primita!</h1>
+    <p style="color:rgba(255,255,255,.75);font-size:.88rem;margin:8px 0 0">${date} &middot; ${dirLabel}</p>
+  </td></tr>
+  <tr><td style="padding:32px 40px">
+    <div style="padding:12px 20px;border-radius:10px;margin-bottom:24px;font-weight:700;font-size:.95rem;text-align:center;background:${badgeBg};border:1.5px solid ${badgeBorder};color:${badgeColor}">${badgeText}</div>
+
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 10px">Detalii curs&#x103;</div>
+    ${tbl(cursaRows)}
+
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 10px">Date client</div>
+    ${tbl(clientRows)}
+
+    ${voucherSection}
+
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px">
+      <tr>
+        <td style="padding:18px 22px;color:rgba(255,255,255,.75);font-size:.88rem;vertical-align:middle">Total ${isCash?'de &#xEE;ncasat la bord':'achitat online'}</td>
+        <td style="padding:18px 22px;color:#e8c96a;font-size:1.8rem;font-weight:900;text-align:right;vertical-align:middle">${total} lei</td>
+      </tr>
+    </table>
+  </td></tr>
+  <tr><td style="background:#f4f6fb;padding:20px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08);font-size:.76rem;color:#8892a4">
+    Email generat automat de sistemul de rezerv&#x103;ri delta-air.ro
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
 }
 
 /* ──────────────────────────────────────────────
