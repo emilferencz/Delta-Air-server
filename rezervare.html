@@ -385,7 +385,7 @@ function onFormChange(){
   calcPrice();
 }
 
-let _voucherCode = '', _voucherDiscount = 0;
+let _voucherCode = '', _voucherDiscount = 0, _voucherPerPerson = false;
 
 async function applyVoucher() {
   const inp = document.getElementById('f-voucher');
@@ -400,11 +400,12 @@ async function applyVoucher() {
     });
     const data = await res.json();
     if (data.valid) {
-      _voucherCode = code; _voucherDiscount = data.discount;
-      msg.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
+      _voucherCode = code; _voucherDiscount = data.discount; _voucherPerPerson = data.perPerson || false;
+      const label = _voucherPerPerson ? `(-${data.discount} lei/persoană)` : `(-${data.discount} lei)`;
+      msg.textContent = `✓ ${data.label} aplicat ${label}`;
       msg.className = 'voucher-msg ok'; inp.disabled = true; calcPrice();
     } else {
-      _voucherCode = ''; _voucherDiscount = 0;
+      _voucherCode = ''; _voucherDiscount = 0; _voucherPerPerson = false;
       msg.textContent = data.reason === 'pickup'
         ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.'
         : '✗ Cod voucher invalid.';
@@ -438,7 +439,14 @@ function calcPrice(){
     return;
   }
   if(bags>0){ const bc=bags*25; total+=bc; lines.push({l:`${bags} bagaj supli. × 25 lei`,v:`${bc} lei`}); }
-  if(_voucherDiscount>0&&total>0){ const d=Math.min(_voucherDiscount,total); lines.push({l:`Voucher ${_voucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
+  if(_voucherDiscount>0&&total>0){
+    const pax = adults + children;
+    const effDisc = _voucherPerPerson ? _voucherDiscount * pax : _voucherDiscount;
+    const d = Math.min(effDisc, total);
+    const lbl = _voucherPerPerson ? `Voucher ${_voucherCode} (${pax} × ${_voucherDiscount} lei)` : `Voucher ${_voucherCode}`;
+    lines.push({l:lbl, v:`-${d} lei`, disc:true});
+    total = Math.max(0, total - d);
+  }
   linesEl.innerHTML=lines.map(({l,v,disc})=>`<div class="pl${disc?' discount':''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent=`${total} lei`;
 }
@@ -478,7 +486,7 @@ function buildMsg(){
     (dir==='tur'?`• Punct îmbarcare: ${pickL}\n`:'')+
     `• Tip transfer: ${trL}\n\n`+
     `👥 *Pasageri:*\n• Adulți: ${adults}\n• Copii: ${children}\n• Bagaj suplimentar: ${bags} buc\n\n`+
-    `💰 *Total estimat: ${total}*${_voucherCode?` (voucher ${_voucherCode}: -${_voucherDiscount} lei)`:''}` +`\n\n`+
+    `💰 *Total estimat: ${total}*${_voucherCode?` (voucher ${_voucherCode}: -${_voucherPerPerson?_voucherDiscount*(parseInt(document.getElementById('f-adults').value||1)+parseInt(document.getElementById('f-children').value||0)):_voucherDiscount} lei)`:''}` +`\n\n`+
     `👤 *Contact:*\n• Nume: ${name}\n• Telefon: ${phone}\n• Email: ${email}\n• Nr. zbor: ${flight}\n• Observații: ${notes}`;
 }
 

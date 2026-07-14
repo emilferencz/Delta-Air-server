@@ -375,7 +375,7 @@ img{max-width:100%;height:auto}
 const today = new Date().toISOString().split('T')[0];
 document.getElementById('f-date').min = today;
 
-let _bVoucherCode = '', _bVoucherDiscount = 0;
+let _bVoucherCode = '', _bVoucherDiscount = 0, _bVoucherPerPerson = false;
 async function applyVoucher() {
   const inp = document.getElementById('f-voucher');
   const msg = document.getElementById('f-voucher-msg');
@@ -386,12 +386,13 @@ async function applyVoucher() {
     const res  = await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code, pickup}) });
     const data = await res.json();
     if (data.valid) {
-      _bVoucherCode = code; _bVoucherDiscount = data.discount;
-      msg.textContent = `✓ ${data.label} applied (-${data.discount} lei)`;
+      _bVoucherCode = code; _bVoucherDiscount = data.discount; _bVoucherPerPerson = data.perPerson || false;
+      const label = _bVoucherPerPerson ? `(-${data.discount} lei/person)` : `(-${data.discount} lei)`;
+      msg.textContent = `✓ ${data.label} applied ${label}`;
       msg.className = 'voucher-msg ok'; inp.disabled = true; calcPrice();
     } else {
-      _bVoucherCode = ''; _bVoucherDiscount = 0;
-      msg.textContent = data.reason === 'pickup' ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.' : '✗ Invalid voucher code.';
+      _bVoucherCode = ''; _bVoucherDiscount = 0; _bVoucherPerPerson = false;
+      msg.textContent = data.reason === 'pickup' ? '✗ Valid only for boarding at Penny Avantgarden Bartolomeu.' : '✗ Invalid voucher code.';
       msg.className = 'voucher-msg err';
     }
   } catch(_) { msg.textContent = '✗ Validation error.'; msg.className = 'voucher-msg err'; }
@@ -428,7 +429,13 @@ function calcPrice(){
     return;
   }
   if(bags>0){ const bc=bags*25; total+=bc; lines.push({l:`${bags} extra bag(s) × 25 lei`,v:`${bc} lei`}); }
-  if(_bVoucherDiscount>0&&total>0){ const d=Math.min(_bVoucherDiscount,total); lines.push({l:`Voucher ${_bVoucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
+  if(_bVoucherDiscount>0&&total>0){
+    const pax = adults + children;
+    const effDisc = _bVoucherPerPerson ? _bVoucherDiscount * pax : _bVoucherDiscount;
+    const d = Math.min(effDisc, total);
+    const lbl = _bVoucherPerPerson ? `Voucher ${_bVoucherCode} (${pax} × ${_bVoucherDiscount} lei)` : `Voucher ${_bVoucherCode}`;
+    lines.push({l:lbl, v:`-${d} lei`, disc:true}); total = Math.max(0, total - d);
+  }
   linesEl.innerHTML=lines.map(({l,v,disc})=>`<div class="pl${disc?' discount':''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent=`${total} lei`;
 }

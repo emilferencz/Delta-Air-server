@@ -776,7 +776,7 @@
 
 <script>
 const SERVER = 'https://delta-air-server-production.up.railway.app';
-let _voucherCode = '', _voucherDiscount = 0;
+let _voucherCode = '', _voucherDiscount = 0, _voucherPerPerson = false;
 let _retEnabled = false, _retAvail = null;
 const RET_DISC = 0.20;
 const fmtDate = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'');
@@ -928,7 +928,7 @@ function dasCalcPrice() {
     if(saved>0) lines.push({l:`Reducere retur -20%`,v:`-${saved} lei`,discount:true});
   }
 
-  if(_voucherDiscount>0&&total>0){const disc=Math.min(_voucherDiscount,total);lines.push({l:`Voucher ${_voucherCode}`,v:`-${disc} lei`,discount:true});total=Math.max(0,total-disc);}
+  if(_voucherDiscount>0&&total>0){const pax=adults+children;const effDisc=_voucherPerPerson?_voucherDiscount*pax:_voucherDiscount;const disc=Math.min(effDisc,total);const lbl=_voucherPerPerson?`Voucher ${_voucherCode} (${pax} × ${_voucherDiscount} lei)`:`Voucher ${_voucherCode}`;lines.push({l:lbl,v:`-${disc} lei`,discount:true});total=Math.max(0,total-disc);}
   if(g('das-price-lines')) g('das-price-lines').innerHTML=lines.map(function(row){
     if(row.sep) return '<div style="font-size:.7rem;font-weight:700;opacity:.65;text-transform:uppercase;letter-spacing:1px;padding:8px 0 2px;border-top:1px solid rgba(255,255,255,.18);margin-top:4px">'+row.l+'</div>';
     var sty=row.discount?' style="color:#86efac"':'';
@@ -967,13 +967,14 @@ async function dasApplyVoucher() {
     });
     const data = await res.json();
     if (data.valid) {
-      _voucherCode = code; _voucherDiscount = data.discount;
-      msgEl.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
+      _voucherCode = code; _voucherDiscount = data.discount; _voucherPerPerson = data.perPerson || false;
+      const label = _voucherPerPerson ? `(-${data.discount} lei/persoană)` : `(-${data.discount} lei)`;
+      msgEl.textContent = `✓ ${data.label} aplicat ${label}`;
       msgEl.style.color = '#16a34a'; msgEl.style.fontWeight = '600';
       input.disabled = true; input.value = '';
       dasCalcPrice();
     } else {
-      _voucherCode = ''; _voucherDiscount = 0;
+      _voucherCode = ''; _voucherDiscount = 0; _voucherPerPerson = false;
       msgEl.textContent = data.reason === 'pickup'
         ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.'
         : '✗ Cod voucher invalid.';

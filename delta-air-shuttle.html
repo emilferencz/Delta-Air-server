@@ -1024,12 +1024,12 @@ function calcPrice(){
     lines.push({l:`${bags} ${t('price_bag')} × 25 lei`, v:`${bagCost} lei`});
   }
 
-  if(_sVoucherDiscount > 0 && total > 0){ const d=Math.min(_sVoucherDiscount,total); lines.push({l:`Voucher ${_sVoucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
+  if(_sVoucherDiscount > 0 && total > 0){ const pax=adults+children; const effDisc=_sVoucherPerPerson?_sVoucherDiscount*pax:_sVoucherDiscount; const d=Math.min(effDisc,total); const lbl=_sVoucherPerPerson?`Voucher ${_sVoucherCode} (${pax} × ${_sVoucherDiscount} lei)`:`Voucher ${_sVoucherCode}`; lines.push({l:lbl,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
   linesEl.innerHTML = lines.map(({l,v,disc})=>`<div class="pl${disc?' discount':''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent = `${total} lei`;
 }
 
-let _sVoucherCode='', _sVoucherDiscount=0;
+let _sVoucherCode='', _sVoucherDiscount=0, _sVoucherPerPerson=false;
 async function applyVoucher(){
   const inp=document.getElementById('f-voucher'), msg=document.getElementById('f-voucher-msg');
   const code=inp.value.trim().toUpperCase();
@@ -1038,8 +1038,8 @@ async function applyVoucher(){
     const pickup=document.getElementById('f-pickup')?.value||'';
     const res=await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,pickup})});
     const data=await res.json();
-    if(data.valid){ _sVoucherCode=code; _sVoucherDiscount=data.discount; msg.textContent=`✓ ${data.label} aplicat (-${data.discount} lei)`; msg.className='voucher-msg ok'; inp.disabled=true; calcPrice(); }
-    else{ _sVoucherCode=''; _sVoucherDiscount=0; msg.textContent=data.reason==='pickup'?'✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.':'✗ Cod voucher invalid.'; msg.className='voucher-msg err'; }
+    if(data.valid){ _sVoucherCode=code; _sVoucherDiscount=data.discount; _sVoucherPerPerson=data.perPerson||false; const label=_sVoucherPerPerson?`(-${data.discount} lei/persoană)`:`(-${data.discount} lei)`; msg.textContent=`✓ ${data.label} aplicat ${label}`; msg.className='voucher-msg ok'; inp.disabled=true; calcPrice(); }
+    else{ _sVoucherCode=''; _sVoucherDiscount=0; _sVoucherPerPerson=false; msg.textContent=data.reason==='pickup'?'✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.':'✗ Cod voucher invalid.'; msg.className='voucher-msg err'; }
   } catch(_){ msg.textContent='✗ Eroare validare.'; msg.className='voucher-msg err'; }
 }
 

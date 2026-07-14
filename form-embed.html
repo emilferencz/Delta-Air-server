@@ -537,7 +537,7 @@ const gr = name => document.querySelector(`input[name=${name}]:checked`)?.value 
 /* ══════════════════════════════════════════════════════════════
    VOUCHER
    ══════════════════════════════════════════════════════════════ */
-let _voucherCode = '', _voucherDiscount = 0;
+let _voucherCode = '', _voucherDiscount = 0, _voucherPerPerson = false;
 
 async function dasApplyVoucher() {
   const input   = g('das-voucher-input');
@@ -555,14 +555,14 @@ async function dasApplyVoucher() {
     });
     const data = await res.json();
     if (data.valid) {
-      _voucherCode     = code;
-      _voucherDiscount = data.discount;
-      msgEl.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
+      _voucherCode = code; _voucherDiscount = data.discount; _voucherPerPerson = data.perPerson || false;
+      const label = _voucherPerPerson ? `(-${data.discount} lei/persoană)` : `(-${data.discount} lei)`;
+      msgEl.textContent = `✓ ${data.label} aplicat ${label}`;
       msgEl.className   = 'das-voucher-msg ok';
       input.disabled    = true; input.value = '';
       dasCalcPrice();
     } else {
-      _voucherCode = ''; _voucherDiscount = 0;
+      _voucherCode = ''; _voucherDiscount = 0; _voucherPerPerson = false;
       msgEl.textContent = data.reason === 'pickup'
         ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.'
         : '✗ Cod voucher invalid.';
@@ -742,8 +742,11 @@ function dasCalcPrice() {
     lines.push({ l: `${bags} bagaj extra × 25 lei`, v: `${bc} lei` });
   }
   if (_voucherDiscount > 0 && total > 0) {
-    const disc = Math.min(_voucherDiscount, total);
-    lines.push({ l: `Voucher ${_voucherCode}`, v: `-${disc} lei`, discount: true });
+    const pax = adults + children;
+    const effDisc = _voucherPerPerson ? _voucherDiscount * pax : _voucherDiscount;
+    const disc = Math.min(effDisc, total);
+    const lbl = _voucherPerPerson ? `Voucher ${_voucherCode} (${pax} × ${_voucherDiscount} lei)` : `Voucher ${_voucherCode}`;
+    lines.push({ l: lbl, v: `-${disc} lei`, discount: true });
     total = Math.max(0, total - disc);
   }
   linesEl.innerHTML = lines.map(({ l, v, discount }) =>
