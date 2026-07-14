@@ -961,8 +961,9 @@ async function dasApplyVoucher() {
   if (!code) return;
   if (_voucherCode === code) return;
   try {
+    const pickup = gv('das-pickup');
     const res = await fetch(`${SERVER}/api/validate-voucher`, {
-      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code})
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({code, pickup})
     });
     const data = await res.json();
     if (data.valid) {
@@ -973,7 +974,9 @@ async function dasApplyVoucher() {
       dasCalcPrice();
     } else {
       _voucherCode = ''; _voucherDiscount = 0;
-      msgEl.textContent = '✗ Cod voucher invalid.';
+      msgEl.textContent = data.reason === 'pickup'
+        ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.'
+        : '✗ Cod voucher invalid.';
       msgEl.style.color = '#dc2626'; msgEl.style.fontWeight = '600';
     }
   } catch(_) {
