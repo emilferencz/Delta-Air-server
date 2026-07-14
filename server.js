@@ -35,7 +35,8 @@ const TRIP_TIMES = {
 
 /* ── Vouchere de reducere ── */
 const VOUCHERS = {
-  'DELTA200': { discount: 200, label: 'Voucher reducere DELTA200', stripeCouponId: 'DELTA200' },
+  'DELTA200':  { discount: 200, label: 'Voucher reducere DELTA200', stripeCouponId: 'DELTA200' },
+  'MAURER-20': { discount: 20,  label: 'Reducere parteneri Avantgarden Maurer', pickupRequired: 'avantgarden', stripeCouponId: null },
 };
 
 async function initDB() {
@@ -421,13 +422,14 @@ async function sendConfirmationEmail(customerEmail, meta) {
    POST /api/validate-voucher
 ────────────────────────────────────────────── */
 app.post('/api/validate-voucher', express.json(), (req, res) => {
-  const code = (req.body?.code || '').trim().toUpperCase();
+  const code    = (req.body?.code   || '').trim().toUpperCase();
+  const pickup  = (req.body?.pickup || '').toLowerCase();
   const voucher = VOUCHERS[code];
-  if (voucher) {
-    res.json({ valid: true, discount: voucher.discount, label: voucher.label });
-  } else {
-    res.json({ valid: false });
+  if (!voucher) return res.json({ valid: false });
+  if (voucher.pickupRequired && !pickup.includes(voucher.pickupRequired)) {
+    return res.json({ valid: false, reason: 'pickup' });
   }
+  res.json({ valid: true, discount: voucher.discount, label: voucher.label });
 });
 
 /* ──────────────────────────────────────────────

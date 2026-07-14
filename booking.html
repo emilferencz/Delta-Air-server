@@ -195,7 +195,7 @@ img{max-width:100%;height:auto}
             <input type="radio" name="transfer" value="economy" checked onchange="onFormChange()">
             <div class="tr-lbl">
               <span class="tr-name">🚐 Economy</span>
-              <span class="tr-price">120 lei / adult · 75 lei / child</span>
+              <span class="tr-price">150 lei / adult · 105 lei / child</span>
               <span class="tr-info">Shared · per person</span>
             </div>
           </label>
@@ -203,7 +203,7 @@ img{max-width:100%;height:auto}
             <input type="radio" name="transfer" value="privat" onchange="onFormChange()">
             <div class="tr-lbl">
               <span class="tr-name">🚗 Private</span>
-              <span class="tr-price">800 / 850 lei · per ride</span>
+              <span class="tr-price">900 / 950 lei · per ride</span>
               <span class="tr-info">Dedicated · per vehicle</span>
             </div>
           </label>
@@ -241,8 +241,8 @@ img{max-width:100%;height:auto}
           <div class="fg">
             <label>Airport</label>
             <select id="f-apt" onchange="onFormChange()">
-              <option value="otopeni">✈ Otopeni – Henri Coandă (800 lei private)</option>
-              <option value="baneasa">✈ Băneasa (850 lei private)</option>
+              <option value="otopeni">✈ Otopeni – Henri Coandă (900 lei private)</option>
+              <option value="baneasa">✈ Băneasa (950 lei private)</option>
             </select>
           </div>
           <div class="fg" id="f-pickup-wrap">
@@ -251,6 +251,7 @@ img{max-width:100%;height:auto}
               <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30 / 14:00</option>
               <option value="petrom">Petrom Calea București (McDonald's) – 01:35 / 14:05</option>
               <option value="omv">OMV Dârste (opposite Ramada) – 01:40 / 14:10</option>
+              <option value="avantgarden">Penny Avantgarden Bartolomeu – 01:45 / 14:15</option>
             </select>
           </div>
         </div>
@@ -276,12 +277,12 @@ img{max-width:100%;height:auto}
             <small>Optional · free under 3 yrs (on request)</small>
           </div>
           <div class="fg">
-            <label>Extra baggage (20 lei/bag)</label>
+            <label>Extra baggage (25 lei/bag)</label>
             <select id="f-bags" onchange="onFormChange()">
               <option value="0">0</option><option>1</option><option>2</option>
               <option>3</option><option>4</option>
             </select>
-            <small>1 bag = max 20 kg · 20 lei each</small>
+            <small>1 bag = max 20 kg · 25 lei each</small>
           </div>
         </div>
       </div>
@@ -381,7 +382,8 @@ async function applyVoucher() {
   const code = inp.value.trim().toUpperCase();
   if (!code || _bVoucherCode === code) return;
   try {
-    const res  = await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code}) });
+    const pickup = document.getElementById('f-pickup')?.value || '';
+    const res  = await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code, pickup}) });
     const data = await res.json();
     if (data.valid) {
       _bVoucherCode = code; _bVoucherDiscount = data.discount;
@@ -389,7 +391,8 @@ async function applyVoucher() {
       msg.className = 'voucher-msg ok'; inp.disabled = true; calcPrice();
     } else {
       _bVoucherCode = ''; _bVoucherDiscount = 0;
-      msg.textContent = '✗ Invalid voucher code.'; msg.className = 'voucher-msg err';
+      msg.textContent = data.reason === 'pickup' ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.' : '✗ Invalid voucher code.';
+      msg.className = 'voucher-msg err';
     }
   } catch(_) { msg.textContent = '✗ Validation error.'; msg.className = 'voucher-msg err'; }
 }
@@ -410,13 +413,13 @@ function calcPrice(){
   const totalEl = document.getElementById('totalPrice');
   let lines=[], total=0;
   if(transfer==='economy'){
-    const ecoAdult=apt==='baneasa'?140:120, ecoChild=apt==='baneasa'?85:75;
+    const ecoAdult=apt==='baneasa'?170:150, ecoChild=apt==='baneasa'?115:105;
     const ac=adults*ecoAdult, cc=children*ecoChild;
     total+=ac+cc;
     lines.push({l:`${adults} adult(s) × ${ecoAdult} lei`,v:`${ac} lei`});
     if(children>0) lines.push({l:`${children} child(ren) × ${ecoChild} lei`,v:`${cc} lei`});
   } else if(transfer==='privat'){
-    const base=apt==='baneasa'?850:800;
+    const base=apt==='baneasa'?950:900;
     total+=base;
     lines.push({l:`Private transfer (${apt==='baneasa'?'Băneasa':'Otopeni'})`,v:`${base} lei`});
   } else {
@@ -424,7 +427,7 @@ function calcPrice(){
     linesEl.innerHTML='<div class="pl"><span>Business Transfer</span><span>Coming soon</span></div>';
     return;
   }
-  if(bags>0){ const bc=bags*20; total+=bc; lines.push({l:`${bags} extra bag(s) × 20 lei`,v:`${bc} lei`}); }
+  if(bags>0){ const bc=bags*25; total+=bc; lines.push({l:`${bags} extra bag(s) × 25 lei`,v:`${bc} lei`}); }
   if(_bVoucherDiscount>0&&total>0){ const d=Math.min(_bVoucherDiscount,total); lines.push({l:`Voucher ${_bVoucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
   linesEl.innerHTML=lines.map(({l,v,disc})=>`<div class="pl${disc?' discount':''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent=`${total} lei`;
