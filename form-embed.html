@@ -180,7 +180,7 @@
         <div class="das-rl">
           <span class="das-rl-ico">🚐</span>
           <span class="das-rl-t">Economy</span>
-          <span class="das-rl-p" id="das-eco-price">120 lei / adult</span>
+          <span class="das-rl-p" id="das-eco-price">150 lei / adult</span>
           <span class="das-rl-s">Shared · per persoană</span>
         </div>
       </label>
@@ -189,7 +189,7 @@
         <div class="das-rl">
           <span class="das-rl-ico">🚗</span>
           <span class="das-rl-t">Privat</span>
-          <span class="das-rl-p" id="das-priv-price">800 lei / cursă</span>
+          <span class="das-rl-p" id="das-priv-price">900 lei / cursă</span>
           <span class="das-rl-s">Dedicat · per mașină</span>
         </div>
       </label>
@@ -234,6 +234,7 @@
       <div class="das-fg">
         <label>Punct de îmbarcare – Brașov</label>
         <select id="das-pickup" onchange="dasUpdate()">
+          <option value="avantgarden">🅿 Penny Avantgarden Bartolomeu – 01:00 / 13:30</option>
           <option value="sala">Sala Sporturilor (B-dul Gării)</option>
           <option value="petrom">Petrom Calea București (McDonald's)</option>
           <option value="omv">OMV Dârste (vis-a-vis Ramada)</option>
@@ -277,10 +278,10 @@
         <label>Bagaj suplimentar</label>
         <select id="das-bags" onchange="dasUpdate()">
           <option value="0">0 bagaje extra</option>
-          <option value="1">1 bagaj (20 lei)</option><option value="2">2 bagaje (40 lei)</option>
-          <option value="3">3 bagaje (60 lei)</option><option value="4">4 bagaje (80 lei)</option>
+          <option value="1">1 bagaj (25 lei)</option><option value="2">2 bagaje (50 lei)</option>
+          <option value="3">3 bagaje (75 lei)</option><option value="4">4 bagaje (100 lei)</option>
         </select>
-        <small>1 bagaj = max 20 kg · 20 lei/buc</small>
+        <small>1 bagaj = max 20 kg · 25 lei/buc</small>
       </div>
     </div>
     <!-- Câmpuri nume pasageri — apar când sunt mai mulți -->
@@ -498,11 +499,11 @@ const DAS_CONFIG = {
 const SCH = {
   tur: {
     c1: {
-      depart: { sala:'01:30', petrom:'01:35', omv:'01:40' },
+      depart: { avantgarden:'01:00', sala:'01:30', petrom:'01:35', omv:'01:40' },
       arrive: { otopeni:'04:30', baneasa:'05:00' }
     },
     c2: {
-      depart: { sala:'14:00', petrom:'14:05', omv:'14:10' },
+      depart: { avantgarden:'13:30', sala:'14:00', petrom:'14:05', omv:'14:10' },
       arrive: { otopeni:'17:00', baneasa:'17:30' }
     }
   },
@@ -519,6 +520,7 @@ const SCH = {
 };
 
 const PICKUP_LABELS = {
+  avantgarden: 'Penny Avantgarden Bartolomeu',
   sala:   'Sala Sporturilor (B-dul Gării)',
   petrom: 'Petrom Calea București (McDonald\'s)',
   omv:    'OMV Dârste (vis-a-vis Ramada)'
@@ -546,9 +548,10 @@ async function dasApplyVoucher() {
   if (_voucherCode === code) return; /* deja aplicat */
 
   try {
+    const pickup = gv('das-pickup');
     const res  = await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ code, pickup }),
     });
     const data = await res.json();
     if (data.valid) {
@@ -560,7 +563,9 @@ async function dasApplyVoucher() {
       dasCalcPrice();
     } else {
       _voucherCode = ''; _voucherDiscount = 0;
-      msgEl.textContent = '✗ Cod voucher invalid.';
+      msgEl.textContent = data.reason === 'pickup'
+        ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.'
+        : '✗ Cod voucher invalid.';
       msgEl.className   = 'das-voucher-msg err';
     }
   } catch (_) {
@@ -591,9 +596,10 @@ function dasUpdate() {
     /* actualizează orele în opțiunile de pickup */
     const dep = sch?.depart || {};
     const sel = g('das-pickup');
-    sel.options[0].text = `Sala Sporturilor (B-dul Gării) – ${dep.sala || ''}`;
-    sel.options[1].text = `Petrom Calea București (McDonald's) – ${dep.petrom || ''}`;
-    sel.options[2].text = `OMV Dârste (vis-a-vis Ramada) – ${dep.omv || ''}`;
+    sel.options[0].text = `🅿 Penny Avantgarden Bartolomeu – ${dep.avantgarden || ''}`;
+    sel.options[1].text = `Sala Sporturilor (B-dul Gării) – ${dep.sala || ''}`;
+    sel.options[2].text = `Petrom Calea București (McDonald's) – ${dep.petrom || ''}`;
+    sel.options[3].text = `OMV Dârste (vis-a-vis Ramada) – ${dep.omv || ''}`;
 
     /* destinație = aeroport selectat */
     const arrTime = sch?.arrive?.[apt] || '';
@@ -707,15 +713,15 @@ function dasCalcPrice() {
   const totalEl  = g('das-total');
   let lines = [], total = 0;
 
-  /* Economy: 140 lei/adult pentru Băneasa, 120 lei/adult pentru Otopeni */
-  const ecoRate  = apt === 'baneasa' ? 140 : 120;
-  const childRate = apt === 'baneasa' ? 85 : 75;
+  /* Economy: 170 lei/adult pentru Băneasa, 150 lei/adult pentru Otopeni */
+  const ecoRate  = apt === 'baneasa' ? 170 : 150;
+  const childRate = apt === 'baneasa' ? 115 : 105;
 
   /* Actualizează etichetele de preț de pe butoane */
   const ecoEl  = g('das-eco-price');
   const privEl = g('das-priv-price');
   if (ecoEl)  ecoEl.textContent  = `${ecoRate} lei / adult`;
-  if (privEl) privEl.textContent = apt === 'baneasa' ? '850 lei / cursă' : '800 lei / cursă';
+  if (privEl) privEl.textContent = apt === 'baneasa' ? '950 lei / cursă' : '900 lei / cursă';
 
   if (tr === 'economy') {
     const ac = adults * ecoRate, cc = children * childRate;
@@ -723,7 +729,7 @@ function dasCalcPrice() {
     lines.push({ l: `${adults} adult(ți) × ${ecoRate} lei`, v: `${ac} lei` });
     if (children > 0) lines.push({ l: `${children} copil(ii) × ${childRate} lei`, v: `${cc} lei` });
   } else if (tr === 'privat') {
-    const base = apt === 'baneasa' ? 850 : 800;
+    const base = apt === 'baneasa' ? 950 : 900;
     total += base;
     lines.push({ l: `Transfer privat (${APT_LABELS[apt]})`, v: `${base} lei` });
   } else {
@@ -732,8 +738,8 @@ function dasCalcPrice() {
     return;
   }
   if (bags > 0) {
-    const bc = bags * 20; total += bc;
-    lines.push({ l: `${bags} bagaj extra × 20 lei`, v: `${bc} lei` });
+    const bc = bags * 25; total += bc;
+    lines.push({ l: `${bags} bagaj extra × 25 lei`, v: `${bc} lei` });
   }
   if (_voucherDiscount > 0 && total > 0) {
     const disc = Math.min(_voucherDiscount, total);
@@ -979,8 +985,8 @@ async function dasCheckout() {
   const isTur    = dir === 'tur';
 
   /* Construiește line_items pentru Stripe Checkout */
-  const ecoRate = apt === 'baneasa' ? 140 : 120;
-  const privBase = apt === 'baneasa' ? 850 : 800;
+  const ecoRate = apt === 'baneasa' ? 170 : 150;
+  const privBase = apt === 'baneasa' ? 950 : 900;
   const trLabels = { economy: 'Economy (Shared)', privat: 'Privat (Dedicat)' };
   const aptLabel = APT_LABELS[apt];
   const dirLabel = isTur ? `Brașov → ${aptLabel}` : `${aptLabel} → Brașov`;
@@ -1008,7 +1014,7 @@ async function dasCheckout() {
     if (children > 0) lineItems.push({
       name: `Transfer ${trLabels.economy} – Copil (0–12 ani)`,
       description: `${dirLabel} · ${tripLabel} · ${date}`,
-      amount: (apt === 'baneasa' ? 85 : 75) * 100,
+      amount: (apt === 'baneasa' ? 115 : 105) * 100,
       quantity: children,
     });
   } else if (tr === 'privat') {
@@ -1023,7 +1029,7 @@ async function dasCheckout() {
   if (bags > 0) lineItems.push({
     name: 'Bagaj suplimentar',
     description: 'Max 20 kg / bagaj',
-    amount: 20 * 100,
+    amount: 25 * 100,
     quantity: bags,
   });
 
@@ -1297,7 +1303,7 @@ table tr:nth-child(even) td:not(.lbl){background:#fafbfd}
   ${row2('Tip transfer', trL)}
   ${row2('Număr pasageri', nrPax + ' persoane (' + adults + ' adulți, ' + children + ' copii)')}
   ${paxNamesHtml}
-  ${row2('Bagaje suplimentare', bags > 0 ? bags + ' buc × 20 lei = ' + (bags*20) + ' lei' : 'Nu')}
+  ${row2('Bagaje suplimentare', bags > 0 ? bags + ' buc × 25 lei = ' + (bags*25) + ' lei' : 'Nu')}
   ${row2('Nr. zbor / Terminal', flightNum || '—')}
 </table>
 

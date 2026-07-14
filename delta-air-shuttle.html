@@ -350,11 +350,11 @@ footer a{color:var(--gold)}
         <div class="prices">
           <div class="pi">
             <span class="pi-l" data-i18n="lbl_adult">Adult</span>
-            <span class="pi-v">de la 120 lei</span>
+            <span class="pi-v">de la 150 lei</span>
           </div>
           <div class="pi">
             <span class="pi-l" data-i18n="lbl_child">Copil (0–12 ani)</span>
-            <span class="pi-v">de la 75 lei</span>
+            <span class="pi-v">de la 105 lei</span>
           </div>
         </div>
         <ul class="feats">
@@ -373,11 +373,11 @@ footer a{color:var(--gold)}
         <div class="prices">
           <div class="pi">
             <span class="pi-l">Otopeni (Henri Coandă)</span>
-            <span class="pi-v g">800 lei / cursă</span>
+            <span class="pi-v g">900 lei / cursă</span>
           </div>
           <div class="pi">
             <span class="pi-l">Băneasa</span>
-            <span class="pi-v g">850 lei / cursă</span>
+            <span class="pi-v g">950 lei / cursă</span>
           </div>
         </div>
         <ul class="feats">
@@ -508,7 +508,7 @@ footer a{color:var(--gold)}
         <div class="bag-ico">➕</div>
         <h4 data-i18n="bag3_t">Bagaj suplimentar</h4>
         <p data-i18n="bag3_p">Bagaj suplimentar de până la 20 kg, disponibil contra cost.</p>
-        <span class="ptag">20 lei / bagaj (20 kg)</span>
+        <span class="ptag">25 lei / bagaj (20 kg)</span>
       </div>
     </div>
     <p style="text-align:center;margin-top:18px;font-size:.8rem;color:var(--gray)" data-i18n="bag_note">
@@ -560,7 +560,7 @@ footer a{color:var(--gold)}
               <input type="radio" name="transfer" value="economy" checked onchange="onFormChange()">
               <div class="tr-lbl">
                 <span class="tr-name">🚐 Economy</span>
-                <span class="tr-price">120 lei / adult · 75 lei / copil</span>
+                <span class="tr-price">150 lei / adult · 105 lei / copil</span>
                 <span class="tr-info" data-i18n="tr_eco_info">Shared · per persoană</span>
               </div>
             </label>
@@ -568,7 +568,7 @@ footer a{color:var(--gold)}
               <input type="radio" name="transfer" value="privat" onchange="onFormChange()">
               <div class="tr-lbl">
                 <span class="tr-name">🚗 Privat</span>
-                <span class="tr-price">800 / 850 lei · cursă</span>
+                <span class="tr-price">900 / 950 lei · cursă</span>
                 <span class="tr-info" data-i18n="tr_prv_info">Dedicat · per mașină</span>
               </div>
             </label>
@@ -606,13 +606,14 @@ footer a{color:var(--gold)}
             <div class="fg">
               <label data-i18n="lbl_airport">Aeroport</label>
               <select id="f-apt" onchange="onFormChange()">
-                <option value="otopeni">✈ Otopeni – Henri Coandă (800 lei privat)</option>
-                <option value="baneasa">✈ Băneasa (850 lei privat)</option>
+                <option value="otopeni">✈ Otopeni – Henri Coandă (900 lei privat)</option>
+                <option value="baneasa">✈ Băneasa (950 lei privat)</option>
               </select>
             </div>
             <div class="fg" id="f-pickup-wrap">
               <label data-i18n="lbl_pickup">Punct de îmbarcare (Brașov)</label>
               <select id="f-pickup" onchange="onFormChange()">
+                <option value="avantgarden">🅿 Penny Avantgarden Bartolomeu – 01:00 / 13:30</option>
                 <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30 / 14:00</option>
                 <option value="petrom">Petrom Calea București (McDonald's) – 01:35 / 14:05</option>
                 <option value="omv">OMV Dârste (Vis-a-vis Ramada) – 01:40 / 14:10</option>
@@ -642,12 +643,12 @@ footer a{color:var(--gold)}
               <small data-i18n="child_note">Optional – gratuit sub 3 ani (la cerere)</small>
             </div>
             <div class="fg">
-              <label data-i18n="lbl_extrabag">Bagaj suplimentar (20 lei)</label>
+              <label data-i18n="lbl_extrabag">Bagaj suplimentar (25 lei)</label>
               <select id="f-bags" onchange="onFormChange()">
                 <option value="0">0</option><option value="1">1</option><option value="2">2</option>
                 <option value="3">3</option><option value="4">4</option>
               </select>
-              <small data-i18n="bag_note2">1 bag = max 20 kg · 20 lei/buc</small>
+              <small data-i18n="bag_note2">1 bag = max 20 kg · 25 lei/buc</small>
             </div>
           </div>
         </div>
@@ -829,10 +830,10 @@ const T = {
     step1:'Direcție de călătorie',step2:'Tip transfer',step3:'Detalii cursă',step4:'Pasageri & Bagaje',step5:'Date de contact',
     dir_tur:'Brașov → București',dir_tur_s:'Tur spre aeroport',dir_ret:'București → Brașov',dir_ret_s:'Retur din aeroport',
     tr_eco_info:'Shared · per persoană',tr_prv_info:'Dedicat · per mașină',tr_bus_info:'Premium · anunț în curând',
-    lbl_adults:'Nr. Adulți',lbl_children:'Nr. Copii (0–12 ani)',lbl_extrabag:'Bagaj suplimentar (20 lei)',
+    lbl_adults:'Nr. Adulți',lbl_children:'Nr. Copii (0–12 ani)',lbl_extrabag:'Bagaj suplimentar (25 lei)',
     lbl_pickup:'Punct de îmbarcare (Brașov)',lbl_name:'Nume și prenume *',lbl_phone:'Telefon *',
     lbl_email:'Email *',lbl_flight:'Nr. zbor / Terminal (opțional)',lbl_notes:'Observații (opțional)',
-    child_note:'Optional – gratuit sub 3 ani (la cerere)',bag_note2:'1 bag = max 20 kg · 20 lei/buc',
+    child_note:'Optional – gratuit sub 3 ani (la cerere)',bag_note2:'1 bag = max 20 kg · 25 lei/buc',
     opt_none:'0 (niciunul)',
     price_title:'Sumar preț (estimat, TVA inclus)',total:'TOTAL',price_note:'* Prețul final poate varia în funcție de opțiunile specifice.',
     btn_wa:'Rezervă pe WhatsApp',btn_email:'Trimite pe Email',
@@ -884,10 +885,10 @@ const T = {
     step1:'Travel direction',step2:'Transfer type',step3:'Trip details',step4:'Passengers & Baggage',step5:'Contact details',
     dir_tur:'Brașov → Bucharest',dir_tur_s:'Outbound to airport',dir_ret:'Bucharest → Brașov',dir_ret_s:'Return from airport',
     tr_eco_info:'Shared · per person',tr_prv_info:'Dedicated · per vehicle',tr_bus_info:'Premium · coming soon',
-    lbl_adults:'Nr. Adults',lbl_children:'Nr. Children (0–12 yrs)',lbl_extrabag:'Extra baggage (20 lei)',
+    lbl_adults:'Nr. Adults',lbl_children:'Nr. Children (0–12 yrs)',lbl_extrabag:'Extra baggage (25 lei)',
     lbl_pickup:'Boarding point (Brașov)',lbl_name:'Full name *',lbl_phone:'Phone *',
     lbl_email:'Email *',lbl_flight:'Flight nr. / Terminal (optional)',lbl_notes:'Notes (optional)',
-    child_note:'Optional – free under 3 years (on request)',bag_note2:'1 bag = max 20 kg · 20 lei/each',
+    child_note:'Optional – free under 3 years (on request)',bag_note2:'1 bag = max 20 kg · 25 lei/each',
     opt_none:'0 (none)',
     price_title:'Price summary (estimated, VAT incl.)',total:'TOTAL',price_note:'* Final price may vary based on specific options.',
     btn_wa:'Book on WhatsApp',btn_email:'Send by Email',
@@ -1000,15 +1001,15 @@ function calcPrice(){
   let total = 0;
 
   if(transfer === 'economy'){
-    const ecoAdult = apt === 'baneasa' ? 140 : 120;
-    const ecoChild = apt === 'baneasa' ? 85 : 75;
+    const ecoAdult = apt === 'baneasa' ? 170 : 150;
+    const ecoChild = apt === 'baneasa' ? 115 : 105;
     const adultCost = adults * ecoAdult;
     const childCost = children * ecoChild;
     total += adultCost + childCost;
     lines.push({l:`${adults} ${t('price_adult')} × ${ecoAdult} lei`, v:`${adultCost} lei`});
     if(children > 0) lines.push({l:`${children} ${t('price_child')} × ${ecoChild} lei`, v:`${childCost} lei`});
   } else if(transfer === 'privat'){
-    const base = apt === 'baneasa' ? 850 : 800;
+    const base = apt === 'baneasa' ? 950 : 900;
     total += base;
     lines.push({l:`${t('price_priv')} (${apt==='baneasa'?'Băneasa':'Otopeni'})`, v:`${base} lei`});
   } else {
@@ -1018,9 +1019,9 @@ function calcPrice(){
   }
 
   if(bags > 0){
-    const bagCost = bags * 20;
+    const bagCost = bags * 25;
     total += bagCost;
-    lines.push({l:`${bags} ${t('price_bag')} × 20 lei`, v:`${bagCost} lei`});
+    lines.push({l:`${bags} ${t('price_bag')} × 25 lei`, v:`${bagCost} lei`});
   }
 
   if(_sVoucherDiscount > 0 && total > 0){ const d=Math.min(_sVoucherDiscount,total); lines.push({l:`Voucher ${_sVoucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
@@ -1034,10 +1035,11 @@ async function applyVoucher(){
   const code=inp.value.trim().toUpperCase();
   if(!code||_sVoucherCode===code) return;
   try {
-    const res=await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
+    const pickup=document.getElementById('f-pickup')?.value||'';
+    const res=await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,pickup})});
     const data=await res.json();
     if(data.valid){ _sVoucherCode=code; _sVoucherDiscount=data.discount; msg.textContent=`✓ ${data.label} aplicat (-${data.discount} lei)`; msg.className='voucher-msg ok'; inp.disabled=true; calcPrice(); }
-    else{ _sVoucherCode=''; _sVoucherDiscount=0; msg.textContent='✗ Cod voucher invalid.'; msg.className='voucher-msg err'; }
+    else{ _sVoucherCode=''; _sVoucherDiscount=0; msg.textContent=data.reason==='pickup'?'✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.':'✗ Cod voucher invalid.'; msg.className='voucher-msg err'; }
   } catch(_){ msg.textContent='✗ Eroare validare.'; msg.className='voucher-msg err'; }
 }
 
