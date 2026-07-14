@@ -96,6 +96,15 @@ img{max-width:100%;height:auto}
 .ptl-l{font-size:.95rem;font-weight:700}
 .ptl-v{font-size:1.5rem;font-weight:800;color:var(--gold)}
 .pnote{font-size:.66rem;opacity:.5;margin-top:6px}
+.pl.discount{color:#86efac}
+.voucher-row{margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18)}
+.voucher-wrap{display:flex;gap:8px}
+.voucher-wrap input{flex:1;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);border-radius:6px;padding:8px 12px;color:#fff;font-size:.82rem;outline:none}
+.voucher-wrap input::placeholder{opacity:.5}
+.voucher-wrap input:focus{border-color:var(--gold)}
+.voucher-btn{background:var(--gold);color:var(--navy);border:none;border-radius:6px;padding:8px 14px;font-size:.8rem;font-weight:700;cursor:pointer;white-space:nowrap}
+.voucher-msg{font-size:.75rem;margin-top:6px;min-height:16px}
+.voucher-msg.ok{color:#86efac}.voucher-msg.err{color:#fca5a5}
 
 /* ── BUTTONS ── */
 .form-acts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
@@ -190,7 +199,7 @@ img{max-width:100%;height:auto}
             <input type="radio" name="transfer" value="economy" checked onchange="onFormChange()">
             <div class="tr-lbl">
               <span class="tr-name">🚐 Economy</span>
-              <span class="tr-price">120 lei / adult · 75 lei / copil</span>
+              <span class="tr-price">150 lei / adult · 105 lei / copil</span>
               <span class="tr-info">Shared · per persoană</span>
             </div>
           </label>
@@ -198,7 +207,7 @@ img{max-width:100%;height:auto}
             <input type="radio" name="transfer" value="privat" onchange="onFormChange()">
             <div class="tr-lbl">
               <span class="tr-name">🚗 Privat</span>
-              <span class="tr-price">800 / 850 lei · cursă</span>
+              <span class="tr-price">900 / 950 lei · cursă</span>
               <span class="tr-info">Dedicat · per mașină</span>
             </div>
           </label>
@@ -236,13 +245,14 @@ img{max-width:100%;height:auto}
           <div class="fg">
             <label>Aeroport</label>
             <select id="f-apt" onchange="onFormChange()">
-              <option value="otopeni">✈ Otopeni – Henri Coandă (800 lei privat)</option>
-              <option value="baneasa">✈ Băneasa (850 lei privat)</option>
+              <option value="otopeni">✈ Otopeni – Henri Coandă (900 lei privat)</option>
+              <option value="baneasa">✈ Băneasa (950 lei privat)</option>
             </select>
           </div>
           <div class="fg" id="f-pickup-wrap">
             <label>Punct de îmbarcare – Brașov</label>
             <select id="f-pickup">
+              <option value="avantgarden">🅿 Penny Avantgarden Bartolomeu – 01:00 / 13:30</option>
               <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30 / 14:00</option>
               <option value="petrom">Petrom Calea București (McDonald's) – 01:35 / 14:05</option>
               <option value="omv">OMV Dârste (Vis-a-vis Ramada) – 01:40 / 14:10</option>
@@ -271,12 +281,12 @@ img{max-width:100%;height:auto}
             <small>Opțional · gratuit sub 3 ani (la cerere)</small>
           </div>
           <div class="fg">
-            <label>Bagaj suplimentar (20 lei/buc)</label>
+            <label>Bagaj suplimentar (25 lei/buc)</label>
             <select id="f-bags" onchange="onFormChange()">
               <option value="0">0</option><option>1</option><option>2</option>
               <option>3</option><option>4</option>
             </select>
-            <small>1 bagaj = max 20 kg · 20 lei</small>
+            <small>1 bagaj = max 20 kg · 25 lei</small>
           </div>
         </div>
       </div>
@@ -319,6 +329,13 @@ img{max-width:100%;height:auto}
           <span class="ptl-v" id="totalPrice">— lei</span>
         </div>
         <div class="pnote">* Prețul final poate varia în funcție de opțiunile specifice.</div>
+        <div class="voucher-row">
+          <div class="voucher-wrap">
+            <input type="text" id="f-voucher" placeholder="Cod voucher" maxlength="20" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+            <button type="button" class="voucher-btn" onclick="applyVoucher()">Aplică</button>
+          </div>
+          <div class="voucher-msg" id="f-voucher-msg"></div>
+        </div>
       </div>
 
       <!-- Acțiuni -->
@@ -368,6 +385,34 @@ function onFormChange(){
   calcPrice();
 }
 
+let _voucherCode = '', _voucherDiscount = 0;
+
+async function applyVoucher() {
+  const inp = document.getElementById('f-voucher');
+  const msg = document.getElementById('f-voucher-msg');
+  const code = inp.value.trim().toUpperCase();
+  if (!code || _voucherCode === code) return;
+  try {
+    const pickup = document.getElementById('f-pickup')?.value || '';
+    const res = await fetch('https://delta-air-server-production.up.railway.app/api/validate-voucher', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ code, pickup })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      _voucherCode = code; _voucherDiscount = data.discount;
+      msg.textContent = `✓ ${data.label} aplicat (-${data.discount} lei)`;
+      msg.className = 'voucher-msg ok'; inp.disabled = true; calcPrice();
+    } else {
+      _voucherCode = ''; _voucherDiscount = 0;
+      msg.textContent = data.reason === 'pickup'
+        ? '✗ Cod valabil doar pentru îmbarcare Penny Avantgarden Bartolomeu.'
+        : '✗ Cod voucher invalid.';
+      msg.className = 'voucher-msg err';
+    }
+  } catch(_) { document.getElementById('f-voucher-msg').textContent = '✗ Eroare validare.'; }
+}
+
 function calcPrice(){
   const transfer = document.querySelector('input[name=transfer]:checked')?.value||'economy';
   const apt = document.getElementById('f-apt').value;
@@ -378,12 +423,13 @@ function calcPrice(){
   const totalEl = document.getElementById('totalPrice');
   let lines=[], total=0;
   if(transfer==='economy'){
-    const ac=adults*120, cc=children*75;
+    const ecoAdult=apt==='baneasa'?170:150, ecoChild=apt==='baneasa'?115:105;
+    const ac=adults*ecoAdult, cc=children*ecoChild;
     total+=ac+cc;
-    lines.push({l:`${adults} adult(ți) × 120 lei`,v:`${ac} lei`});
-    if(children>0) lines.push({l:`${children} copil(ii) × 75 lei`,v:`${cc} lei`});
+    lines.push({l:`${adults} adult(ți) × ${ecoAdult} lei`,v:`${ac} lei`});
+    if(children>0) lines.push({l:`${children} copil(ii) × ${ecoChild} lei`,v:`${cc} lei`});
   } else if(transfer==='privat'){
-    const base=apt==='baneasa'?850:800;
+    const base=apt==='baneasa'?950:900;
     total+=base;
     lines.push({l:`Transfer privat (${apt==='baneasa'?'Băneasa':'Otopeni'})`,v:`${base} lei`});
   } else {
@@ -391,8 +437,9 @@ function calcPrice(){
     linesEl.innerHTML='<div class="pl"><span>Transfer Business</span><span>În curând</span></div>';
     return;
   }
-  if(bags>0){ const bc=bags*20; total+=bc; lines.push({l:`${bags} bagaj supli. × 20 lei`,v:`${bc} lei`}); }
-  linesEl.innerHTML=lines.map(({l,v})=>`<div class="pl"><span>${l}</span><span>${v}</span></div>`).join('');
+  if(bags>0){ const bc=bags*25; total+=bc; lines.push({l:`${bags} bagaj supli. × 25 lei`,v:`${bc} lei`}); }
+  if(_voucherDiscount>0&&total>0){ const d=Math.min(_voucherDiscount,total); lines.push({l:`Voucher ${_voucherCode}`,v:`-${d} lei`,disc:true}); total=Math.max(0,total-d); }
+  linesEl.innerHTML=lines.map(({l,v,disc})=>`<div class="pl${disc?' discount':''}"><span>${l}</span><span>${v}</span></div>`).join('');
   totalEl.textContent=`${total} lei`;
 }
 
@@ -423,7 +470,7 @@ function buildMsg(){
   const dirL=dir==='tur'?'Brașov → București':'București → Brașov';
   const trL={economy:'Economy (Shared)',privat:'Privat (Dedicat)',business:'Business'}[transfer]||transfer;
   const aptL=apt==='baneasa'?'Băneasa':'Otopeni (Henri Coandă)';
-  const pickL={sala:'Sala Sporturilor (B-dul Gării)',petrom:'Petrom Calea București (McDonald\'s)',omv:'OMV Dârste (Vis-a-vis Ramada)'}[pickup]||pickup;
+  const pickL={avantgarden:'Penny Avantgarden Bartolomeu',sala:'Sala Sporturilor (B-dul Gării)',petrom:'Petrom Calea București (McDonald\'s)',omv:'OMV Dârste (Vis-a-vis Ramada)'}[pickup]||pickup;
   const tripL={c1_tur:'Cursa 1 (01:30 Brașov)',c1_ret:'Cursa 1 (06:30/07:00 București)',c2_tur:'Cursa 2 (14:00 Brașov)',c2_ret:'Cursa 2 (19:00/19:30 București)'}[trip]||trip;
   return `🚐 *REZERVARE DELTA AIR SHUTTLE*\n\n`+
     `📋 *Detalii cursă:*\n`+
@@ -431,7 +478,7 @@ function buildMsg(){
     (dir==='tur'?`• Punct îmbarcare: ${pickL}\n`:'')+
     `• Tip transfer: ${trL}\n\n`+
     `👥 *Pasageri:*\n• Adulți: ${adults}\n• Copii: ${children}\n• Bagaj suplimentar: ${bags} buc\n\n`+
-    `💰 *Total estimat: ${total}*\n\n`+
+    `💰 *Total estimat: ${total}*${_voucherCode?` (voucher ${_voucherCode}: -${_voucherDiscount} lei)`:''}` +`\n\n`+
     `👤 *Contact:*\n• Nume: ${name}\n• Telefon: ${phone}\n• Email: ${email}\n• Nr. zbor: ${flight}\n• Observații: ${notes}`;
 }
 

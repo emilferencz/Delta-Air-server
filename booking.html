@@ -251,7 +251,7 @@ img{max-width:100%;height:auto}
               <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30 / 14:00</option>
               <option value="petrom">Petrom Calea București (McDonald's) – 01:35 / 14:05</option>
               <option value="omv">OMV Dârste (opposite Ramada) – 01:40 / 14:10</option>
-              <option value="avantgarden">Penny Avantgarden Bartolomeu – 01:45 / 14:15</option>
+              <option value="avantgarden">🅿 Penny Avantgarden Bartolomeu – 01:00 / 13:30</option>
             </select>
           </div>
         </div>
@@ -460,7 +460,7 @@ function buildMsg(){
   const dirL=dir==='tur'?'Brașov → Bucharest':'Bucharest → Brașov';
   const trL={economy:'Economy (Shared)',privat:'Private (Dedicated)',business:'Business'}[transfer]||transfer;
   const aptL=apt==='baneasa'?'Băneasa':'Otopeni (Henri Coandă)';
-  const pickL={sala:'Sala Sporturilor (B-dul Gării)',petrom:'Petrom Calea București (McDonald\'s)',omv:'OMV Dârste (opposite Ramada)'}[pickup]||pickup;
+  const pickL={avantgarden:'Penny Avantgarden Bartolomeu',sala:'Sala Sporturilor (B-dul Gării)',petrom:'Petrom Calea București (McDonald\'s)',omv:'OMV Dârste (opposite Ramada)'}[pickup]||pickup;
   const tripL={c1_tur:'Trip 1 (01:30 Brașov)',c1_ret:'Trip 1 (06:30/07:00 Bucharest)',c2_tur:'Trip 2 (14:00 Brașov)',c2_ret:'Trip 2 (19:00/19:30 Bucharest)'}[trip]||trip;
   return `🚐 *BOOKING – DELTA AIR SHUTTLE*\n\n`+
     `📋 *Trip details:*\n`+
