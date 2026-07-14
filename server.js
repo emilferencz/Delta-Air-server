@@ -1788,7 +1788,7 @@ app.post('/api/netopia-initiate', async (req, res) => {
     const token = crypto.randomBytes(16).toString('hex');
     const orderID = `DAS-${Date.now()}`;
     if (!meta.confirmedAt) meta.confirmedAt = new Date().toISOString();
-    meta.payMethod = 'card';
+    meta.payMethod = 'netopia';
     meta._netopiaOrderID = orderID;
     contractStore.set(`netopia-${token}`, { meta, createdAt: Date.now() });
     contractStore.set(`netopia-order-${orderID}`, { meta, createdAt: Date.now() });
