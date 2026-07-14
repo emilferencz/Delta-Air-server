@@ -420,10 +420,10 @@
     <div class="field-group" id="das-pickup-row">
       <label>Punct de îmbarcare în Brașov</label>
       <select id="das-pickup" onchange="dasUpdate()">
-        <option value="avantgarden">🅿 Penny Avantgarden Bartolomeu – 01:00 / 13:30</option>
         <option value="sala">Sala Sporturilor (B-dul Gării) – 01:30</option>
         <option value="petrom">Petrom Calea București (McDonald's) – 01:35</option>
         <option value="omv">OMV Dârste (vis-a-vis Ramada) – 01:40</option>
+        <option value="avantgarden">🅿 Penny Avantgarden Bartolomeu – 01:00 / 13:30</option>
       </select>
     </div>
 
@@ -845,10 +845,10 @@ function dasUpdate() {
     const dep = sch.depart || {};
     const sel = g('das-pickup');
     if (sel) {
-      sel.options[0].text = `🅿 Penny Avantgarden Bartolomeu – ${dep.avantgarden||''}`;
-      sel.options[1].text = `Sala Sporturilor (B-dul Gării) – ${dep.sala||''}`;
-      sel.options[2].text = `Petrom Calea București (McDonald's) – ${dep.petrom||''}`;
-      sel.options[3].text = `OMV Dârste (vis-a-vis Ramada) – ${dep.omv||''}`;
+      sel.options[0].text = `Sala Sporturilor (B-dul Gării) – ${dep.sala||''}`;
+      sel.options[1].text = `Petrom Calea București (McDonald's) – ${dep.petrom||''}`;
+      sel.options[2].text = `OMV Dârste (vis-a-vis Ramada) – ${dep.omv||''}`;
+      sel.options[3].text = `🅿 Penny Avantgarden Bartolomeu – ${dep.avantgarden||''}`;
     }
     const arrTime = sch.arrive?.[apt] || '';
     if(g('das-dest')) g('das-dest').value = `${APT_LABELS[apt]} · sosire ${arrTime}`;
