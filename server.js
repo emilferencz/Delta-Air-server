@@ -421,7 +421,7 @@ async function sendConfirmationEmail(customerEmail, meta) {
 /* ──────────────────────────────────────────────
    POST /api/validate-voucher
 ────────────────────────────────────────────── */
-app.post('/api/validate-voucher', express.json(), (req, res) => {
+app.post('/api/validate-voucher', cors(), express.json(), (req, res) => {
   const code    = (req.body?.code   || '').trim().toUpperCase();
   const pickup  = (req.body?.pickup || '').toLowerCase();
   const voucher = VOUCHERS[code];
