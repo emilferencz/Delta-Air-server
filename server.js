@@ -1953,9 +1953,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
     if (voucherCode) {
       const vc = VOUCHERS[(voucherCode || '').toUpperCase()];
       if (vc) {
-        discounts = [{ coupon: vc.stripeCouponId }];
-        meta.voucherCode     = voucherCode.toUpperCase();
-        meta.voucherDiscount = vc.discount;
+        if (vc.stripeCouponId) discounts = [{ coupon: vc.stripeCouponId }];
+        if (!meta.voucherCode) { meta.voucherCode = voucherCode.toUpperCase(); meta.voucherDiscount = vc.discount; }
       }
     }
 

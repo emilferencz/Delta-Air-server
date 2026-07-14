@@ -1403,6 +1403,8 @@ async function dasGoToPayment(){
       if(bags>0){var rbc=Math.round(bags*25*RM);total+=rbc;lineItems.push({name:'Bagaje extra retur ('+bags+') -20%',description:'20 lei/bagaj',amount:rbc*100,quantity:1});}
       bookingData.total=total;
     }
+    const effVoucherDisc=_voucherDiscount>0?(_voucherPerPerson?_voucherDiscount*(adults+children):_voucherDiscount):0;
+    if(effVoucherDisc>0){total=Math.max(0,total-effVoucherDisc);bookingData.total=total;bookingData.voucherCode=_voucherCode;bookingData.voucherDiscount=effVoucherDisc;if(lineItems.length>0)lineItems[0].amount=Math.max(0,lineItems[0].amount-effVoucherDisc*100);}
     if(sigIsEmpty()){alert('Te rugăm să adaugi semnătura electronică înainte de confirmare.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
     if(!document.getElementById('sig-agree-cb').checked){alert('Te rugăm să bifezi acordul cu Termenii și Condițiile.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
     if(!sigIsEmpty()) { bookingData.signatureDataUrl=sigDataURL(); bookingData.signedAt=new Date().toISOString(); }
@@ -1499,6 +1501,8 @@ async function dasPayCash() {
       bookingData.total=total;
     }
 
+    const effVoucherDiscCash=_voucherDiscount>0?(_voucherPerPerson?_voucherDiscount*(adults+children):_voucherDiscount):0;
+    if(effVoucherDiscCash>0){total=Math.max(0,total-effVoucherDiscCash);bookingData.total=total;bookingData.voucherCode=_voucherCode;bookingData.voucherDiscount=effVoucherDiscCash;}
     // Colectează numele pasagerilor
     const paxNames=[];
     document.querySelectorAll('input[id^="das-pax-"]').forEach(el=>{if(el.value.trim())paxNames.push(el.value.trim());});
