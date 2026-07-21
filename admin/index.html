@@ -195,6 +195,10 @@
     .slot-bar-wrap{background:#e5e7eb;border-radius:4px;height:7px;overflow:hidden}
     .slot-bar-fill{height:100%;border-radius:4px;transition:width .3s}
     .slot-status{font-size:.65rem;color:var(--gray);margin-top:5px}
+    .btn-block-slot{width:100%;margin-top:7px;background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:5px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-block-slot:hover{background:#fecaca}
+    .btn-unblock-slot{width:100%;margin-top:7px;background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .btn-unblock-slot:hover{background:#bbf7d0}
 
     /* Edit modal form */
     .egroup{margin-bottom:15px}
@@ -986,17 +990,23 @@ function retColor(pax) {
 function renderAnnualCalendar() {
   document.getElementById('ann-year-title').textContent = _annualYear;
 
-  // collect blocked dates and group non-blocat active bookings by date
-  const blockedDates = new Set();
+  // collect blocked slots per date; mark fully blocked only when all 4 slots are blocked
+  const _blockedSlotsByDate = {};
   const byDate = {};
   _annualBookings.filter(b => b.status !== 'cancelled').forEach(b => {
     const key = b.trip_date.slice(0, 10);
-    if (b.transfer_type === 'blocat') { blockedDates.add(key); return; }
+    if (b.transfer_type === 'blocat') {
+      _blockedSlotsByDate[key] = (_blockedSlotsByDate[key] || 0) + 1;
+      return;
+    }
     if (!byDate[key]) byDate[key] = { tur: 0, retur: 0 };
     const pax = parseInt(b.passengers || 1);
     if (b.direction === 'tur') byDate[key].tur += pax;
     else                        byDate[key].retur += pax;
   });
+  const blockedDates = new Set(
+    Object.entries(_blockedSlotsByDate).filter(([, n]) => n >= 4).map(([d]) => d)
+  );
 
   const DOW_LABELS = ['L','M','M','J','V','S','D'];
   let html = '';
@@ -1061,7 +1071,10 @@ function _openDayModal(dateStr, bks) {
   const dayNames = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
   document.getElementById('day-modal-title').textContent = `${dayNames[dtObj.getDay()]}, ${+d} ${MONTHS[+m-1]} ${y}`;
   const allDayBks = bks.filter(b => b.trip_date.slice(0,10) === dateStr);
-  const isBlocked = allDayBks.some(b => b.transfer_type === 'blocat' && b.status !== 'cancelled');
+  const blockedSlots = new Set(
+    allDayBks.filter(b => b.transfer_type === 'blocat' && b.status !== 'cancelled')
+              .map(b => `${b.direction}|${b.trip_time}`)
+  );
   const dayBks = allDayBks.filter(b => b.transfer_type !== 'blocat');
 
   /* ── Panou locuri disponibile ── */
@@ -1071,6 +1084,8 @@ function _openDayModal(dateStr, bks) {
     { dir:'retur', time:'07:00', lbl:'↓ Retur 07:00' },
     { dir:'retur', time:'19:30', lbl:'↓ Retur 19:30' },
   ];
+  const isFullyBlocked = SLOTS_DEF.every(s => blockedSlots.has(`${s.dir}|${s.time}`));
+  const hasAnyBlocked  = blockedSlots.size > 0;
   function _slotCap(tripTime) {
     if (!_vehicles.length) return 7;
     const c = _vehicles.filter(v => v.status==='activ' && [v.tur_c1,v.tur_c2,v.retur_c1,v.retur_c2].includes(tripTime))
@@ -1082,7 +1097,7 @@ function _openDayModal(dateStr, bks) {
     const cap  = _slotCap(s.time);
     const occ  = allDayBks.filter(b => b.direction===s.dir && b.trip_time===s.time && b.status!=='cancelled' && b.transfer_type!=='blocat')
                            .reduce((sum,b)=>sum+parseInt(b.passengers||0),0);
-    const blk  = isBlocked;
+    const blk  = blockedSlots.has(`${s.dir}|${s.time}`);
     const free = Math.max(0, cap - occ);
     const pct  = blk ? 100 : Math.min(100, Math.round(occ / cap * 100));
     const barColor = blk ? '#ef4444' : pct>=100 ? '#dc2626' : pct>=70 ? '#f59e0b' : '#22c55e';
@@ -1091,11 +1106,15 @@ function _openDayModal(dateStr, bks) {
       <div class="slot-head"><span class="slot-lbl">${s.lbl}</span><span class="slot-cnt">${blk?'—':occ}/${cap}</span></div>
       <div class="slot-bar-wrap"><div class="slot-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
       <div class="slot-status">${statusTxt}</div>
+      ${blk
+        ? `<button class="btn-unblock-slot" onclick="unblockSlot('${dateStr}','${s.dir}','${s.time}')">🔓 Deblochează</button>`
+        : `<button class="btn-block-slot" onclick="blockSlot('${dateStr}','${s.dir}','${s.time}')">🔒 Blochează cursa</button>`
+      }
     </div>`;
   });
   html += '</div>';
 
-  if (isBlocked) {
+  if (isFullyBlocked) {
     html += `<div class="no-bk" style="color:#dc2626;font-weight:700">🔒 Zi blocată — toate cursele sunt indisponibile.</div>`;
   }
   if (dayBks.length) {
@@ -1130,15 +1149,18 @@ function _openDayModal(dateStr, bks) {
       </div>`;
       html += '</div>';
     });
-  } else if (!isBlocked) {
+  } else if (!isFullyBlocked) {
     html += '<div class="no-bk">Nicio rezervare în această zi.</div>';
   }
   html += `<div style="margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">`;
   html += `<button class="btn-new-bk" onclick="openNewBooking('${dateStr}')">+ Rezervare manuală</button>`;
-  if (isBlocked) {
+  if (isFullyBlocked) {
     html += `<button class="btn-unblock-day" onclick="unblockDay('${dateStr}')">🔓 Deblochează ziua</button>`;
   } else {
     html += `<button class="btn-block-day" onclick="blockDay('${dateStr}')">🔒 Blochează ziua</button>`;
+    if (hasAnyBlocked) {
+      html += `<button class="btn-unblock-day" onclick="unblockDay('${dateStr}')">🔓 Deblochează toate</button>`;
+    }
   }
   html += `</div>`;
   document.getElementById('day-modal-body').innerHTML = html;
@@ -1236,6 +1258,36 @@ async function unblockDay(dateStr) {
       method: 'DELETE',
       headers: {...authHdrs(), 'Content-Type':'application/json'},
       body: JSON.stringify({ date: dateStr })
+    });
+    if (r.status === 401) { doLogout(); return; }
+    if (!r.ok) { const d=await r.json(); alert('Eroare: '+(d.error||'necunoscut')); return; }
+    await loadMonth();
+    if (document.getElementById('ann-section').style.display !== 'none') await loadAnnualCalendar();
+    _openDayModal(dateStr, _dayModalFromAnnual ? _annualBookings : _bookings);
+  } catch(e) { alert('Eroare de rețea: '+e.message); }
+}
+
+async function blockSlot(dateStr, direction, tripTime) {
+  try {
+    const r = await fetch(`${SERVER}/api/admin/block-day`, {
+      method: 'POST',
+      headers: {...authHdrs(), 'Content-Type':'application/json'},
+      body: JSON.stringify({ date: dateStr, direction, trip_time: tripTime })
+    });
+    if (r.status === 401) { doLogout(); return; }
+    if (!r.ok) { const d=await r.json(); alert('Eroare: '+(d.error||'necunoscut')); return; }
+    await loadMonth();
+    if (document.getElementById('ann-section').style.display !== 'none') await loadAnnualCalendar();
+    _openDayModal(dateStr, _dayModalFromAnnual ? _annualBookings : _bookings);
+  } catch(e) { alert('Eroare de rețea: '+e.message); }
+}
+
+async function unblockSlot(dateStr, direction, tripTime) {
+  try {
+    const r = await fetch(`${SERVER}/api/admin/block-day`, {
+      method: 'DELETE',
+      headers: {...authHdrs(), 'Content-Type':'application/json'},
+      body: JSON.stringify({ date: dateStr, direction, trip_time: tripTime })
     });
     if (r.status === 401) { doLogout(); return; }
     if (!r.ok) { const d=await r.json(); alert('Eroare: '+(d.error||'necunoscut')); return; }

@@ -2579,28 +2579,27 @@ app.post('/api/date-facturare', express.json(), async (req, res) => {
 
 /* ── Block / unblock zi ──────────────────────────────────────────── */
 
-/* POST /api/admin/block-day */
+/* POST /api/admin/block-day  — blochează toată ziua SAU un slot (direction+trip_time) */
 app.post('/api/admin/block-day', adminAuth, express.json(), async (req, res) => {
   if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
-  const { date } = req.body || {};
+  const { date, direction, trip_time } = req.body || {};
   if (!date) return res.status(400).json({ error: 'Câmp obligatoriu: date.' });
   try {
-    /* Calculează capacitatea totală per slot (suma vehiculelor active pe fiecare orar) */
-    const slots = [
-      { direction: 'tur',   trip_time: TRIP_TIMES.tur.c1 },
-      { direction: 'tur',   trip_time: TRIP_TIMES.tur.c2 },
-      { direction: 'retur', trip_time: TRIP_TIMES.retur.c1 },
-      { direction: 'retur', trip_time: TRIP_TIMES.retur.c2 },
-    ];
+    const slots = (direction && trip_time)
+      ? [{ direction, trip_time }]
+      : [
+        { direction: 'tur',   trip_time: TRIP_TIMES.tur.c1 },
+        { direction: 'tur',   trip_time: TRIP_TIMES.tur.c2 },
+        { direction: 'retur', trip_time: TRIP_TIMES.retur.c1 },
+        { direction: 'retur', trip_time: TRIP_TIMES.retur.c2 },
+      ];
     for (const slot of slots) {
-      /* Verifică dacă există deja un blocat activ pentru slotul acesta */
       const { rows: existing } = await db.query(
         `SELECT id FROM bookings WHERE trip_date=$1 AND trip_time=$2 AND direction=$3
          AND transfer_type='blocat' AND status='confirmed' LIMIT 1`,
         [date, slot.trip_time, slot.direction]
       );
       if (existing.length) continue;
-      /* Sumă capacități vehicule active pe slotul acesta */
       const { rows: veh } = await db.query(
         `SELECT COALESCE(SUM(capacity), ${CAPACITY}) AS total_cap
          FROM vehicles WHERE status='activ' AND $1 IN (tur_c1, tur_c2, retur_c1, retur_c2)`,
@@ -2615,22 +2614,34 @@ app.post('/api/admin/block-day', adminAuth, express.json(), async (req, res) => 
         [date, slot.trip_time, slot.direction, slotCap, vehicleId]
       );
     }
-    console.log(`🔒 Zi blocată: ${date}`);
+    const label = (direction && trip_time) ? `${date} ${direction} ${trip_time}` : `zi ${date}`;
+    console.log(`🔒 Blocat: ${label}`);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-/* DELETE /api/admin/block-day */
+/* DELETE /api/admin/block-day  — deblochează toată ziua SAU un slot (direction+trip_time) */
 app.delete('/api/admin/block-day', adminAuth, express.json(), async (req, res) => {
   if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
-  const { date } = req.body || {};
+  const { date, direction, trip_time } = req.body || {};
   if (!date) return res.status(400).json({ error: 'Câmp obligatoriu: date.' });
   try {
-    await db.query(
-      `UPDATE bookings SET status='cancelled' WHERE trip_date=$1 AND transfer_type='blocat' AND status='confirmed'`,
-      [date]
-    );
-    console.log(`🔓 Zi deblocată: ${date}`);
+    if (direction && trip_time) {
+      await db.query(
+        `UPDATE bookings SET status='cancelled'
+         WHERE trip_date=$1 AND direction=$2 AND trip_time=$3
+           AND transfer_type='blocat' AND status='confirmed'`,
+        [date, direction, trip_time]
+      );
+      console.log(`🔓 Deblocat: ${date} ${direction} ${trip_time}`);
+    } else {
+      await db.query(
+        `UPDATE bookings SET status='cancelled'
+         WHERE trip_date=$1 AND transfer_type='blocat' AND status='confirmed'`,
+        [date]
+      );
+      console.log(`🔓 Zi deblocată: ${date}`);
+    }
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
