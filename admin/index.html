@@ -353,6 +353,30 @@
       </div>
     </div>
 
+    <!-- Calendar nav -->
+    <div class="cal-nav">
+      <button class="ico-btn" onclick="moveMonth(-1)">&#8592;</button>
+      <h2 id="cal-title">—</h2>
+      <button class="ico-btn" onclick="moveMonth(1)">&#8594;</button>
+      <button class="today-btn" onclick="goToday()">Azi</button>
+    </div>
+
+    <!-- Calendar -->
+    <div class="cal">
+      <div class="cal-head">
+        <div class="cal-hc">LU</div><div class="cal-hc">MA</div><div class="cal-hc">MI</div>
+        <div class="cal-hc">JO</div><div class="cal-hc">VI</div><div class="cal-hc">SÂ</div>
+        <div class="cal-hc">DU</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+
+    <div class="legend">
+      <div class="leg-i"><div class="leg-d" style="background:#dbeafe"></div> Tur</div>
+      <div class="leg-i"><div class="leg-d" style="background:#fef3c7"></div> Retur</div>
+      <div class="leg-i"><div class="leg-d" style="background:#f3f4f6"></div> Anulat</div>
+    </div>
+
     <!-- Annual Calendar -->
     <div class="ann-section" id="ann-section" style="display:none">
       <div class="ann-nav">
@@ -376,30 +400,6 @@
         <div class="ann-leg-item"><div class="ann-leg-sq" style="background:#ef4444;opacity:.65"></div> Zi blocată</div>
         <div class="ann-leg-item" style="margin-left:auto;font-style:italic">Click pe lună → calendar lunar</div>
       </div>
-    </div>
-
-    <!-- Calendar nav -->
-    <div class="cal-nav">
-      <button class="ico-btn" onclick="moveMonth(-1)">&#8592;</button>
-      <h2 id="cal-title">—</h2>
-      <button class="ico-btn" onclick="moveMonth(1)">&#8594;</button>
-      <button class="today-btn" onclick="goToday()">Azi</button>
-    </div>
-
-    <!-- Calendar -->
-    <div class="cal">
-      <div class="cal-head">
-        <div class="cal-hc">LU</div><div class="cal-hc">MA</div><div class="cal-hc">MI</div>
-        <div class="cal-hc">JO</div><div class="cal-hc">VI</div><div class="cal-hc">SÂ</div>
-        <div class="cal-hc">DU</div>
-      </div>
-      <div class="cal-grid" id="cal-grid"></div>
-    </div>
-
-    <div class="legend">
-      <div class="leg-i"><div class="leg-d" style="background:#dbeafe"></div> Tur</div>
-      <div class="leg-i"><div class="leg-d" style="background:#fef3c7"></div> Retur</div>
-      <div class="leg-i"><div class="leg-d" style="background:#f3f4f6"></div> Anulat</div>
     </div>
   </div>
 </div>
