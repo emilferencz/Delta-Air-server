@@ -713,6 +713,8 @@ function showDash() {
   document.getElementById('dash-wrap').style.display='block';
   const u = document.getElementById('hdr-user');
   if (u) u.textContent = _adminUser ? `👤 ${_adminUser}` : '';
+  const resetBtn = document.querySelector('.adm-reset');
+  if (resetBtn) resetBtn.style.display = _adminUser === 'admin' ? '' : 'none';
   loadVehicles();
   loadMonth();
   loadAnnualCalendar();
