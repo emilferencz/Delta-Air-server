@@ -199,6 +199,16 @@
     .btn-block-slot:hover{background:#fecaca}
     .btn-unblock-slot{width:100%;margin-top:7px;background:#dcfce7;color:#166534;border:none;border-radius:6px;padding:5px 8px;font-size:.68rem;font-weight:700;cursor:pointer;font-family:inherit}
     .btn-unblock-slot:hover{background:#bbf7d0}
+    .adm-audit-btn{background:#1e3a6e;color:#a0b8d8;border:none;border-radius:8px;padding:7px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .adm-audit-btn:hover{background:#243d75;color:#fff}
+    .adm-pwd-btn{background:#1e3a6e;color:#a0b8d8;border:none;border-radius:8px;padding:7px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .adm-pwd-btn:hover{background:#243d75;color:#fff}
+    .audit-row{display:grid;grid-template-columns:140px 80px 130px 1fr;gap:6px;padding:6px 8px;border-bottom:1px solid #f0f2f8;align-items:start}
+    .audit-row:hover{background:#f8faff}
+    .audit-row .a-time{color:#9090b0;font-size:.72rem}
+    .audit-row .a-user{font-weight:800;color:#0a1e4d}
+    .audit-row .a-action{color:#2563eb;font-weight:700}
+    .audit-row .a-detail{color:#4a6080}
 
     /* Edit modal form */
     .egroup{margin-bottom:15px}
@@ -238,6 +248,9 @@
   <div class="adm-hdr">
     <img src="/img/logo-p3.png" alt="Delta Air Shuttle">
     <span class="title">Dashboard Rezervări</span>
+    <span id="hdr-user" style="font-size:.78rem;font-weight:700;color:#a0b8d8;margin-left:auto;padding-right:10px"></span>
+    <button class="adm-audit-btn" onclick="openAuditLog()">📋 Audit</button>
+    <button class="adm-pwd-btn" onclick="openChangePwd()">🔑 Parolă</button>
     <button class="adm-reset" onclick="masterReset()">🗑 Reset</button>
     <button class="adm-logout" onclick="doLogout()">⎋ Ieși</button>
   </div>
@@ -402,6 +415,42 @@
   </div>
 </div>
 
+<!-- Modal schimbare parolă -->
+<div class="mbk" id="pwd-modal">
+  <div class="mbox" style="max-width:380px">
+    <div class="mhdr">
+      <h3>🔑 Schimbă parola</h3>
+      <button class="mclose" onclick="closeModal('pwd-modal')">✕</button>
+    </div>
+    <div class="mbody" style="padding:20px">
+      <div class="egroup"><label class="elabel">Parola curentă</label><input class="einput" type="password" id="pwd-current" placeholder="Parola actuală"></div>
+      <div class="egroup"><label class="elabel">Parola nouă</label><input class="einput" type="password" id="pwd-new" placeholder="Minim 6 caractere"></div>
+      <div class="egroup"><label class="elabel">Confirmă parola nouă</label><input class="einput" type="password" id="pwd-confirm" placeholder="Repetă parola nouă"></div>
+      <div id="pwd-err" style="color:#dc2626;font-size:.8rem;margin-bottom:8px"></div>
+      <button class="btn-save" onclick="doChangePwd()">Salvează parola</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal audit log -->
+<div class="mbk" id="audit-modal">
+  <div class="mbox" style="max-width:720px">
+    <div class="mhdr">
+      <h3>📋 Audit Log</h3>
+      <button class="mclose" onclick="closeModal('audit-modal')">✕</button>
+    </div>
+    <div class="mbody" style="padding:16px">
+      <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
+        <select id="audit-filter-user" class="einput" style="width:160px;padding:6px 10px" onchange="loadAuditLog()">
+          <option value="">Toți userii</option>
+        </select>
+        <button onclick="loadAuditLog()" style="background:#0a1e4d;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:.8rem;font-weight:700;cursor:pointer">↻ Reîncarcă</button>
+      </div>
+      <div id="audit-body" style="font-size:.78rem;max-height:450px;overflow-y:auto"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL: EDITARE ══ -->
 <div class="mbk" id="edit-modal">
   <div class="mbox">
@@ -530,8 +579,10 @@
 
 <script>
 const SERVER = 'https://delta-air-server-production.up.railway.app';
-const TOK_KEY = 'das_admin_tok';
-let _tok = localStorage.getItem(TOK_KEY) || '';
+const TOK_KEY  = 'das_admin_tok';
+const USER_KEY = 'das_admin_user';
+let _tok      = localStorage.getItem(TOK_KEY)  || '';
+let _adminUser = localStorage.getItem(USER_KEY) || '';
 let _year = new Date().getFullYear();
 let _month = new Date().getMonth(); // 0-indexed
 let _bookings = [];
@@ -558,7 +609,9 @@ async function doLogin(e) {
     const d = await r.json();
     if (!r.ok) { document.getElementById('login-err').textContent = d.error || 'Eroare.'; btn.disabled=false; btn.textContent='Intră în dashboard'; return; }
     _tok = d.token;
+    _adminUser = d.username || '';
     localStorage.setItem(TOK_KEY, _tok);
+    localStorage.setItem(USER_KEY, _adminUser);
     showDash();
   } catch(err) {
     document.getElementById('login-err').textContent = 'Serverul nu răspunde.';
@@ -566,9 +619,81 @@ async function doLogin(e) {
   }
 }
 function doLogout() {
-  localStorage.removeItem(TOK_KEY); _tok='';
+  localStorage.removeItem(TOK_KEY); localStorage.removeItem(USER_KEY);
+  _tok=''; _adminUser='';
   document.getElementById('dash-wrap').style.display='none';
   document.getElementById('login-wrap').style.display='flex';
+}
+function openChangePwd() {
+  document.getElementById('pwd-current').value = '';
+  document.getElementById('pwd-new').value = '';
+  document.getElementById('pwd-confirm').value = '';
+  document.getElementById('pwd-err').textContent = '';
+  openModal('pwd-modal');
+}
+async function doChangePwd() {
+  const cur = document.getElementById('pwd-current').value;
+  const nw  = document.getElementById('pwd-new').value;
+  const cf  = document.getElementById('pwd-confirm').value;
+  const err = document.getElementById('pwd-err');
+  err.textContent = '';
+  if (!cur || !nw || !cf) { err.textContent = 'Completează toate câmpurile.'; return; }
+  if (nw !== cf) { err.textContent = 'Parolele noi nu coincid.'; return; }
+  if (nw.length < 6) { err.textContent = 'Parola nouă trebuie să aibă minim 6 caractere.'; return; }
+  try {
+    const r = await fetch(`${SERVER}/api/admin/change-password`, {
+      method: 'POST',
+      headers: {...authHdrs(), 'Content-Type':'application/json'},
+      body: JSON.stringify({ current_pass: cur, new_pass: nw })
+    });
+    const d = await r.json();
+    if (!r.ok) { err.textContent = d.error || 'Eroare.'; return; }
+    closeModal('pwd-modal');
+    alert('✅ Parola a fost schimbată cu succes!');
+  } catch(e) { err.textContent = 'Eroare de rețea.'; }
+}
+async function openAuditLog() {
+  openModal('audit-modal');
+  try {
+    const ru = await fetch(`${SERVER}/api/admin/users`, { headers: authHdrs() });
+    if (ru.ok) {
+      const users = await ru.json();
+      const sel = document.getElementById('audit-filter-user');
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">Toți userii</option>' +
+        users.map(u => `<option value="${u.username}"${u.username===cur?' selected':''}>${u.username}</option>`).join('');
+    }
+  } catch {}
+  await loadAuditLog();
+}
+async function loadAuditLog() {
+  const user = document.getElementById('audit-filter-user').value;
+  const body = document.getElementById('audit-body');
+  body.innerHTML = '<div style="color:#9090a0;padding:8px">Se încarcă...</div>';
+  try {
+    const url = `${SERVER}/api/admin/audit-log?limit=200${user ? '&username='+encodeURIComponent(user) : ''}`;
+    const r = await fetch(url, { headers: authHdrs() });
+    if (r.status === 401) { doLogout(); return; }
+    const rows = await r.json();
+    if (!rows.length) { body.innerHTML = '<div style="color:#9090a0;padding:8px">Nicio înregistrare.</div>'; return; }
+    const ACTION_LABELS = {
+      'login':'🔐 Login','logout':'🔓 Logout','edit-booking':'✏ Edit rezervare',
+      'create-booking':'➕ Rezervare nouă','cancel-booking':'✕ Anulare rezervare',
+      'download-contract':'📄 Contract','download-invoice':'🧾 Factură',
+      'block-day':'🔒 Blocare','unblock-day':'🔓 Deblocare','change-password':'🔑 Schimb parolă'
+    };
+    body.innerHTML = rows.map(r => {
+      const dt = new Date(r.created_at);
+      const time = dt.toLocaleDateString('ro-RO',{day:'2-digit',month:'2-digit'}) + ' ' + dt.toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+      const lbl = ACTION_LABELS[r.action] || r.action;
+      return `<div class="audit-row">
+        <span class="a-time">${time}</span>
+        <span class="a-user">${r.username}</span>
+        <span class="a-action">${lbl}</span>
+        <span class="a-detail">${r.details || ''}</span>
+      </div>`;
+    }).join('');
+  } catch(e) { body.innerHTML = `<div style="color:#dc2626;padding:8px">Eroare: ${e.message}</div>`; }
 }
 async function masterReset() {
   if (!confirm('⚠️ ATENȚIE: Această acțiune șterge DEFINITIV toate rezervările din baza de date.\n\nContinui?')) return;
@@ -586,6 +711,8 @@ async function masterReset() {
 function showDash() {
   document.getElementById('login-wrap').style.display='none';
   document.getElementById('dash-wrap').style.display='block';
+  const u = document.getElementById('hdr-user');
+  if (u) u.textContent = _adminUser ? `👤 ${_adminUser}` : '';
   loadVehicles();
   loadMonth();
   loadAnnualCalendar();

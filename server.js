@@ -39,6 +39,26 @@ const VOUCHERS = {
   'MAURER-20': { discount: 20, perPerson: true, label: 'Reducere parteneri Avantgarden Maurer', pickupRequired: 'avantgarden', stripeCouponId: null },
 };
 
+/* ── Admin password helpers (crypto.scrypt built-in) ── */
+async function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (err, key) =>
+      err ? reject(err) : resolve(`${salt}:${key.toString('hex')}`)
+    );
+  });
+}
+async function verifyPassword(password, stored) {
+  const [salt, key] = stored.split(':');
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, 64, (err, derived) => {
+      if (err) return reject(err);
+      try { resolve(crypto.timingSafeEqual(Buffer.from(key, 'hex'), derived)); }
+      catch { resolve(false); }
+    });
+  });
+}
+
 async function initDB() {
   if (!db) { console.warn('⚠️  DATABASE_URL lipsă — disponibilitate dezactivată'); return; }
   await db.query(`
@@ -111,7 +131,43 @@ async function initDB() {
   `);
   /* Migrare rezervări existente → vehicul implicit */
   await db.query(`UPDATE bookings SET vehicle_id = (SELECT id FROM vehicles ORDER BY id LIMIT 1) WHERE vehicle_id IS NULL`);
-  console.log('✅ DB bookings + vehicles gata');
+
+  /* ── Tabel utilizatori admin ── */
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      id            SERIAL PRIMARY KEY,
+      username      VARCHAR(50) UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at    TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  /* ── Tabel audit log ── */
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS admin_audit_log (
+      id         SERIAL PRIMARY KEY,
+      username   VARCHAR(50) NOT NULL,
+      action     VARCHAR(100) NOT NULL,
+      details    TEXT,
+      ip         VARCHAR(45),
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  /* Seed utilizatori inițiali (o singură dată) */
+  const _SEED_USERS = [
+    { username: 'admin',  pass: process.env.ADMIN_PASS || 'deltaair2026' },
+    { username: 'paul',   pass: 'Paul@Delta-Air' },
+    { username: 'bogdan', pass: 'Bogdan@Delta-Air' },
+    { username: 'doru',   pass: 'Doru@Delta-Air' },
+  ];
+  for (const u of _SEED_USERS) {
+    const { rows: ex } = await db.query(`SELECT id FROM admin_users WHERE username=$1`, [u.username]);
+    if (!ex.length) {
+      const hash = await hashPassword(u.pass);
+      await db.query(`INSERT INTO admin_users (username, password_hash) VALUES ($1,$2)`, [u.username, hash]);
+      console.log(`👤 User admin creat: ${u.username}`);
+    }
+  }
+  console.log('✅ DB bookings + vehicles + admin_users gata');
 }
 
 async function savePendingPayment(token, meta) {
@@ -2173,40 +2229,102 @@ app.get('/health', (_req, res) => {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   ADMIN API — autentificare simplă + CRUD rezervări
-   Env vars: ADMIN_USER, ADMIN_PASS, ADMIN_SECRET
+   ADMIN API — autentificare multi-user + audit log
 ══════════════════════════════════════════════════════════════ */
-const ADMIN_USER   = process.env.ADMIN_USER   || 'admin';
-const ADMIN_PASS   = process.env.ADMIN_PASS   || 'deltaair2026';
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'das-admin-secret-2026';
-const ADMIN_TTL    = 12 * 60 * 60 * 1000; // 12 ore
+const ADMIN_TTL    = 12 * 60 * 60 * 1000;
 
-function genAdminToken() {
-  const ts = Date.now().toString();
-  const sig = crypto.createHmac('sha256', ADMIN_SECRET).update(ts).digest('hex');
-  return `${ts}.${sig}`;
+/* Token: {ts}|{username_b64}.{sig} */
+function genAdminToken(username) {
+  const payload = `${Date.now()}|${Buffer.from(username).toString('base64')}`;
+  const sig = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('hex');
+  return `${payload}.${sig}`;
 }
 function checkAdminToken(token) {
   try {
-    const [ts, sig] = (token || '').split('.');
-    if (!ts || !sig) return false;
-    if (Date.now() - parseInt(ts) > ADMIN_TTL) return false;
-    const exp = crypto.createHmac('sha256', ADMIN_SECRET).update(ts).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(exp, 'hex'));
-  } catch { return false; }
+    const lastDot = (token || '').lastIndexOf('.');
+    const payload = token.slice(0, lastDot);
+    const sig     = token.slice(lastDot + 1);
+    const [ts]    = payload.split('|');
+    if (Date.now() - parseInt(ts) > ADMIN_TTL) return null;
+    const exp = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('hex');
+    if (!crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(exp, 'hex'))) return null;
+    return Buffer.from(payload.split('|')[1], 'base64').toString('utf8');
+  } catch { return null; }
 }
 function adminAuth(req, res, next) {
   const tok = (req.headers.authorization || '').replace('Bearer ', '').trim();
-  if (!checkAdminToken(tok)) return res.status(401).json({ error: 'Neautorizat.' });
+  const username = checkAdminToken(tok);
+  if (!username) return res.status(401).json({ error: 'Neautorizat.' });
+  req.adminUser = username;
   next();
+}
+async function logAudit(username, action, details, ip) {
+  if (!db) return;
+  try {
+    await db.query(
+      `INSERT INTO admin_audit_log (username, action, details, ip) VALUES ($1,$2,$3,$4)`,
+      [username, action, details || null, ip || null]
+    );
+  } catch {}
 }
 
 /* POST /api/admin/login */
-app.post('/api/admin/login', express.json(), (req, res) => {
+app.post('/api/admin/login', express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
   const { user, pass } = req.body || {};
-  if (user !== ADMIN_USER || pass !== ADMIN_PASS)
-    return res.status(401).json({ error: 'Credențiale incorecte.' });
-  res.json({ token: genAdminToken() });
+  if (!user || !pass) return res.status(400).json({ error: 'Câmpuri lipsă.' });
+  try {
+    const { rows } = await db.query(`SELECT * FROM admin_users WHERE username=$1`, [user.toLowerCase()]);
+    if (!rows.length) return res.status(401).json({ error: 'Credențiale incorecte.' });
+    const ok = await verifyPassword(pass, rows[0].password_hash);
+    if (!ok) return res.status(401).json({ error: 'Credențiale incorecte.' });
+    const token = genAdminToken(rows[0].username);
+    await logAudit(rows[0].username, 'login', null, req.ip);
+    res.json({ token, username: rows[0].username });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* POST /api/admin/change-password */
+app.post('/api/admin/change-password', adminAuth, express.json(), async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { current_pass, new_pass } = req.body || {};
+  if (!current_pass || !new_pass) return res.status(400).json({ error: 'Câmpuri lipsă.' });
+  if (new_pass.length < 6) return res.status(400).json({ error: 'Parola nouă trebuie să aibă minim 6 caractere.' });
+  try {
+    const { rows } = await db.query(`SELECT * FROM admin_users WHERE username=$1`, [req.adminUser]);
+    if (!rows.length) return res.status(404).json({ error: 'User negăsit.' });
+    const ok = await verifyPassword(current_pass, rows[0].password_hash);
+    if (!ok) return res.status(401).json({ error: 'Parola curentă incorectă.' });
+    const hash = await hashPassword(new_pass);
+    await db.query(`UPDATE admin_users SET password_hash=$1 WHERE username=$2`, [hash, req.adminUser]);
+    await logAudit(req.adminUser, 'change-password', null, req.ip);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* GET /api/admin/audit-log */
+app.get('/api/admin/audit-log', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  const { username, limit = 200 } = req.query;
+  try {
+    const cond = username ? `WHERE username=$1` : '';
+    const params = username ? [username] : [];
+    const { rows } = await db.query(
+      `SELECT id, username, action, details, ip, created_at FROM admin_audit_log ${cond} ORDER BY created_at DESC LIMIT ${parseInt(limit) || 200}`,
+      params
+    );
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+/* GET /api/admin/users */
+app.get('/api/admin/users', adminAuth, async (req, res) => {
+  if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
+  try {
+    const { rows } = await db.query(`SELECT id, username, created_at FROM admin_users ORDER BY id`);
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 /* GET /api/admin/bookings?from=YYYY-MM-DD&to=YYYY-MM-DD */
@@ -2251,6 +2369,7 @@ app.put('/api/admin/booking/:id', adminAuth, express.json(), async (req, res) =>
        transfer_type, booking_ref, status,
        meta ? JSON.stringify(meta) : null, id]
     );
+    await logAudit(req.adminUser, 'edit-booking', `#${id} — ${booking_ref || ''}`, req.ip);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -2287,6 +2406,7 @@ app.post('/api/admin/bookings', adminAuth, express.json(), async (req, res) => {
     );
     const newId = rows[0].id;
     console.log(`📋 Rezervare manuală admin: ${trip_date} ${trip_time} ${direction} — ${pax} loc(uri) [id: ${newId}]`);
+    await logAudit(req.adminUser, 'create-booking', `#${newId} — ${meta.name || ''} ${trip_date} ${trip_time}`, req.ip);
 
     /* Trimite email confirmare + internal dacă există adresă email */
     if (meta.email) {
@@ -2323,6 +2443,7 @@ app.delete('/api/admin/booking/:id', adminAuth, async (req, res) => {
   if (!db) return res.status(503).json({ error: 'DB indisponibil.' });
   try {
     await db.query(`UPDATE bookings SET status='cancelled' WHERE id=$1`, [req.params.id]);
+    await logAudit(req.adminUser, 'cancel-booking', `#${req.params.id}`, req.ip);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -2351,6 +2472,7 @@ app.get('/api/admin/booking/:id/contract', adminAuth, async (req, res) => {
     const pdfBuffer = await generateContractPDF(meta);
     const name = (meta.name || 'client').replace(/\s+/g, '-').toLowerCase();
     const date = (meta.date || '').replace(/-/g, '');
+    await logAudit(req.adminUser, 'download-contract', `#${req.params.id} — ${meta.name || ''}`, req.ip);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="contract-delta-air-${date}-${name}.pdf"`);
     res.send(pdfBuffer);
@@ -2391,6 +2513,7 @@ app.get('/api/admin/booking/:id/invoice', adminAuth, async (req, res) => {
 
     const pdfBuffer = await generateInvoicePDF(meta, invoiceNum, invoiceYear);
     const invoiceNo = `DAS-${invoiceYear}-${String(invoiceNum).padStart(4, '0')}`;
+    await logAudit(req.adminUser, 'download-invoice', `#${req.params.id} — ${meta.name || ''} — ${invoiceNo}`, req.ip);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="factura-${invoiceNo}-delta-air.pdf"`);
     res.send(pdfBuffer);
@@ -2616,6 +2739,7 @@ app.post('/api/admin/block-day', adminAuth, express.json(), async (req, res) => 
     }
     const label = (direction && trip_time) ? `${date} ${direction} ${trip_time}` : `zi ${date}`;
     console.log(`🔒 Blocat: ${label}`);
+    await logAudit(req.adminUser, 'block-day', label, req.ip);
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -2634,6 +2758,7 @@ app.delete('/api/admin/block-day', adminAuth, express.json(), async (req, res) =
         [date, direction, trip_time]
       );
       console.log(`🔓 Deblocat: ${date} ${direction} ${trip_time}`);
+      await logAudit(req.adminUser, 'unblock-day', `${date} ${direction} ${trip_time}`, req.ip);
     } else {
       await db.query(
         `UPDATE bookings SET status='cancelled'
@@ -2641,6 +2766,7 @@ app.delete('/api/admin/block-day', adminAuth, express.json(), async (req, res) =
         [date]
       );
       console.log(`🔓 Zi deblocată: ${date}`);
+      await logAudit(req.adminUser, 'unblock-day', `zi ${date}`, req.ip);
     }
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
