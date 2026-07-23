@@ -202,7 +202,8 @@
     }
     .pay-method-card:hover { border-color: var(--navy); }
     .pay-method-card.active { border-color: var(--gold); background: rgba(201,168,76,.08); box-shadow: 0 0 0 3px rgba(201,168,76,.2); }
-    @media (max-width: 480px) { .pay-grid-3 { grid-template-columns: 1fr 1fr !important; } }
+    @media (max-width: 480px) { .pay-grid-2 { grid-template-columns: 1fr 1fr !important; } }
+    #avans-panel .pay-method-card { padding: 12px 10px; }
 
     /* ── Seats badge ── */
     .das-seats{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-left:auto;flex-shrink:0}
@@ -260,7 +261,10 @@
     .ret-sw.on::after { transform:translateX(20px); }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-</head>
+    <!-- Facebook Pixel Code -->
+    <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js'); fbq('init', '2133947037149974'); fbq('track', 'PageView');</script><noscript> <img height="1" width="1" src="https://www.facebook.com/tr?id=2133947037149974&ev=PageView&noscript=1"/></noscript>
+    <!-- End Facebook Pixel Code -->
+    </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5N4NP4CN" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -641,25 +645,42 @@
     <!-- Metodă plată -->
     <div style="margin-bottom:20px">
       <label style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);display:block;margin-bottom:10px">Metodă de plată</label>
-      <div class="pay-grid-3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="pay-grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:540px;margin:0 auto">
         <label id="pay-online-lbl" class="pay-method-card active" onclick="dasSetPayMethod('online')">
           <input type="radio" name="das_pay" value="online" checked style="display:none">
           <span style="font-size:1.4rem;margin-bottom:6px;display:block">💳</span>
           <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">Card online</span>
           <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Plată securizată Stripe</span>
         </label>
-        <label id="pay-netopia-lbl" class="pay-method-card" onclick="dasSetPayMethod('netopia')">
-          <input type="radio" name="das_pay" value="netopia" style="display:none">
-          <span style="font-size:1.4rem;margin-bottom:6px;display:block">🏦</span>
-          <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">Card / Online</span>
-          <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Plată prin Netopia</span>
+        <label id="pay-avans-lbl" class="pay-method-card" onclick="dasSetPayMethod('avans')">
+          <input type="radio" name="das_pay" value="avans" style="display:none">
+          <span style="font-size:1.4rem;margin-bottom:6px;display:block">📅</span>
+          <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">30% Avans + Rest la îmbarcare</span>
+          <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Avans online · diferența la șofer</span>
         </label>
-        <label id="pay-cash-lbl" class="pay-method-card" onclick="dasSetPayMethod('cash')">
-          <input type="radio" name="das_pay" value="cash" style="display:none">
-          <span style="font-size:1.4rem;margin-bottom:6px;display:block">💵</span>
-          <span style="font-weight:700;font-size:.9rem;color:var(--navy);display:block">Plată la îmbarcare</span>
-          <span style="font-size:.75rem;color:var(--gray);margin-top:3px;display:block">Numerar la șofer</span>
-        </label>
+      </div>
+
+      <!-- Avans sub-panel -->
+      <div id="avans-panel" style="display:none;margin-top:14px;border:2px solid rgba(201,168,76,.4);border-radius:14px;padding:16px 18px;background:rgba(201,168,76,.05);max-width:540px;margin-left:auto;margin-right:auto">
+        <div style="font-size:.8rem;font-weight:700;color:var(--navy);margin-bottom:12px">Cum plătești avansul de 30%?</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <label id="avans-stripe-lbl" class="pay-method-card active" onclick="dasSetAvansMethod('stripe')">
+            <span style="font-size:1.2rem;margin-bottom:4px;display:block">💳</span>
+            <span style="font-weight:700;font-size:.85rem;color:var(--navy);display:block">Stripe online</span>
+            <span style="font-size:.72rem;color:var(--gray);display:block">30% acum</span>
+          </label>
+          <label id="avans-cash-lbl" class="pay-method-card" onclick="dasSetAvansMethod('cash')">
+            <span style="font-size:1.2rem;margin-bottom:4px;display:block">💵</span>
+            <span style="font-weight:700;font-size:.85rem;color:var(--navy);display:block">Cash în 24h</span>
+            <span style="font-size:.72rem;color:var(--gray);display:block">Avans înmânat în 24h</span>
+          </label>
+        </div>
+        <div id="avans-cash-info" style="display:none;margin-top:12px;font-size:.8rem;color:#555;background:rgba(26,47,94,.05);border-radius:10px;padding:10px 14px;line-height:1.5">
+          💡 Avansul de 30% se achită în <strong>numerar</strong> la biroul nostru sau un punct convenit, în maxim <strong>24 de ore</strong> de la rezervare. Restul se plătește la îmbarcare.
+        </div>
+        <div id="avans-no7-msg" style="display:none;margin-top:10px;font-size:.8rem;color:#c0392b;font-weight:600">
+          ⚠ Opțiunea cash nu este disponibilă pentru rezervări sub 7 zile. Poți plăti avansul de 30% online prin Stripe.
+        </div>
       </div>
     </div>
 
@@ -869,6 +890,7 @@ function dasUpdate() {
   dasCalcPrice();
   dasUpdatePaxNames();
   dasUpdateSeatsBadge();
+  dasUpdateAvansPanel();
   if (_retEnabled) retSync();
 }
 
@@ -1409,13 +1431,21 @@ async function dasGoToPayment(){
     if(!document.getElementById('sig-agree-cb').checked){alert('Te rugăm să bifezi acordul cu Termenii și Condițiile.');btn.disabled=false;btn.innerHTML='✈ Confirmă rezervarea';return;}
     if(!sigIsEmpty()) { bookingData.signatureDataUrl=sigDataURL(); bookingData.signedAt=new Date().toISOString(); }
 
-    // Plată online — Stripe sau Netopia
-    const endpoint = _payMethod === 'netopia'
-      ? `${SERVER}/api/netopia-initiate`
-      : `${SERVER}/api/create-checkout-session`;
-    const body = _payMethod === 'netopia'
-      ? JSON.stringify({ meta: bookingData, customerEmail: email })
-      : JSON.stringify({ lineItems, meta: bookingData, customerEmail: email, voucherCode: _voucherCode || undefined });
+    // Avans 30% stripe — înlocuim lineItems cu un singur rând de 30%
+    if (_payMethod === 'avans') {
+      const avansAmount = Math.round(total * 0.3);
+      bookingData.paymentType = 'avans';
+      bookingData.avansPercent = 30;
+      bookingData.avansAmount = avansAmount;
+      bookingData.restAmount = total - avansAmount;
+      lineItems = [{ name: `Avans 30% – ${bookingData.dirLabel}`, description: `Rest ${bookingData.restAmount} lei se achită la îmbarcare`, amount: avansAmount * 100, quantity: 1 }];
+    } else {
+      bookingData.paymentType = 'full';
+    }
+
+    // Plată online — Stripe
+    const endpoint = `${SERVER}/api/create-checkout-session`;
+    const body = JSON.stringify({ lineItems, meta: bookingData, customerEmail: email, voucherCode: _voucherCode || undefined });
 
     const chRes = await fetch(endpoint, {
       method: 'POST',
@@ -1441,19 +1471,52 @@ async function dasGoToPayment(){
 }
 
 let _payMethod = 'online';
+let _avansMethod = 'stripe';
+
+function dasIsAvans7Days() {
+  const date = gv('das-date');
+  if (!date) return false;
+  const dep = new Date(date);
+  const now = new Date();
+  now.setHours(0,0,0,0);
+  return (dep - now) / (1000*60*60*24) >= 7;
+}
+
+function dasUpdateAvansPanel() {
+  const panel = g('avans-panel');
+  if (!panel) return;
+  if (_payMethod !== 'avans') { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  const is7 = dasIsAvans7Days();
+  const cashLbl = g('avans-cash-lbl');
+  const no7msg = g('avans-no7-msg');
+  cashLbl.style.display = is7 ? 'block' : 'none';
+  no7msg.style.display = is7 ? 'none' : 'block';
+  if (!is7 && _avansMethod === 'cash') { _avansMethod = 'stripe'; dasSetAvansMethod('stripe'); }
+  g('avans-cash-info').style.display = _avansMethod === 'cash' ? 'block' : 'none';
+}
+
+function dasSetAvansMethod(method) {
+  _avansMethod = method;
+  g('avans-stripe-lbl').classList.toggle('active', method === 'stripe');
+  g('avans-cash-lbl').classList.toggle('active', method === 'cash');
+  g('avans-cash-info').style.display = method === 'cash' ? 'block' : 'none';
+}
+
 function dasSetPayMethod(method) {
   _payMethod = method;
   g('pay-online-lbl').classList.toggle('active', method === 'online');
-  g('pay-netopia-lbl').classList.toggle('active', method === 'netopia');
-  g('pay-cash-lbl').classList.toggle('active', method === 'cash');
+  g('pay-avans-lbl').classList.toggle('active', method === 'avans');
   const btn = g('das-continue-btn');
-  if (method === 'cash') btn.innerHTML = '✈ Confirmă rezervarea (plată la îmbarcare)';
+  if (method === 'avans') btn.innerHTML = '✈ Continuă cu avans 30%';
   else btn.innerHTML = '✈ Continuă spre plată securizată';
+  dasUpdateAvansPanel();
   retUpdateBtn();
 }
 
 function dasSubmit() {
-  if (_payMethod === 'cash') { dasPayCash(); } else { dasGoToPayment(); }
+  if (_payMethod === 'avans' && _avansMethod === 'cash') { dasPayAvans(); }
+  else { dasGoToPayment(); }
 }
 
 async function dasPayCash() {
@@ -1526,6 +1589,85 @@ async function dasPayCash() {
     alert('A apărut o eroare:\n\n' + err.message + '\n\nContactează-ne pe WhatsApp dacă problema persistă.');
     btn.disabled = false;
     btn.innerHTML = '✈ Confirmă rezervarea (plată la îmbarcare)';
+    retUpdateBtn();
+  }
+}
+
+async function dasPayAvans() {
+  if (!dasValidate()) return;
+  const btn = g('das-continue-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Se trimite rezervarea...';
+
+  try {
+    const dir=gr('das_dir'), tr=gr('das_tr'), apt=gv('das-apt'), trip=gv('das-trip'), pickup=gv('das-pickup');
+    const date=gv('das-date'), adults=parseInt(gv('das-adults'))||1, children=parseInt(gv('das-children'))||0, bags=parseInt(gv('das-bags'))||0;
+    const isTur=dir==='tur';
+    const sch=SCH[dir]?.[trip];
+    const ecoRate=apt==='baneasa'?170:150;
+    const childRate=apt==='baneasa'?115:105;
+    let total=0;
+    const aptLabel=APT_LABELS[apt];
+    const dirLabel=isTur?`Brașov → ${aptLabel}`:`${aptLabel} → Brașov`;
+    const trLabel={economy:'Economy (Shared)',privat:'Privat (Dedicat)'}[tr]||tr;
+    let depTime='', arrTime='';
+    if(isTur&&sch){depTime=sch.depart?.[pickup]||'';arrTime=sch.arrive?.[apt]||'';}
+    else if(!isTur&&sch){depTime=sch.depart?.[apt]||'';arrTime=sch.arrive_bv||'';}
+    if(tr==='economy'){const ac=adults*ecoRate,cc=children*childRate;total+=ac+cc;}
+    else if(tr==='privat'){total+=apt==='baneasa'?950:900;}
+    if(bags>0){total+=bags*25;}
+
+    const name=_buyer==='pf'?gv('das-name'):gv('das-contact-name');
+    const phone=_buyer==='pf'?gv('das-phone'):gv('das-phone-sc');
+    const email=_buyer==='pf'?gv('das-email'):gv('das-email-sc');
+    const bookingData={dir,tr,apt,trip,pickup,date,adults,children,bags,total,dirLabel,trLabel,aptLabel,depTime,arrTime,pickupLabel:isTur?(PICKUP_LABELS[pickup]||pickup):aptLabel,name,phone,email,buyer:_buyer,obs:gv('das-obs'),payMethod:'avans_cash',confirmedAt:new Date().toISOString()};
+    if(_buyer==='sc') Object.assign(bookingData,{firma:gv('das-firma'),cui:gv('das-cui'),adresa:gv('das-adresa-firma')});
+    if(_retEnabled&&gv('ret-date')){
+      var rDir=dir==='tur'?'retur':'tur', rTrip=gv('ret-trip'), rDate=gv('ret-date'), rPickup=gv('ret-pickup');
+      var rSch=SCH[rDir]&&SCH[rDir][rTrip]?SCH[rDir][rTrip]:null;
+      var rAptLabel=APT_LABELS[apt];
+      var rDirLabel=rDir==='tur'?'Braşov → '+rAptLabel:rAptLabel+' → Braşov';
+      var rDep='',rArr='';
+      if(rDir==='tur'&&rSch){rDep=rSch.depart&&rSch.depart[rPickup]?rSch.depart[rPickup]:'';rArr=rSch.arrive&&rSch.arrive[apt]?rSch.arrive[apt]:'';}
+      else if(rSch){rDep=rSch.depart&&rSch.depart[apt]?rSch.depart[apt]:'';rArr=rSch.arrive_bv||'';}
+      var RM=1-RET_DISC;
+      if(tr==='economy'){total+=Math.round(adults*ecoRate*RM)+Math.round(children*childRate*RM);}
+      else if(tr==='privat'){total+=Math.round((apt==='baneasa'?950:900)*RM);}
+      if(bags>0){total+=Math.round(bags*25*RM);}
+      bookingData.returnTrip={dir:rDir,tr,apt,trip:rTrip,pickup:rPickup,date:rDate,adults,children,bags,dirLabel:rDirLabel,trLabel,aptLabel:rAptLabel,pickupLabel:rDir==='tur'?(PICKUP_LABELS[rPickup]||rPickup):rAptLabel,depTime:rDep,arrTime:rArr};
+      bookingData.total=total;
+    }
+
+    const effVoucherDisc=_voucherDiscount>0?(_voucherPerPerson?_voucherDiscount*(adults+children):_voucherDiscount):0;
+    if(effVoucherDisc>0){total=Math.max(0,total-effVoucherDisc);bookingData.total=total;bookingData.voucherCode=_voucherCode;bookingData.voucherDiscount=effVoucherDisc;}
+    const avansAmount=Math.round(total*0.3);
+    bookingData.paymentType='avans';
+    bookingData.avansPercent=30;
+    bookingData.avansAmount=avansAmount;
+    bookingData.restAmount=total-avansAmount;
+
+    const paxNames=[];
+    document.querySelectorAll('input[id^="das-pax-"]').forEach(el=>{if(el.value.trim())paxNames.push(el.value.trim());});
+    if(paxNames.length) bookingData.paxNames=paxNames;
+    if(sigIsEmpty()){alert('Te rugăm să adaugi semnătura electronică înainte de confirmare.');btn.disabled=false;btn.innerHTML='✈ Continuă cu avans 30%';return;}
+    if(!document.getElementById('sig-agree-cb').checked){alert('Te rugăm să bifezi acordul cu Termenii și Condițiile.');btn.disabled=false;btn.innerHTML='✈ Continuă cu avans 30%';return;}
+    bookingData.signatureDataUrl=sigDataURL(); bookingData.signedAt=new Date().toISOString();
+
+    const res = await fetch(`${SERVER}/api/reserve-avans-cash`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ meta: bookingData, customerEmail: email })
+    });
+    if (!res.ok) { const t=await res.text(); throw new Error(`Eroare server ${res.status}: ${t.substring(0,200)}`); }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const token = data.token || '';
+    var _s=Object.assign({},bookingData);delete _s.signatureDataUrl;sessionStorage.setItem('das_booking_summary',JSON.stringify(_s));
+    window.location.href = `/rezervare-confirmata?email=${encodeURIComponent(email)}&avans=1${token?`&token=${token}`:''}`;
+  } catch(err) {
+    alert('A apărut o eroare:\n\n' + err.message + '\n\nContactează-ne pe WhatsApp dacă problema persistă.');
+    btn.disabled = false;
+    btn.innerHTML = '✈ Continuă cu avans 30%';
     retUpdateBtn();
   }
 }

@@ -902,6 +902,120 @@ function buildCashConfirmationEmail(meta) {
 }
 
 /* ──────────────────────────────────────────────
+   Template email avans cash (client)
+────────────────────────────────────────────── */
+function buildAvansConfirmationEmail(meta) {
+  const {
+    dirLabel='—', trLabel='—', aptLabel='—',
+    date='—', depTime='—', arrTime='—',
+    name='—', phone='—', email='—',
+    adults=1, children=0, bags=0,
+    total='—', pickupLabel, obs,
+    firma, cui, paxNames=[],
+    avansAmount=0, restAmount=0,
+    voucherCode: voucherCodeC, voucherDiscount: voucherDiscountC,
+    returnTrip = null,
+  } = meta;
+  const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
+  const isFirma = !!(firma && cui);
+
+  const LBL = 'padding:7px 8px 7px 24px;border-bottom:1px solid rgba(26,47,94,.07);color:#8892a4;font-size:.88rem;width:44%;vertical-align:top';
+  const VAL = 'padding:7px 24px 7px 0;border-bottom:1px solid rgba(26,47,94,.07);font-weight:600;color:#1a202c;font-size:.88rem;vertical-align:top';
+  const dr = (lbl, val, vEx) => '<tr><td style="'+LBL+'">'+lbl+'</td><td style="'+VAL+(vEx?';'+vEx:'')+'">'+val+'</td></tr>';
+  const tbl = (rows, xStyle) => '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6fb;border-radius:10px;margin-bottom:20px'+(xStyle?';'+xStyle:'')+'">'+rows+'</table>';
+
+  const paxRows = paxNames.length ? paxNames.map((n,i)=>dr('Pasager '+(i+1), n)).join('') : '';
+  const turRows = dr('Direcție', dirLabel)
+    + dr('Tip transfer', trLabel)
+    + dr('Aeroport', aptLabel)
+    + dr('Data', fmtD(date))
+    + dr('Ora plecare', depTime)
+    + dr('Sosire estimată', arrTime)
+    + (pickupLabel ? dr('Punct îmbarcare', pickupLabel) : '')
+    + dr('Pasageri', adults+' adult'+(adults>1?'ți':'')+(children>0?' + '+children+' copil'+(children>1?'i':''):''))
+    + (bags>0 ? dr('Bagaje extra', bags+' bagaj'+(bags>1?'e':'')) : '')
+    + paxRows
+    + (obs ? dr('Observații', obs) : '');
+
+  const retSection = returnTrip ? (
+    '<div class="section-title" style="margin-top:4px">↩ Cursă retur · −20%</div>'
+    + tbl(
+        dr('Direcție retur', returnTrip.dirLabel||'—')
+      + dr('Data retur', fmtD(returnTrip.date))
+      + (returnTrip.depTime ? dr('Ora plecare', returnTrip.depTime) : '')
+      + (returnTrip.arrTime ? dr('Sosire estimată', returnTrip.arrTime) : '')
+      + (returnTrip.pickupLabel ? dr('Punct îmbarcare', returnTrip.pickupLabel) : '')
+      + dr('Reducere retur', '−20% aplicat', 'color:#276749;font-weight:700')
+    )
+  ) : '';
+
+  const contactRows = dr('Nume', name) + dr('Telefon', phone) + dr('Email', email)
+    + (isFirma ? dr('Firmă', firma+' ('+cui+')') : '');
+
+  const voucherSection = voucherCodeC ? tbl(
+    dr('Preț inițial', (parseFloat(total)+parseFloat(voucherDiscountC||0))+' lei')
+    + dr('Voucher '+voucherCodeC, '-'+voucherDiscountC+' lei', 'color:#276749'),
+    'margin-bottom:12px'
+  ) : '';
+
+  return `<!DOCTYPE html><html lang="ro"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rezervare cu avans – Delta Air Shuttle</title>
+<style>
+  body{font-family:'Segoe UI',Arial,sans-serif;background:#f4f6fb;margin:0;padding:0}
+  .wrap{max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(26,47,94,.12)}
+  .header{background:linear-gradient(135deg,#0f1e3d,#243d75);padding:40px 40px 32px;text-align:center}
+  .header h1{color:#fff;font-size:1.4rem;font-weight:700;margin:0}
+  .header p{color:rgba(255,255,255,.75);font-size:.9rem;margin:8px 0 0}
+  .body{padding:36px 40px}
+  .avans-badge{background:#fffbeb;border:1.5px solid #f6d860;border-radius:12px;padding:16px 20px;margin-bottom:28px}
+  .avans-badge p{margin:0;font-size:.95rem;color:#92400e;font-weight:600;line-height:1.6}
+  .section-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8892a4;margin:0 0 12px}
+  .total-box{background:linear-gradient(135deg,#0f1e3d,#243d75);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+  .total-label{color:rgba(255,255,255,.75);font-size:.9rem;display:block;margin-bottom:4px}
+  .total-value{color:#e8c96a;font-size:2rem;font-weight:900;display:block}
+  .step{margin-bottom:16px;padding-left:42px;position:relative;min-height:32px}
+  .step-num{position:absolute;left:0;top:0;width:28px;height:28px;background:#c9a84c;color:#0f1e3d;border-radius:50%;font-size:.72rem;font-weight:800;text-align:center;line-height:28px}
+  .step h4{font-size:.88rem;font-weight:700;color:#1a2f5e;margin:0 0 3px}
+  .step p{font-size:.82rem;color:#8892a4;margin:0;line-height:1.6}
+  .footer{background:#f4f6fb;padding:24px 40px;text-align:center;border-top:1px solid rgba(26,47,94,.08)}
+  .footer p{font-size:.78rem;color:#8892a4;margin:4px 0;line-height:1.6}
+  .footer a{color:#1a2f5e;text-decoration:none;font-weight:600}
+</style></head><body>
+<div class="wrap">
+  <div class="header">
+    <h1>✈ Rezervare cu avans confirmată!</h1>
+    <p>Locul tău este rezervat. Mulțumim că ai ales Delta Air Shuttle.</p>
+  </div>
+  <div class="body">
+    <div class="avans-badge">
+      <p>💵 &nbsp;Ai ales plata cu <strong>30% avans în numerar + restul la îmbarcare</strong>.<br>
+      Avans de plătit în <strong>24 ore</strong>: <strong>${avansAmount} lei</strong> cash, la biroul nostru sau un punct convenit.${voucherCodeC ? ' (include reducere voucher '+voucherCodeC+': -'+voucherDiscountC+' lei)' : ''}<br>
+      Rest la îmbarcare: <strong>${restAmount} lei</strong>.</p>
+    </div>
+    <div class="section-title">Detalii cursă</div>
+    ${tbl(turRows)}
+    ${retSection}
+    <div class="section-title">Date de contact</div>
+    ${tbl(contactRows)}
+    ${voucherSection}
+    <div class="total-box">
+      <span class="total-label">Total cursă${returnTrip ? ' (tur + retur)' : ''}</span>
+      <span class="total-value">${total} lei</span>
+    </div>
+    <div class="section-title">Ce urmează</div>
+    <div class="step"><div class="step-num">1</div><h4>Plătește avansul de ${avansAmount} lei în 24h</h4><p>Contactează-ne pe WhatsApp sau telefon pentru a stabili punctul de plată cash a avansului.</p></div>
+    <div class="step"><div class="step-num">2</div><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>${pickupLabel||'Punct conform rezervării'}, ora ${depTime}.</p></div>
+    <div class="step"><div class="step-num">3</div><h4>Plătești restul la îmbarcare: ${restAmount} lei</h4><p>Suma rămasă o achiți direct șoferului.</p></div>
+  </div>
+  <div class="footer">
+    <p><strong>Delta Air Shuttle</strong> · Transfer premium Brașov–Otopeni–Băneasa</p>
+    <p>📞 <a href="tel:+40761617606">+40 761 617 606</a> &nbsp;·&nbsp; 💬 <a href="https://wa.me/40761617606">WhatsApp</a> &nbsp;·&nbsp; 🌐 <a href="https://delta-air.ro">delta-air.ro</a></p>
+    <p style="margin-top:12px;font-size:.72rem;color:#a0aec0">Ai primit acest email deoarece ai efectuat o rezervare pe delta-air.ro.</p>
+  </div>
+</div></body></html>`;
+}
+
+/* ──────────────────────────────────────────────
    Template email notificare internă Delta Air
 ────────────────────────────────────────────── */
 function buildInternalNotificationEmail(meta) {
@@ -1846,6 +1960,58 @@ app.post('/api/reserve-cash', async (req, res) => {
     res.json({ ok: true, token });
   } catch (err) {
     console.error('❌ Eroare reserve-cash:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ──────────────────────────────────────────────
+   POST /api/reserve-avans-cash
+   Rezervare cu avans cash 30% în 24h
+────────────────────────────────────────────── */
+app.post('/api/reserve-avans-cash', async (req, res) => {
+  try {
+    const { meta = {}, customerEmail } = req.body;
+    if (!customerEmail) return res.status(400).json({ error: 'Email lipsă.' });
+
+    try {
+      await recordBooking(meta);
+    } catch (dbErr) {
+      console.error('❌ recordBooking (avans-cash):', dbErr.message, '| meta:', JSON.stringify({ dir: meta.dir, trip: meta.trip, date: meta.date, name: meta.name }));
+      return res.status(500).json({ error: 'Rezervarea nu a putut fi salvată: ' + dbErr.message });
+    }
+
+    const pdfBuffer = await generateContractPDF(meta);
+    const fileName = `contract-delta-air-${(meta.date||'').replace(/-/g,'')}-${(meta.name||'client').replace(/\s+/g,'-').toLowerCase()}.pdf`;
+
+    const token = crypto.randomBytes(16).toString('hex');
+    contractStore.set(token, { buffer: pdfBuffer, fileName, meta, createdAt: Date.now() });
+    try { await savePendingPayment(token, meta); } catch (_) {}
+
+    const hasEmail = process.env.EMAIL_USER && process.env.EMAIL_PASS;
+    if (hasEmail) {
+      const from       = process.env.EMAIL_FROM || `"Delta Air Shuttle" <${process.env.EMAIL_USER}>`;
+      const internalTo = OFFICE_EMAIL;
+      const attachment = { filename: fileName, content: pdfBuffer, contentType: 'application/pdf' };
+
+      const invoiceAtt = await buildInvoiceAttachment(meta, token);
+      try {
+        await transporter.sendMail({
+          from,
+          to:  customerEmail,
+          bcc: internalTo,
+          subject: `✈ Rezervare cu avans – ${meta.date || ''} ${meta.dirLabel || ''} · avans ${meta.avansAmount || ''} lei cash în 24h`,
+          html: buildAvansConfirmationEmail(meta),
+          attachments: [attachment, invoiceAtt].filter(Boolean),
+        });
+        console.log(`📧 Email client (avans-cash) → ${customerEmail} | BCC → ${internalTo}`);
+      } catch (e) { console.error('❌ Email client (avans-cash):', e.message); }
+    } else {
+      console.warn('⚠️  EMAIL_USER / EMAIL_PASS lipsă — emailuri netrimise.');
+    }
+
+    res.json({ ok: true, token });
+  } catch (err) {
+    console.error('❌ Eroare reserve-avans-cash:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
