@@ -1003,7 +1003,7 @@ function buildAvansConfirmationEmail(meta) {
       <span class="total-value">${total} lei</span>
     </div>
     <div class="section-title">Ce urmează</div>
-    <div class="step"><div class="step-num">1</div><h4>Plătește avansul de ${avansAmount} lei în 24h</h4><p>Contactează-ne pe WhatsApp sau telefon pentru a stabili punctul de plată cash a avansului.</p></div>
+    <div class="step"><div class="step-num">1</div><h4>Plătește avansul de ${avansAmount} lei în 24h</h4><p>Contactează-ne pe <strong>WhatsApp sau telefon: +40 761 617 606</strong> pentru a stabili punctul de plată cash a avansului (birou sau punct convenit).</p></div>
     <div class="step"><div class="step-num">2</div><h4>Fii la punctul de îmbarcare cu 5 min. înainte</h4><p>${pickupLabel||'Punct conform rezervării'}, ora ${depTime}.</p></div>
     <div class="step"><div class="step-num">3</div><h4>Plătești restul la îmbarcare: ${restAmount} lei</h4><p>Suma rămasă o achiți direct șoferului.</p></div>
   </div>
@@ -1250,6 +1250,7 @@ function generateContractPDF(meta) {
       total='—', pickupLabel='', obs='',
       firma='', cui='', paxNames=[],
       returnTrip = null,
+      payMethod='', paymentType='', avansAmount=0, restAmount=0,
     } = meta;
     const fmtD = s => (s && s.length===10) ? s.slice(8,10)+'-'+s.slice(5,7)+'-'+s.slice(0,4) : (s||'—');
 
@@ -1447,9 +1448,20 @@ function generateContractPDF(meta) {
 
     doc.fillColor(gray).fontSize(8.5).font(fReg).text('Modalitate de plata:', L, doc.y, { continued:false });
     doc.moveDown(0.2);
-    bullet('Numerar direct soferului, inainte de pornirea cursei (chitanta eliberata)');
-    bullet('Virament bancar: Banca Transilvania  RO35 BTRL RONC RT0D B938 0701  (minim 3 zile inainte)');
-    bullet('Card online — prin platforma securizata Stripe de pe delta-air.ro');
+    if (payMethod === 'avans_cash' || (paymentType === 'avans' && payMethod !== 'online')) {
+      bullet(`Avans 30%: ${avansAmount} RON — achitat in numerar la birou/punct convenit, in maxim 24 ore de la rezervare`);
+      bullet(`Rest: ${restAmount} RON — numerar direct soferului la imbarcare`);
+      bullet('Confirmare punct de plata avans: Tel/WhatsApp +40 761 617 606');
+    } else if (paymentType === 'avans') {
+      bullet(`Avans 30%: ${avansAmount} RON — platit online prin Stripe (la confirmarea rezervarii)`);
+      bullet(`Rest: ${restAmount} RON — numerar direct soferului la imbarcare`);
+    } else if (payMethod === 'card' || payMethod === 'online') {
+      bullet('Plata integrala efectuata online prin Stripe — confirmare primita pe email');
+    } else {
+      bullet('Numerar direct soferului, inainte de pornirea cursei (chitanta eliberata)');
+      bullet('Virament bancar: Banca Transilvania  RO35 BTRL RONC RT0D B938 0701  (minim 3 zile inainte)');
+      bullet('Card online — prin platforma securizata Stripe de pe delta-air.ro');
+    }
     doc.moveDown(0.3);
     doc.fillColor(gray).fontSize(8.5).font(fReg).text('Politica de anulare:', L, doc.y);
     doc.moveDown(0.2);
@@ -1732,7 +1744,13 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       if (meta.name && isFirma) { doc.text(`Contact: ${ro(meta.name)}`, col2, yC, { width: colW }); yC += 11; }
       if (meta.phone) { doc.text(`Tel: ${meta.phone}`, col2, yC, { width: colW }); yC += 11; }
       if (meta.email) { doc.text(`Email: ${meta.email}`, col2, yC, { width: colW }); yC += 11; }
-      const payMethodLabel = { cash: 'Numerar la imbarcare', card: 'Card online (Stripe)', netopia: 'Card online (Netopia)' }[meta.payMethod] || (meta.payMethod || '-');
+      const payMethodLabel = {
+        cash:       'Numerar la imbarcare',
+        card:       'Card online (Stripe)',
+        netopia:    'Card online (Netopia)',
+        avans_cash: `Avans 30% (${meta.avansAmount || 0} RON cash in 24h) + Rest (${meta.restAmount || 0} RON) la imbarcare`,
+        avans:      `Avans 30% (${meta.avansAmount || 0} RON) online Stripe + Rest (${meta.restAmount || 0} RON) la imbarcare`,
+      }[meta.payMethod] || (meta.payMethod || '-');
       doc.text(`Mod plata: ${payMethodLabel}`, col2, yC, { width: colW });
 
       // Separator
