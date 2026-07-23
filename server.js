@@ -1531,7 +1531,7 @@ function generateContractPDF(meta) {
     /* ══════════════════════════════════════════
        CLAUZE FINALE
     ══════════════════════════════════════════ */
-    section('Clauze finale');
+    section('Clauze finale', 370);
     const clauze = [
       'Lege aplicabila: Legea romana',
       'Solutionare litigii: Instantele din Brasov',
@@ -1545,7 +1545,7 @@ function generateContractPDF(meta) {
     /* ══════════════════════════════════════════
        SEMNATURI
     ══════════════════════════════════════════ */
-    ensureSpace(220);
+    ensureSpace(160);
     doc.moveDown(0.8);
     line(doc.y, navy, 1);
     doc.moveDown(0.5);
@@ -1826,9 +1826,13 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       const det = (col, k, v) => {
         const x = col === 1 ? d1x : d2x;
         let yd = col === 1 ? yd1 : yd2;
+        const vStr = ro(String(v || '-'));
+        const vOpts = { width: dVW };
+        const valH = doc.fontSize(7.8).font(fReg).heightOfString(vStr, vOpts);
+        const rowH = Math.max(12, valH + 3);
         doc.fillColor(lgray).fontSize(7.8).font(fBold).text(`${k}:`, x, yd, { width: dLW });
-        doc.fillColor(gray).fontSize(7.8).font(fReg).text(ro(String(v || '-')), x + dLW + 4, yd, { width: dVW });
-        if (col === 1) yd1 += 12; else yd2 += 12;
+        doc.fillColor(gray).fontSize(7.8).font(fReg).text(vStr, x + dLW + 4, yd, vOpts);
+        if (col === 1) yd1 += rowH; else yd2 += rowH;
       };
 
       // Coloana stanga
@@ -1846,7 +1850,13 @@ function generateInvoicePDF(meta, invoiceNum, invoiceYear) {
       const totalPax = parseInt(meta.adults || 1) + parseInt(meta.children || 0);
       det(2, 'Total pasageri',      String(totalPax));
       if (parseInt(meta.bags) > 0) det(2, 'Bagaje supli.', String(meta.bags));
-      det(2, 'Mod plata',           payMethodLabel);
+      if (meta.payMethod === 'avans_cash' || (meta.paymentType === 'avans' && meta.payMethod !== 'card')) {
+        det(2, 'Mod plata', meta.payMethod === 'avans_cash' ? 'Avans cash 30% + rest la imbarcare' : 'Avans Stripe 30% + rest la imbarcare');
+        det(2, 'Avans (24h)', `${meta.avansAmount || 0} RON`);
+        det(2, 'Rest la imbarcare', `${meta.restAmount || 0} RON`);
+      } else {
+        det(2, 'Mod plata', payMethodLabel);
+      }
       if (meta.confirmedAt) {
         const confDate = new Date(meta.confirmedAt).toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' });
         det(2, 'Data confirmare', confDate);
